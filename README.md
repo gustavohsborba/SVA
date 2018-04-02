@@ -4,8 +4,21 @@
 * Gustavo Henrique de Souza Borba
 
 ## Dependências:
-* Python 3
-* Django 2
+* git
+* git-flow
+* python3
+* python3-dev
+* python3-venv
+* python3-pip
+* python-virtualenv
+* mysql-client
+* mysql-server
+* libmysqlclient-dev
+* Django > 1.10
+
+## Softwares Recomendados:
+* gitkraken
+* mysql-workbench
 
 ## Organização do projeto:
 * Documentação
