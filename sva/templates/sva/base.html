@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Olá Mundo!</title>
+</head>
+<body>
+
+<hr >
+
+
+{% block content %}
+
+        <center><p>Olá, mundo!</p></center>
+
+        {% for curso in cursos %}
+            <p>{{curso.nome}}</p>
+        {% endfor %}
+
+
+{% endblock %}
+<hr >
+
+</body>
+</html>
