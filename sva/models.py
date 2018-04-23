@@ -105,7 +105,7 @@ class Vaga(models.Model):
     area_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
-    descricao = models.TextField(verbose_name='Descrição', null=False, blank=False, db_index=True)
+    descricao = models.TextField(verbose_name='Descrição', null=False, blank=False)
     data_submissao = models.DateTimeField(verbose_name='Data de Submissão', auto_now_add=True, blank=False)
     data_validade = models.DateTimeField(verbose_name='Data de Validade', blank=True, null=True)
     carga_horaria_semanal = models.PositiveIntegerField(verbose_name='Carga Horária Semanal', null=False, blank=False, validators=[integer_validator])
@@ -147,8 +147,8 @@ class FiltroPesquisa(models.Model):
         verbose_name_plural = 'Filtros de Pesquisa'
 
     aluno = models.ForeignKey(to=Aluno, null=True, blank=True, on_delete=models.CASCADE, related_name='filtros_pesquisa')
-    nome = models.CharField(verbose_name='Nome do Filtro', max_length=255, null=False, blank=False)
 
+    nome = models.CharField(verbose_name='Nome do Filtro', max_length=255, null=False, blank=False)
     chave = models.CharField(max_length=255, null=False, blank=False)
     valor = models.CharField(max_length=255, null=False, blank=False)
 
