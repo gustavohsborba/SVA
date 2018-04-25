@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import *
 from django.core.validators import *
 from .validators import *
 from django.db import models
@@ -47,10 +47,21 @@ class Habilidade(models.Model):
     nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
 
 
+class AreaAtuacao(models.Model):
+    class Meta:
+        verbose_name = 'Área de Atuação'
+        verbose_name_plural = 'Áreas de Atuação'
+    nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
+
+    def __str__(self):
+        return '%s' % self.nome
+
+
 class Aluno(User):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=False, related_name='alunos')
     curso = models.ForeignKey(to=Curso, null=False, blank=False)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos')
+    areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos')
 
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
@@ -85,13 +96,6 @@ class Professor(User):
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
 
 
-class AreaAtuacao(models.Model):
-    class Meta:
-        verbose_name = 'Área de Atuação'
-        verbose_name_plural = 'Áreas de Atuação'
-    nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
-
-
 class Vaga(models.Model):
     class Meta:
         get_latest_by = 'data_submissao'
@@ -101,7 +105,7 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
-    Gerente_vaga = models.ManyToManyField(to=GerenteVaga, related_name='vagas')
+    gerente_vaga = models.ManyToManyField(to=GerenteVaga, related_name='vagas')
     area_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
@@ -113,6 +117,8 @@ class Vaga(models.Model):
     valor_bolsa = models.FloatField(verbose_name='Valor da Bolsa', null=False, blank=False, )
     beneficios = models.TextField(verbose_name='Benefícios', null=True, blank=True)
     nota_media = models.FloatField(verbose_name='Nota', null=False, blank=False, default=0.0)
+    data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', blank=True, null=True)
+    usuario_aprovacao = models.CharField(verbose_name='Responsável pela aprovação', max_length=60, blank=True, null=True)
 
 
 class Notificacao(models.Model):
@@ -122,19 +128,28 @@ class Notificacao(models.Model):
         get_latest_by = 'data_cadastro'
         ordering = ['-data_cadastro']
 
-    TIPO_NOTIFICACAO_CHOICES = {(1, 'Indicação de Vaga'),
-                                (2, 'Cadastro de Professor'),
-                                (3, 'Cadastro de Empresa'),
-                                (4, 'Cadastro de Vaga'),
-                                (5, 'Aprovação de Vaga'),
-                                (6, 'Vaga de Interesse'),
-                                (7, 'Solicitação de Área de Atuação'),
-                                (8, 'Nova Mensagem no Fórum'),
-                                (9, 'Resposta no Fórum')}
+    TIPO_INDICACAO = 1
+    TIPO_CADASTRO_PROFESSOR = 2
+    TIPO_CADASTRO_EMPRESA = 3
+    TIPO_CADASTRO_VAGA = 4
+    TIPO_APROVACAO_VAGA = 5
+    TIPO_VAGA_INTERESSE = 6
+    TIPO_SOLICITACAO_AREA_ATUACAO = 7
+    TIPO_NOVA_MENSAGEM_FORUM = 8
+    TIPO_RESPOSTA_FORUM = 9
+
+    TIPO_NOTIFICACAO_CHOICES = {(TIPO_INDICACAO, 'Indicação de Vaga'),
+                                (TIPO_CADASTRO_PROFESSOR, 'Cadastro de Professor'),
+                                (TIPO_CADASTRO_EMPRESA, 'Cadastro de Empresa'),
+                                (TIPO_CADASTRO_VAGA, 'Cadastro de Vaga'),
+                                (TIPO_APROVACAO_VAGA, 'Aprovação de Vaga'),
+                                (TIPO_VAGA_INTERESSE, 'Vaga de Interesse'),
+                                (TIPO_SOLICITACAO_AREA_ATUACAO, 'Solicitação de Área de Atuação'),
+                                (TIPO_NOVA_MENSAGEM_FORUM, 'Nova Mensagem no Fórum'),
+                                (TIPO_RESPOSTA_FORUM, 'Resposta no Fórum')}
 
     vaga = models.ForeignKey(to=Vaga, null=True, blank=True, on_delete=models.CASCADE, related_name='notificacoes')
-    aluno = models.ForeignKey(to=Aluno, null=True, blank=True, on_delete=models.CASCADE, related_name='notificacoes')
-    gerente_vagas = models.ForeignKey(to=GerenteVaga, null=True, blank=True, on_delete=models.CASCADE, related_name='gerentes')
+    usuario = models.ForeignKey(to=User, null=True, blank=True, on_delete=models.CASCADE, related_name='notificacoes')
 
     tipo = models.PositiveIntegerField(verbose_name='Tipo da Notificação', null=False, choices=TIPO_NOTIFICACAO_CHOICES)
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
