@@ -27,6 +27,9 @@ class Campus(models.Model):
     cidade = models.CharField(max_length=45, null=False, choices=CIDADE_CHOICES)
     sigla = models.CharField(max_length=5, null=False, unique=True, validators=[validate_sigla])
 
+    def __str__(self):
+        return '%s (%s)' % (self.nome, self.cidade)
+
 
 class Curso(models.Model):
     NIVEL_ENSINO_CHOICES = {
@@ -42,9 +45,15 @@ class Curso(models.Model):
     sigla = models.CharField(max_length=5, null=False, unique=True, validators=[validate_sigla])
     nivel_ensino = models.IntegerField(verbose_name='Nível de Ensino', null=False, choices=NIVEL_ENSINO_CHOICES)
 
+    def __str__(self):
+        return '%s (%s)' % (self.nome, self.nivel_ensino)
+
 
 class Habilidade(models.Model):
     nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
+
+    def __str__(self):
+        return '%s' % self.nome
 
 
 class AreaAtuacao(models.Model):
@@ -68,6 +77,9 @@ class Aluno(User):
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
 
+    def __str__(self):
+        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.cpf)
+
 
 class GerenteVaga(User):
     class Meta:
@@ -81,19 +93,32 @@ class GerenteVaga(User):
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
 
+    def __str__(self):
+        return '%s %s' % (self.user.first_name, self.user.last_name)
+
 
 class Empresa(GerenteVaga):
+    class Meta:
+        verbose_name = 'Empresa'
+        verbose_name_plural = 'Empresas'
+
     cnpj = models.CharField(unique=True, max_length=14, validators=[validate_CNPJ])
 
+    def __str__(self):
+        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.cnpj)
 
-class Professor(User):
+class Professor(GerenteVaga):
     class Meta:
+        verbose_name = 'Professor'
         verbose_name_plural = 'Professores'
 
     curso = models.ForeignKey(to=Curso, null=True)
 
     siape = models.CharField(unique=True, max_length=8, validators=[integer_validator])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
+
+    def __str__(self):
+        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.curso)
 
 
 class Vaga(models.Model):
@@ -105,7 +130,7 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
-    gerente_vaga = models.ManyToManyField(to=GerenteVaga, related_name='vagas')
+    gerente_vaga = models.ForeignKey(to=GerenteVaga, default=0, null=False, blank=False, related_name='vagas')
     area_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
@@ -119,6 +144,9 @@ class Vaga(models.Model):
     nota_media = models.FloatField(verbose_name='Nota', null=False, blank=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', blank=True, null=True)
     usuario_aprovacao = models.CharField(verbose_name='Responsável pela aprovação', max_length=60, blank=True, null=True)
+
+    def __str__(self):
+        return '%s - %s' % (self.titulo, self.gerente_vaga.nome)
 
 
 class Notificacao(models.Model):
@@ -155,6 +183,9 @@ class Notificacao(models.Model):
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     mensagem = models.TextField(null=False, blank=False)
 
+    def __str__(self):
+        return '%s' % self.mensagem
+
 
 class FiltroPesquisa(models.Model):
     class Meta:
@@ -167,3 +198,5 @@ class FiltroPesquisa(models.Model):
     chave = models.CharField(max_length=255, null=False, blank=False)
     valor = models.CharField(max_length=255, null=False, blank=False)
 
+    def __str__(self):
+        return '%s - %s' % (self.nome, self.chave)
