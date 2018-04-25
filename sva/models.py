@@ -67,6 +67,10 @@ class AreaAtuacao(models.Model):
 
 
 class Aluno(User):
+    class Meta:
+        verbose_name = 'Aluno'
+        verbose_name_plural = 'Alunos'
+
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=False, related_name='alunos')
     curso = models.ForeignKey(to=Curso, null=False, blank=False)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos')
@@ -107,6 +111,7 @@ class Empresa(GerenteVaga):
     def __str__(self):
         return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.cnpj)
 
+
 class Professor(GerenteVaga):
     class Meta:
         verbose_name = 'Professor'
@@ -130,7 +135,7 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
-    gerente_vaga = models.ForeignKey(to=GerenteVaga, default=0, null=False, blank=False, related_name='vagas')
+    gerente_vaga = models.ForeignKey(to=GerenteVaga, null=False, blank=False, related_name='vagas')
     area_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
