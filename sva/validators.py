@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-import re
+
 
 from django.core.validators import EMPTY_VALUES
 from django.utils.translation import ugettext_lazy as _
@@ -32,7 +32,10 @@ __author__ = "Théo Carranza theocarranza@gmail.com"
 __copyright__ = "Copyright (C) 2017 Théo Carranza"
 __license__ = "Public Domain"
 __version__ = "1.0"
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
  This is a slight modification from the class created by author dudus
  (https://djangosnippets.org/users/dudus/) for use on the model layer.
  It is optimized for Python 3.5  and PEP8 compliant. """
@@ -111,3 +114,4 @@ def validate_CNPJ(value):
         raise ValidationError(error_messages['invalid'])
 
     return orig_value
+

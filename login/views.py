@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 
-def index(request):
-    context = {'ola':'ola'}
-    return render(request, 'login/index.html', context)
-
+#def index(request):
+#    context={}
+#    print ("ola"+request)
+#    return render(request, 'login/cavalo.html', context)
