@@ -4,24 +4,25 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 import django.contrib.auth.models
-from django.contrib.auth.models import User
-from sva.models import Perfil
+from django.contrib.auth.models import *
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import re
 
 
-def create_superuser(apps, schema_editor):
-    superuser = User()
-    superuser.is_active = True
-    superuser.is_superuser = True
-    superuser.is_staff = True
-    superuser.username = 'sva_dev'
-    superuser.email = 'sva@sva.cefetmg.br'
-    superuser.set_password('sva_dev_password')
-    superuser.perfil = Perfil()
-    superuser.save()
+def create_superuser_sva(apps, schema_editor):
+    User.objects.create_superuser(username='sva_dev',
+                                  email='sva@sva.cefetmg.br',
+                                  password='sva_dev_password')
+
+def insert_roles(apps, schema_editor):
+    Group.objects.get_or_create(name='Administrador')
+    Group.objects.get_or_create(name='Setor de Estágios')
+    Group.objects.get_or_create(name='Professor')
+    Group.objects.get_or_create(name='Empresa')
+    Group.objects.get_or_create(name='Aluno')
+    Group.objects.get_or_create(name='Gerente Vagas')
 
 
 class Migration(migrations.Migration):
@@ -71,5 +72,6 @@ class Migration(migrations.Migration):
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
-        migrations.RunPython(create_superuser),
+        migrations.RunPython(create_superuser_sva),
+        migrations.RunPython(insert_roles),
     ]
