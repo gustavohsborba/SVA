@@ -24,9 +24,9 @@ class Campus(models.Model):
         ('CONTAGEM', 'Contagem')
     }
 
-    nome = models.CharField(max_length=45, null=False)
-    cidade = models.CharField(max_length=45, null=False, choices=CIDADE_CHOICES)
-    sigla = models.CharField(max_length=5, null=False, unique=True, validators=[validate_sigla])
+    nome = models.CharField(max_length=45, null=False, blank=False)
+    cidade = models.CharField(max_length=45, null=False, blank=False, choices=CIDADE_CHOICES)
+    sigla = models.CharField(max_length=5, null=False, blank=False, unique=True, validators=[validate_sigla])
 
     def __str__(self):
         return '%s (%s)' % (self.nome, self.cidade)
@@ -47,7 +47,7 @@ class Curso(models.Model):
     nivel_ensino = models.IntegerField(verbose_name='Nível de Ensino', null=False, choices=NIVEL_ENSINO_CHOICES)
 
     def __str__(self):
-        return '%s (%s)' % (self.nome, self.nivel_ensino)
+        return '%s (%s)' % (self.nome, self.get_nivel_ensino_display())
 
 
 class Habilidade(models.Model):
@@ -73,7 +73,7 @@ class Aluno(User):
         verbose_name_plural = 'Alunos'
 
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=False, related_name='alunos')
-    curso = models.ForeignKey(to=Curso, null=False, blank=False)
+    curso = models.ForeignKey(to=Curso, null=False, blank=False, on_delete=models.PROTECT)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos')
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos')
 
@@ -118,7 +118,7 @@ class Professor(GerenteVaga):
         verbose_name = 'Professor'
         verbose_name_plural = 'Professores'
 
-    curso = models.ForeignKey(to=Curso, null=True)
+    curso = models.ForeignKey(to=Curso, null=True, blank=False, on_delete=models.PROTECT)
 
     siape = models.CharField(unique=True, max_length=8, validators=[integer_validator])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])

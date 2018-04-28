@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-
+from django.conf import settings
+from django.utils import translation
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import *
