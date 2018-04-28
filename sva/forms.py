@@ -2,7 +2,7 @@
 
 from django import forms
 from django.core.validators import validate_email
-
+from sva.models import Aluno
 
 
 class FormularioContato(forms.Form):
@@ -10,3 +10,9 @@ class FormularioContato(forms.Form):
     mensagem = forms.CharField(widget=forms.Textarea)
     seu_email = forms.EmailField(validators=[validate_email])
     copia = forms.BooleanField(required=False, label="Enviar uma cópia para mim")
+
+class FormularioCadastroAluno(forms.ModelForm):
+
+    class Meta:
+        model = Aluno
+        fields = ['cpf', 'email', 'password']

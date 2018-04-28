@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^home', pagina_base),
-    url(r'^contato', formulario_contato)
+    url(r'^contato', formulario_contato),
+    url(r'^cadastroaluno/$', Criar.as_view(), name='Cadastro_Aluno')
 ]
