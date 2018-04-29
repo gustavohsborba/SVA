@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.contrib.auth import views as auth_views
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from sva.views import *
@@ -21,7 +22,9 @@ from sva.views import *
 urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^home', pagina_base),
-    url(r'^contato', formulario_contato)
+    url(r'^contato', formulario_contato),
+    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
 ]
 
 urlpatterns += i18n_patterns(

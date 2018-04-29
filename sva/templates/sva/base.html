@@ -1,25 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Olá Mundo!</title>
-</head>
-<body>
+{% extends 'adminlte/base.html' %}
 
-<hr >
-
-
+{% block title %}SVA{% endblock %}
 {% block content %}
-
-        <center><p>Olá, mundo!</p></center>
-
-        {% for curso in cursos %}
-            <p>{{curso.nome}}</p>
-        {% endfor %}
-
-
+    Conteúdo aqui.
 {% endblock %}
-<hr >
-
-</body>
-</html>
