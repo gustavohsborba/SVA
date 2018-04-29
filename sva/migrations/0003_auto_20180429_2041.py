@@ -79,4 +79,9 @@ class Migration(migrations.Migration):
             name='curso',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='sva.Curso'),
         ),
+        migrations.RenameField(
+            model_name='vaga',
+            old_name='area_atuacao',
+            new_name='areas_atuacao',
+        ),
     ]
