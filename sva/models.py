@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
+from typing import Set, Tuple
+
 from django.utils.translation import gettext_lazy as _
 
 from django.contrib.auth.models import *
@@ -10,6 +12,7 @@ from django.db import models
 
 class Campus(models.Model):
     class Meta:
+        verbose_name = _('campus')
         verbose_name_plural = _('campi')
 
     CIDADE_CHOICES = {
@@ -33,6 +36,10 @@ class Campus(models.Model):
 
 
 class Curso(models.Model):
+    class Meta:
+        verbose_name = 'Curso'
+        verbose_name_plural = 'Cursos'
+
     NIVEL_ENSINO_CHOICES = {
         (1, 'TECNICO'),
         (2, 'GRADUACAO'),
@@ -61,6 +68,9 @@ class AreaAtuacao(models.Model):
     class Meta:
         verbose_name = 'Área de Atuação'
         verbose_name_plural = 'Áreas de Atuação'
+        permissions = (('can_request_area_atuacao', 'Pode solicitar área de atuação'),
+                       ('can_release_area_atuacao', 'Pode liberr área de atuaçãos'))
+
     nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
 
     def __str__(self):
@@ -136,12 +146,21 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
+    SITUACAO_VAGA_CHOICES = {
+        (1, 'Cadastrada'),
+        (2, 'Editada'),
+        (3, 'Ativa'),
+        (4, 'Inativa'),
+        (5, 'Reprovada')
+    }
+
     gerente_vaga = models.ForeignKey(to=GerenteVaga, null=False, blank=False, related_name='vagas')
     area_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
     descricao = models.TextField(verbose_name='Descrição', null=False, blank=False)
     data_submissao = models.DateTimeField(verbose_name='Data de Submissão', auto_now_add=True, blank=False)
+    data_alteracao = models.DateTimeField(verbose_name='Data da última alteração', auto_now=True, blank=False)
     data_validade = models.DateTimeField(verbose_name='Data de Validade', blank=True, null=True)
     carga_horaria_semanal = models.PositiveIntegerField(verbose_name='Carga Horária Semanal', null=False, blank=False, validators=[integer_validator])
     local = models.CharField(verbose_name='Local de Trabalho', max_length=255, null=False, blank=False)
@@ -150,6 +169,7 @@ class Vaga(models.Model):
     nota_media = models.FloatField(verbose_name='Nota', null=False, blank=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', blank=True, null=True)
     usuario_aprovacao = models.CharField(verbose_name='Responsável pela aprovação', max_length=60, blank=True, null=True)
+    situacao = models.IntegerField(verbose_name='Situação', null=False, blank=False, default=1, choices=SITUACAO_VAGA_CHOICES)
 
     def __str__(self):
         return '%s - %s' % (self.titulo, self.gerente_vaga.nome)
@@ -188,9 +208,12 @@ class Notificacao(models.Model):
     tipo = models.PositiveIntegerField(verbose_name='Tipo da Notificação', null=False, choices=TIPO_NOTIFICACAO_CHOICES)
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     mensagem = models.TextField(null=False, blank=False)
+    lida = models.BooleanField(null=False, blank=False, default=False)
+    data_leitura = models.DateTimeField(verbose_name='Data de visualização', null=True, blank=True)
+    link = models.CharField(max_length=500, blank=True, null=True)
 
     def __str__(self):
-        return '%s' % self.mensagem
+        return 'Para: %s %s\nMensagem: %s' % (self.usuario.first_name, self.usuario.last_name, self.mensagem)
 
 
 class FiltroPesquisa(models.Model):
