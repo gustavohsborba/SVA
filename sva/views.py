@@ -1,7 +1,10 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
+
+
 from .models import *
 from sva.forms import *
-from django.views.generic import CreateView
+
 
 # Create your views here.
 
@@ -15,8 +18,14 @@ def formulario_contato(request):
     return render(request, 'sva/contato.html', {'form': form})
 
 
-class Criar(CreateView):
-    template_name = 'sva/CadastroAluno.html'
-    model = Aluno
-    fields = ['cpf', 'email', 'password']
+def CadastroUsuario(request):
+    username = Aluno(username=request.POST.get('cpf'))
+    form = FormularioCadastroAluno(request.POST or None)
 
+    if request.method == 'POST' and form.is_valid():
+        usuario = User.objects.create_user(username)
+        form.user = usuario
+        #form.user.groups = Group.objects.get(name='Aluno')
+        form.save();
+        return HttpResponseRedirect('/home/')
+    return render(request, 'sva/CadastroAluno.html', {'form': form})

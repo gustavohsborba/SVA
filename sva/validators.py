@@ -111,3 +111,4 @@ def validate_CNPJ(value):
         raise ValidationError(error_messages['invalid'])
 
     return orig_value
+
