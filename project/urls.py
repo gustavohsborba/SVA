@@ -22,7 +22,7 @@ from sva.views import *
 urlpatterns = [
     url(r'^$', home),
     url(r'^home', home),
-    url('^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^cadastro/', cadastro, name='cadastro'),
     url(r'^contato', formulario_contato),
     url(r'^login/$', auth_views.login, name='login'),
