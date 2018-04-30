@@ -1,4 +1,4 @@
-from django.contrib.auth.password_validation import validate_password
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
@@ -31,6 +31,7 @@ def CadastroAluno(request):
         aluno.set_password(form.cleaned_data['password'])
         aluno.user_id = usuario.id
         aluno.curso = form.cleaned_data['curso']
+        aluno.endereco = ','+','+','+','
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
@@ -39,7 +40,6 @@ def CadastroAluno(request):
 
 
 def EditarAluno(request,pk):
-
     aluno = get_object_or_404(Aluno,pk=pk)
     texto = aluno.endereco
     Parte= texto.split(",")
@@ -55,7 +55,14 @@ def EditarAluno(request,pk):
             aluno.last_name = Nome[1]
             aluno.endereco = form.cleaned_data['Rua'] + ',' + form.cleaned_data['Numero'] + ',' +  form.cleaned_data['Complemento'] + ',' +  form.cleaned_data['Cidade'] + ',' +  form.cleaned_data['Estado']
             aluno.save()
-            return HttpResponseRedirect('/home/')
+            messages.success(request, 'Editado com sucesso')
     else:
         form = FormularioEditarAluno(instance=aluno,initial={'Rua':Parte[0],'Numero':Parte[1],'Complemento':Parte[2],'Cidade':Parte[3],'Estado':Parte[4],'Nome_Completo':Nome})
     return render(request, 'sva/EditarAluno.html', {'form': form})
+
+def ExcluirAluno(request,pk):
+    aluno = get_object_or_404(Aluno, pk=pk)
+    if aluno != None:
+        aluno.is_active=False
+        aluno.save()
+        return HttpResponseRedirect('/home/')

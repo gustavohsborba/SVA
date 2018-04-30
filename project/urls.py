@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^home', pagina_base),
     url(r'^contato', formulario_contato),
     url(r'^cadastroaluno/$', CadastroAluno, name='Cadastro_Aluno'),
-    url(r'^(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno')
+    url(r'^(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno'),
+    url(r'^(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
 ]
