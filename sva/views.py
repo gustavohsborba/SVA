@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
@@ -27,7 +28,7 @@ def CadastroAluno(request):
         aluno.user = usuario
         aluno.username = form.cleaned_data['cpf']
         aluno.email = form.cleaned_data['email']
-        aluno.password = password = form.cleaned_data['password']
+        aluno.set_password(form.cleaned_data['password'])
         aluno.user_id = usuario.id
         aluno.curso = form.cleaned_data['curso']
         aluno.cpf = form.cleaned_data['cpf']
