@@ -20,11 +20,14 @@ from django.contrib import admin
 from sva.views import *
 
 urlpatterns = [
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^home', pagina_base),
+    url(r'^$', home),
+    url(r'^home', home),
+    url('^accounts/', include('django.contrib.auth.urls')),
+    url(r'^cadastro/', cadastro, name='cadastro'),
     url(r'^contato', formulario_contato),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
 ]
 
 urlpatterns += i18n_patterns(

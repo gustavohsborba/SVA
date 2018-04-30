@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*- 
 
 from django import forms
-from django.core.validators import validate_email
+from django.contrib.auth.forms import AuthenticationForm
+
+from .validators import *
 
 
 class FormularioContato(forms.Form):
@@ -11,12 +13,24 @@ class FormularioContato(forms.Form):
     copia = forms.BooleanField(required=False, label="Enviar uma cópia para mim")
 
 
-class LoginForm(forms.ModelForm):
-    usuario = forms.CharField(
+class FormularioCadastroAluno(forms.models.BaseForm):
+    pass
+
+
+class FormularioCadastroEmpresa(forms.models.BaseForm):
+    pass
+
+
+class FormularioCadastroProfessor(forms.models.BaseForm):
+    pass
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
         max_length=11, label='usuário',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
     )
-    senha = forms.CharField(
+    password = forms.CharField(
         max_length=11,
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
 
