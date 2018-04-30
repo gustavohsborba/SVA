@@ -31,6 +31,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 # Application definition
 
+# http://django-crispy-forms.readthedocs.io/en/latest/
+# http://django-adminlte2.readthedocs.io/en/latest/
+# https://github.com/oscarmlage/django-cruds-adminlte
+
 INSTALLED_APPS = [
     'django_adminlte',
     'django_adminlte_theme',
@@ -40,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
+    'widget_tweaks',
     'sva'
 ]
 
@@ -113,6 +119,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGIN_REDIRECT_URL = '/'
 
 
 # Internationalization
