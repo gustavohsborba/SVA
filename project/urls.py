@@ -21,7 +21,11 @@ from sva.views import *
 urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^home', pagina_base),
-    url(r'^contato', formulario_contato)
+    url(r'^contato', formulario_contato),
+    url(r'^vagas/$', PrincipalVaga, name='vaga_principal'),
+    url(r'^vagas/gerenciar/$', GerenciarVaga, name='vaga_gerenciar'),
+    url(r'^vagas/editar/(?P<pkvaga>\d+)$', EditarVaga, name='vaga_editar'),
+    url(r'^vagas/criar/$', CriarVaga, name='vaga_criar')
 ]
 
 urlpatterns += i18n_patterns(

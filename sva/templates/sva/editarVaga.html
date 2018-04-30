@@ -1,0 +1,27 @@
+{% extends 'sva/vaga.html' %}
+
+{% block content %}
+    <h1>{{vaga.titulo}}</h1>
+    <br>
+    <p>Area de atuação:
+    {% for area in vaga.area_atuacao.all %}
+        {{area.nome}}
+    {% endfor %}</p>
+    <p>Descrição: {{vaga.descricao}}</p>
+    <p>Inscrições até: {{vaga.data_validade}}</p>
+    <p>Carga horária semanal: {{vaga.carga_horaria_semanal}}</p>
+    <p>Local: {{vaga.local}}</p>
+    <p>Valor da bolsa: R${{vaga.valor_bolsa|stringformat:".2f"}}</p>
+    <p>Benefícios concedidos: {{vaga.beneficios}}</p>
+    <br>
+    {% if vaga.dataaprovacao == null %}
+        <p>Vaga nao aprovada</p>
+    {% endif %}
+    {% if vaga.dataaprovacao != null %}
+        <p>Vaga aprovada em {{vaga.data_aprovacao}}</p>
+        <p>Aprovada por {{vaga.usuario_aprovacao}}</p>
+    {% endif %}
+    <br>
+    <h4>Vaga criada em {{vaga.data_submissao}}</h4>
+
+{% endblock %}

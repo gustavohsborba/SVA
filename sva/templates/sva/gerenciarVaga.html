@@ -1,0 +1,18 @@
+{% extends 'sva/vaga.html' %}
+
+{% block content %}
+    <h1>Gerenciamento de vagas</h1>
+    <h4>Suas vagas aprovadas:</h4>
+    {% for vaga in vagas %}
+        {% if vaga.dataaprovacao != null %}
+            <p>{{vaga.titulo}}</p>
+        {% endif %}
+    {% endfor %}
+    <h4>Suas vagas nao aprovadas:</h4>
+    {% for vaga in vagas %}
+        {% if vaga.dataaprovacao == null %}
+            <p><a href="{% url 'vaga_editar' pkvaga=vaga.id %}">{{vaga.titulo}}</a> - Vaga criada em: {{vaga.data_submissao}}</p>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
