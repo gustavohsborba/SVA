@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
@@ -19,7 +21,7 @@ def PrincipalVaga(request):
 
 def GerenciarVaga(request):
     context = {}
-    context['vagas'] = Vaga.objects.all()
+    context['vagas'] = Vaga.objects.all().order_by('-data_aprovacao','-data_submissao')
     return render(request, 'sva/gerenciarVaga.html', context)
 
 def CriarVaga(request):
