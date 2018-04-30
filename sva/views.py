@@ -1,14 +1,15 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 
 from .models import *
-from sva.forms import *
-
+from .forms import *
 
 # Create your views here.
 
-def pagina_base(request):
+@login_required
+def home(request):
     context = {}
     context['cursos'] = Curso.objects.all()
     return render(request, 'sva/base.html', context)
@@ -16,6 +17,14 @@ def pagina_base(request):
 def formulario_contato(request):
     form = FormularioContato()
     return render(request, 'sva/contato.html', {'form': form})
+
+def cadastro(request):
+    context = {
+        'form_aluno': FormularioCadastroAluno(),
+        'form_professor': FormularioCadastroProfessor(),
+        'form_empresa': FormularioCadastroEmpresa()
+    }
+    return render(request, 'sva/cadastro.html', context)
 
 
 def CadastroAluno(request):

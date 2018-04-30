@@ -3,6 +3,9 @@
 from django import forms
 from django.core.validators import validate_email
 from sva.models import Aluno
+from django.contrib.auth.forms import AuthenticationForm
+
+from .validators import *
 
 
 class FormularioContato(forms.Form):
@@ -28,7 +31,6 @@ class FormularioCadastroAluno(forms.ModelForm):
                 "Senha e Confirmar senha são diferentes"
             )
 
-
 class FormularioEditarAluno(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
     Rua = forms.CharField(max_length=40)
@@ -36,6 +38,32 @@ class FormularioEditarAluno(forms.ModelForm):
     Complemento = forms.CharField(max_length=10,required=False)
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
+    
     class Meta:
         model = Aluno
         fields = ['curso','matricula' , 'telefone' ]
+
+
+class FormularioCadastroEmpresa(forms.models.BaseForm):
+    pass
+
+
+class FormularioCadastroProfessor(forms.models.BaseForm):
+    pass
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=11, label='usuário',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'})
+    )
+    password = forms.CharField(
+        max_length=11,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+
+    )
+
+    class Meta:
+        #model = SignUp
+        fields = ['usuário', 'senha']
+

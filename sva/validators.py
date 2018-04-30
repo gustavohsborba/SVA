@@ -112,3 +112,20 @@ def validate_CNPJ(value):
 
     return orig_value
 
+
+def validate_cpf_or_cnpj(value):
+    valido = False
+    try:
+        validate_CPF(value)
+        valido = True
+    except ValidationError:
+        pass
+    try:
+        validate_CNPJ(value)
+        valido = True
+    except ValidationError:
+        pass
+    if valido:
+        return value
+    else:
+        raise ValidationError('Entre com um CPF ou CNPJ')

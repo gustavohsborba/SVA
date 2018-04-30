@@ -31,6 +31,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 # Application definition
 
+# http://django-crispy-forms.readthedocs.io/en/latest/
+# http://django-adminlte2.readthedocs.io/en/latest/
+# https://github.com/oscarmlage/django-cruds-adminlte
+
 INSTALLED_APPS = [
     'django_adminlte',
     'django_adminlte_theme',
@@ -40,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
+    'widget_tweaks',
     'sva'
 ]
 
@@ -114,14 +120,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = '/'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
+LANGUAGES = (
+    #('en', _('English')),
+    ('pt-br', _('Português')),
+)
+
 LANGUAGE_CODE = 'pt-br'
 ADMIN_LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
-USE_I18N = False
+USE_I18N = True
 USE_L10N = True
 USE_TZ = False
 
