@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^home', pagina_base),
     url(r'^contato', formulario_contato),
-    url(r'^cadastroaluno/$', CadastroUsuario, name='Cadastro_Aluno')
+    url(r'^cadastroaluno/$', CadastroAluno, name='Cadastro_Aluno'),
+    url(r'^(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno')
 ]

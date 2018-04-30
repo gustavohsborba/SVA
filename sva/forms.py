@@ -27,3 +27,15 @@ class FormularioCadastroAluno(forms.ModelForm):
             raise forms.ValidationError(
                 "Senha e Confirmar senha são diferentes"
             )
+
+
+class FormularioEditarAluno(forms.ModelForm):
+    Nome_Completo = forms.CharField(max_length=100)
+    Rua = forms.CharField(max_length=40)
+    Numero = forms.CharField(max_length=4)
+    Complemento = forms.CharField(max_length=10,required=False)
+    Cidade = forms.CharField(max_length=20)
+    Estado = forms.CharField(max_length=20)
+    class Meta:
+        model = Aluno
+        fields = ['curso','matricula' , 'telefone' ]
