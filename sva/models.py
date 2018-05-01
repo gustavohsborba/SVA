@@ -87,7 +87,8 @@ class Aluno(User):
     curso = models.ForeignKey(to=Curso, null=False, blank=False, on_delete=models.PROTECT)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos')
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos')
-
+    endereco = models.CharField(max_length=100, null=True )
+    matricula = models.CharField(max_length=12, null=True, validators=[validate_integer])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
