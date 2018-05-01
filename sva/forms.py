@@ -19,7 +19,7 @@ class FormularioCadastroAluno(forms.ModelForm):
     confirm_password = forms.CharField(widget=forms.PasswordInput(),label='Confirmar senha')
     class Meta:
         model = Aluno
-        fields = ['cpf', 'email', 'curso', 'password']
+        fields = ['cpf','first_name' ,'email', 'curso', 'password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroAluno, self).clean()
@@ -66,4 +66,3 @@ class LoginForm(AuthenticationForm):
     class Meta:
         #model = SignUp
         fields = ['usuário', 'senha']
-

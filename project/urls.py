@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^cadastroaluno/$', CadastroAluno, name='Cadastro_Aluno'),
     url(r'^(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno'),
     url(r'^(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
+    url(r'^(?P<pk>\d+)/perfil', ExibirAluno, name='Exibir_Aluno')
 ]
 
 urlpatterns += i18n_patterns(

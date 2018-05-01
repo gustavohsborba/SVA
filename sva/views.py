@@ -35,6 +35,7 @@ def CadastroAluno(request):
         usuario = User.objects.create_user(username)
         aluno.user_ptr_id =usuario.id
         aluno.user = usuario
+        aluno.username = form.cleaned_data['first_name']
         aluno.username = form.cleaned_data['cpf']
         aluno.email = form.cleaned_data['email']
         aluno.set_password(form.cleaned_data['password'])
@@ -47,7 +48,7 @@ def CadastroAluno(request):
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/CadastroAluno.html', {'form': form})
 
-
+@login_required(login_url='/accounts/login/')
 def EditarAluno(request,pk):
     aluno = get_object_or_404(Aluno,pk=pk)
     texto = aluno.endereco
@@ -69,9 +70,14 @@ def EditarAluno(request,pk):
         form = FormularioEditarAluno(instance=aluno,initial={'Rua':Parte[0],'Numero':Parte[1],'Complemento':Parte[2],'Cidade':Parte[3],'Estado':Parte[4],'Nome_Completo':Nome})
     return render(request, 'sva/EditarAluno.html', {'form': form})
 
+@login_required(login_url='/accounts/login/')
 def ExcluirAluno(request,pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     if aluno != None:
         aluno.is_active=False
         aluno.save()
         return HttpResponseRedirect('/home/')
+
+def ExibirAluno(request,pk):
+    aluno = get_object_or_404(Aluno, pk=pk)
+    return render(request, 'sva/Perfil.html', {'nome':aluno.first_name+' '+aluno.last_name,'email':aluno.email,'telefone':aluno.telefone})
