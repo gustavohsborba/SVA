@@ -18,6 +18,8 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from sva.views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^$', home),
@@ -28,7 +30,8 @@ urlpatterns = [
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-]
+    url(r'^layout', layout),
+] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),

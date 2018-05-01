@@ -22,3 +22,8 @@ def cadastro(request):
         'form_empresa': FormularioCadastroEmpresa()
     }
     return render(request, 'sva/cadastro.html', context)
+
+
+def layout(request):
+    form = FormularioContato()
+    return render(request, 'sva/layout.html', {'form': form})
