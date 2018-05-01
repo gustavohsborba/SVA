@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+   <div class="col-md-6 col-md-offset-3">
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <td>{{ form.username.label_tag }}</td>
+            <td>{{ form.username }}</td>
+        </div>
+        <div class="form-group">
+            <td>{{ form.password.label_tag }}</td>
+            <td>{{ form.password }}</td>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="login" />
+            <input type="hidden" name="next" value="{{ next }}" />
+        </div>
+    </form>
+    <!-- <p><a href="{url 'password_reset' }">Lost password?</a></p> -->
+</div>
+{% endblock %}
+
+
+
+<form name="form" method="post" >
+        {% csrf_token %}
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
+            <label for="username">Usuário</label>
+            <input type="text" class="form-control" name="id_name" [(ngModel)]="model.username" #username="ngModel" required />
+          <!--    <div *ngIf="f.submitted && !username.valid" class="help-block">Usuário é requerido</div>-->
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+            <label for="password">Senha</label>
+            <input type="password" class="form-control" name="id_password" [(ngModel)]="model.password" #password="ngModel" required />
+          <!--  <div *ngIf="f.submitted && !password.valid" class="help-block">Senha é requerida</div> -->
+        </div>
+        <div class="form-group">
+            <button [disabled]="loading" class="btn btn-primary">Login</button>
+     
+     <!--       <a [routerLink]="['/register']" class="btn btn-link">Register</a> -->
+        </div>
+    </form>
+
+

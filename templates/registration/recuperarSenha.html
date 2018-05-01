@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+     <head>
+
+    </head>
+
+
+    <div class="col-md-6">
+
+    </div>
+    <div class="col-md-4">
+        <h2>Recuperar Senha</h2>
+
+        <form method="post" action="" name="Formlogin">
+            {% csrf_token %}
+            <div class="alert alert-error">
+                <a class="close" href="#" data-dismiss="alert">×</a>
+                {{ message }}
+            </div>
+            <div class="form-group">
+                <label for="cpf">CPF</label>
+                <input type="text" class="form-control" name="CPF" [(ngModel)]="model.username" #username="ngModel" required />
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" class="form-control" name="email" [(ngModel)]="model.username" #username="ngModel" required />
+            </div>
+
+
+
+            <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
+                <button [disabled]="loading" class="btn btn-primary">Entrar</button>
+                <input type="hidden" name="next" value="{{ next }}" />
+                <a [routerLink]="['/register']" class="btn btn-link">Recuperar Senha</a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

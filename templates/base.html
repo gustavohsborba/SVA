@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="//code.angularjs.org/1.2.20/angular.js"></script>
+    <script src="//code.angularjs.org/1.2.20/angular-route.js"></script>
+    <script src="//code.angularjs.org/1.2.13/angular-cookies.js"></script>
+
+
+    {%block links%}
+        <link rel="stylesheet" href="{{ STATIC_URL }}/css/bootstrap.min.css">
+    {% endblock %}
+    {% block js_includes %}
+            <script src="{{ STATIC_URL }}/js/js/bootstrap.min.js"></script>
+    {% endblock %}
 </head>
 <body>
-  <header>
+  <div class="jumbotron" style= "height: 100vh">
+
+     <header>
     {% if user.is_authenticated %}
-      Hi {{ user.username }}!
+      Hi {{ user.username }}  !
       <a href="{% url 'logout' %}">logout</a>
-    {% else %}
-      <a href="{% url 'login' %}">login</a>
     {% endif %}
   </header>
   <main>
     {% block content %}
     {% endblock %}
   </main>
+  </div>
+
 </body>
 </html>
