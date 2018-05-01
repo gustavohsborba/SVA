@@ -36,9 +36,9 @@ urlpatterns = [
     url(r'^vagas/alunos/(?P<pkvaga>\d+)$', AlunosVaga, name='vaga_listar'),
     url(r'^vagas/criar/$', CriarVaga, name='vaga_criar'),
     url(r'^cadastroaluno/$', CadastroAluno, name='Cadastro_Aluno'),
-    url(r'^(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno'),
-    url(r'^(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
-    url(r'^(?P<pk>\d+)/perfil', ExibirAluno, name='Exibir_Aluno')
+    url(r'^aluno/(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno'),
+    url(r'^aluno/(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
+    url(r'^aluno/(?P<pk>\d+)/perfil', ExibirAluno, name='Exibir_Aluno')
 ]
 
 urlpatterns += i18n_patterns(
