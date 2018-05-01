@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from typing import Set, Tuple
 
 from django.utils.translation import gettext_lazy as _
@@ -138,6 +139,11 @@ class Professor(GerenteVaga):
 
 
 class Vaga(models.Model):
+
+    @property
+    def vencida(self):
+        return datetime.now() > self.data_validade
+
     class Meta:
         get_latest_by = 'data_submissao'
         ordering = ['-data_submissao', '-valor_bolsa']
@@ -156,6 +162,8 @@ class Vaga(models.Model):
 
     gerente_vaga = models.ForeignKey(to=GerenteVaga, null=False, blank=False, related_name='vagas')
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
+    alunos_inscritos = models.ManyToManyField(to=Aluno, blank=True, related_name='vagas_inscritas')
+    alunos_interessados = models.ManyToManyField(to=Aluno, blank=True, related_name='vagas_interesse')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
     descricao = models.TextField(verbose_name='Descrição', null=False, blank=False)

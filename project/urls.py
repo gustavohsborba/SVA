@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', home),
     url(r'^home', home),
-    url('^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^cadastro/', cadastro, name='cadastro'),
     url(r'^contato', formulario_contato),
     url(r'^login/$', auth_views.login, name='login'),
@@ -31,6 +31,9 @@ urlpatterns = [
     url(r'^vagas/$', PrincipalVaga, name='vaga_principal'),
     url(r'^vagas/gerenciar/$', GerenciarVaga, name='vaga_gerenciar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)$', EditarVaga, name='vaga_editar'),
+    url(r'^vagas/(?P<pkvaga>\d+)$', VisualizarVaga, name='vaga_visualizar'),
+    url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', EncerrarInscricaoVaga),
+    url(r'^vagas/alunos/(?P<pkvaga>\d+)$', AlunosVaga, name='vaga_listar'),
     url(r'^vagas/criar/$', CriarVaga, name='vaga_criar')
 ]
 

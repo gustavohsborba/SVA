@@ -2,16 +2,16 @@
 
 from django import forms
 from django.core.validators import validate_email
-from .models import Vaga
+from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
 from .validators import *
 
-class FormularioCriarVaga(forms.ModelForm):
+class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
-        fields = ('area_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios','gerente_vaga')
+        fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
 class FormularioContato(forms.Form):
 

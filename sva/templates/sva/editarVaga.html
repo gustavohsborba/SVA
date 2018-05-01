@@ -1,27 +1,50 @@
 {% extends 'sva/vaga.html' %}
 
 {% block content %}
-    <h1>{{vaga.titulo}}</h1>
+    <h1>Editar <b>{{ form.titulo.value }}</b></h1>
     <br>
-    <p>Area de atuação:
-    {% for area in vaga.area_atuacao.all %}
-        {{area.nome}}
-    {% endfor %}</p>
-    <p>Descrição: {{vaga.descricao}}</p>
-    <p>Inscrições até: {{vaga.data_validade}}</p>
-    <p>Carga horária semanal: {{vaga.carga_horaria_semanal}}</p>
-    <p>Local: {{vaga.local}}</p>
-    <p>Valor da bolsa: R${{vaga.valor_bolsa|stringformat:".2f"}}</p>
-    <p>Benefícios concedidos: {{vaga.beneficios}}</p>
-    <br>
-    {% if vaga.dataaprovacao == null %}
-        <p>Vaga nao aprovada</p>
-    {% endif %}
-    {% if vaga.dataaprovacao != null %}
-        <p>Vaga aprovada em {{vaga.data_aprovacao}}</p>
-        <p>Aprovada por {{vaga.usuario_aprovacao}}</p>
-    {% endif %}
-    <br>
-    <h4>Vaga criada em {{vaga.data_submissao}}</h4>
+    <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Título: </label><div class="col-sm-10"> {{ form.titulo }}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Áreas de atuação: </label><div class="col-sm-10">{{form.areas_atuacao}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Descrição: </label><div class="col-sm-10">{{form.descricao}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Inscrições até: </label>
+                    <div class="col-sm-10">
+                        {{form.data_validade}}
+                        <a href="javascript:func()" onclick="encerrar()">Encerrar inscrições</a>
+                        <script language="Javascript">
+                        function encerrar() {
+                            var resposta = confirm("Deseja encerrar as inscrições nessa vaga?");
+                            var vagaid = "{{vaga.id}}";
 
+                            if (resposta == true) {
+                              window.location.href += "{{ '/encerrar' }}";
+                            }
+                        }
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Carga horária semanal: </label><div class="col-sm-10">{{form.carga_horaria_semanal}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Local: </label><div class="col-sm-10">{{form.local}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Valor da bolsa: </label><div class="col-sm-10">R${{form.valor_bolsa}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Benefícios concedidos: </label><div class="col-sm-10">{{form.beneficios}}</div>
+                </div>
+                <br>
+                <input type="submit" class="save btn btn-default" value="Atualizar vaga" />
+        </div>
+    </form>
 {% endblock %}

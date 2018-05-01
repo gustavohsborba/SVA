@@ -1,19 +1,38 @@
 {% extends 'sva/vaga.html' %}
 
 {% block content %}
-    <h1>Gerenciamento de vagas</h1>
-    <h4>Suas vagas aprovadas:</h4>
+    <h1>Suas vagas</h1>
+    <h4>Aprovadas:</h4>
     {% for vaga in vagas %}
         {% if vaga.data_aprovacao is not null  %}
-            <a href="{% url 'vaga_editar' pkvaga=vaga.id %}">{{vaga.titulo}}</a> - Vaga criada em: {{vaga.data_submissao}}</p>
+            <p><b><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">{{vaga.titulo}}</a></b> - {{vaga.descricao|truncatechars:30}}</p>
+            <p>
+                <b>Criada em:</b> {{vaga.data_submissao|date:"Y-m-d H:i"}} - <b>Última alteração em:</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+            </p>
+            <p>
+                <a href="{% url 'vaga_editar' pkvaga=vaga.id %}"><em>Editar vaga</em></a>
+                -
+                <a href="{% url 'vaga_listar' pkvaga=vaga.id %}"><em>Listar alunos inscritos</em></a>
+            </p>
+            <p>Vaga aprovada em {{vaga.data_aprovacao}}</p>
+            <p>Aprovada por {{vaga.usuario_aprovacao}}</p>
+            <br>
         {% endif %}
     {% endfor %}
-    <h4>Suas vagas nao aprovadas:</h4>
+    <h4>Não aprovadas:</h4>
     {% for vaga in vagas %}
         {% if vaga.data_aprovacao is null  %}
-            <p><a href="{% url 'vaga_editar' pkvaga=vaga.id %}">{{vaga.titulo}}</a> - Vaga criada em: {{vaga.data_submissao}}</p>
+            <p><b><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">{{vaga.titulo}}</a></b> - {{vaga.descricao|truncatechars:30}}</p>
+            <p>
+                <b>Criada em:</b> {{vaga.data_submissao|date:"Y-m-d H:i"}} - <b>Última alteração em:</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+            </p>
+            <p>
+                <a href="{% url 'vaga_editar' pkvaga=vaga.id %}"><em>Editar vaga</em></a>
+                -
+                <a href="{% url 'vaga_listar' pkvaga=vaga.id %}"><em>Listar alunos inscritos</em></a>
+            </p>
+            <br>
         {% endif %}
     {% endfor %}
-
-
 {% endblock %}
+
