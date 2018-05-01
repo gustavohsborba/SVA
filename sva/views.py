@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,11 +19,13 @@ def formulario_contato(request):
     return render(request, 'sva/contato.html', {'form': form})
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def PrincipalVaga(request):
 
     return render(request, 'sva/vaga.html')
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def GerenciarVaga(request):
 
     context = {}
@@ -34,7 +36,12 @@ def GerenciarVaga(request):
     return render(request, 'sva/gerenciarVaga.html', context)
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def CriarVaga(request):
+
+    gerente = GerenteVaga.objects.get(user=request.user)
+    if gerente is None:
+        return redirect(PrincipalVaga)
 
     if request.method == 'POST':
         form = FormularioVaga(request.POST)
@@ -51,6 +58,7 @@ def CriarVaga(request):
     return render(request, 'sva/criarVaga.html', {'form': form})
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def AlunosVaga(request, pkvaga):
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
@@ -68,6 +76,7 @@ def AlunosVaga(request, pkvaga):
         return redirect(PrincipalVaga)
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def EncerrarInscricaoVaga(request, pkvaga):
 
     gerente = GerenteVaga.objects.get(user=request.user)
@@ -94,6 +103,7 @@ def VisualizarVaga(request, pkvaga):
     return render(request, 'sva/visualizarVaga.html', context)
 
 @login_required
+@user_passes_test(isGerenteVaga, login_url="/home/")
 def EditarVaga(request, pkvaga):
 
     gerente = GerenteVaga.objects.get(user=request.user)
