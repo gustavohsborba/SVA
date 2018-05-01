@@ -24,7 +24,8 @@ def validate_email(value):
         )
 
 
-
+def isGerenteVaga(user):
+    return user.groups.filter(name='Gerente Vagas').exists()
 
 
 """ CPF/CNPJ

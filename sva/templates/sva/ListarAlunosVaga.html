@@ -1,0 +1,9 @@
+{% extends 'sva/vaga.html' %}
+
+{% block content %}
+    <h1>Inscritos em <b>{{vaga.titulo}}</b></h1>
+    {% for aluno in alunos %}
+    <p><a href="{% url 'Exibir_Aluno' pk=aluno.id %}"><em>{{aluno.first_name}} {{aluno.last_name}}</em></a> - {{aluno.email}}</p>
+    {% endfor %}
+
+{% endblock %}

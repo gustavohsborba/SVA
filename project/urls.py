@@ -22,6 +22,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', home),
     url(r'^home', home),
     url(r'^accounts/', include('django.contrib.auth.urls')),
@@ -29,9 +30,20 @@ urlpatterns = [
     url(r'^contato', formulario_contato),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^vagas/$', PrincipalVaga, name='vaga_principal'),
+    url(r'^vagas/gerenciar/$', GerenciarVaga, name='vaga_gerenciar'),
+    url(r'^vagas/editar/(?P<pkvaga>\d+)$', EditarVaga, name='vaga_editar'),
+    url(r'^vagas/(?P<pkvaga>\d+)$', VisualizarVaga, name='vaga_visualizar'),
+    url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', EncerrarInscricaoVaga),
+    url(r'^vagas/alunos/(?P<pkvaga>\d+)$', AlunosVaga, name='vaga_listar'),
+    url(r'^vagas/criar/$', CriarVaga, name='vaga_criar'),
+    url(r'^cadastroaluno/$', CadastroAluno, name='Cadastro_Aluno'),
+    url(r'^aluno/(?P<pk>\d+)/editaraluno/$', EditarAluno, name='Editar_Aluno'),
+    url(r'^aluno/(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
+    url(r'^aluno/(?P<pk>\d+)/perfil', ExibirAluno, name='Exibir_Aluno'),
     url(r'^layout', layout),
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
+
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),

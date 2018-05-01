@@ -1,0 +1,29 @@
+{% load staticfiles %}
+<html>
+    <head>
+        <title>Criar vaga</title>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="content container">
+            <div class="row">
+                <div class="col-sm-8">
+                    <a href="{% url 'vaga_criar' %}" class="top-menu">Criar vaga</span></a>
+                    <a href="{% url 'vaga_gerenciar' %}" class="top-menu">Gerenciar vagas</span></a>
+                </div>
+                <div class="col-sm-8">
+                    <div class="container">
+                    {% block content %}
+                    <p>Aqui voce pode gerenciar suas vagas!</p>
+                    {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

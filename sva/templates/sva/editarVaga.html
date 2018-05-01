@@ -1,0 +1,50 @@
+{% extends 'sva/vaga.html' %}
+
+{% block content %}
+    <h1>Editar <b>{{ form.titulo.value }}</b></h1>
+    <br>
+    <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Título: </label><div class="col-sm-10"> {{ form.titulo }}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Áreas de atuação: </label><div class="col-sm-10">{{form.areas_atuacao}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Descrição: </label><div class="col-sm-10">{{form.descricao}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Inscrições até: </label>
+                    <div class="col-sm-10">
+                        {{form.data_validade}}
+                        <a href="javascript:func()" onclick="encerrar()">Encerrar inscrições</a>
+                        <script language="Javascript">
+                        function encerrar() {
+                            var resposta = confirm("Deseja encerrar as inscrições nessa vaga?");
+                            var vagaid = "{{vaga.id}}";
+
+                            if (resposta == true) {
+                              window.location.href += "{{ '/encerrar' }}";
+                            }
+                        }
+                        </script>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Carga horária semanal: </label><div class="col-sm-10">{{form.carga_horaria_semanal}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Local: </label><div class="col-sm-10">{{form.local}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Valor da bolsa: </label><div class="col-sm-10">R${{form.valor_bolsa}}</div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Benefícios concedidos: </label><div class="col-sm-10">{{form.beneficios}}</div>
+                </div>
+                <br>
+                <input type="submit" class="save btn btn-default" value="Atualizar vaga" />
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'sva/vaga.html' %}
+
+{% block content %}
+    {% csrf_token %}
+    <h1><b>{{ vaga.titulo }}</b></h1>
+    <br>
+    <div class="form-group">
+        <b>Criada por:</b> {{ gerente.first_name }} {{ gerente.last_name }}
+    </div>
+    <div class="form-group">
+        <b>Áreas de atuação:</b>
+            {% for area in vaga.areas_atuacao.all %}
+                {{area.nome}}
+            {% endfor %}
+    </div>
+    <div class="form-group">
+        <b>Descrição:</b> {{vaga.descricao}}
+    </div>
+
+    {% if vaga.data_validade is None %}
+        <div class="form-group"> <b>Inscrições abertas</b></div>
+    {% elif vaga.vencida %}
+        <div class="form-group"> <b>Inscrições fechadas</b></div>
+    {% else %}
+        <div class="form-group"> <b>Inscrições abertas</b> até {{ vaga.data_validade|date:"Y-m-d H:i" }}</div>
+    {% endif %}
+
+    <div class="form-group">
+        <b>Carga horária semanal:</b> {{vaga.carga_horaria_semanal}}
+    </div>
+    <div class="form-group">
+        <b>Local:</b> {{vaga.local}}
+    </div>
+    <div class="form-group">
+        <b>Valor da bolsa:</b> R${{vaga.valor_bolsa|floatformat:2}}
+    </div>
+    <div class="form-group">
+        <b>Benefícios concedidos:</b> {{vaga.beneficios}}
+    </div>
+    <div class="form-group">
+        <b>Avaliação da vaga:</b> {{vaga.nota_media}}
+    </div>
+{% endblock %}
