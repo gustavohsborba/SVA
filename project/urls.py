@@ -27,5 +27,6 @@ urlpatterns = [
     # url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^login/$', Login, name='login'),
     url(r'^logout/$', Logout, name='logout'),
+    url(r'^recuperarsenha/$', RecuperarSenha, name='recuperarsenha'),
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
 ]

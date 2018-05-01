@@ -47,19 +47,19 @@ def Logout(request):
 
 def RecuperarSenha(request):
     if request.method == "POST":
-        user = request.POST['cpf']
-        password = request.POST['senha']
+        cpf = request.POST['CPF']
+        email = request.POST['email']
 
-        user ={}
+        user = None
         if user is not None:
             if user.is_authenticated:
                 login(request, user)
                 return HttpResponseRedirect('/')
             else:
-                messages.error(request, 'Combinação de usuário e senha invalida')
+                messages.error(request, 'Combinação de CPF e email invalida')
                 return HttpResponseRedirect('')
         else:
-            messages.error(request, 'Combinação de usuário e senha invalida')
+            messages.error(request, 'Combinação de CPF e email invalida')
             return HttpResponseRedirect('')
     return render(request, 'registration/recuperarSenha.html', {})
 
