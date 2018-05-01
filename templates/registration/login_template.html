@@ -34,7 +34,8 @@
             <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
                 <button [disabled]="loading" class="btn btn-primary">Entrar</button>
                 <input type="hidden" name="next" value="{{ next }}" />
-                <a [routerLink]="['/register']" class="btn btn-link">Recuperar Senha</a>
+                 <a href="{%url 'recuperarsenha'%}"  class="btn btn-link">Recuperar Senha</a>
+
             </div>
         </form>
     </div>

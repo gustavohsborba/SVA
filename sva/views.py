@@ -50,13 +50,12 @@ def RecuperarSenha(request):
         cpf = request.POST['CPF']
         email = request.POST['email']
 
-        user = None
+        user = Aluno.objects.filter(User.objects.get(email=email),Aluno.objects.get(cpf=cpf))
         if user is not None:
             if user.is_authenticated:
-                login(request, user)
                 return HttpResponseRedirect('/')
             else:
-                messages.error(request, 'Combinação de CPF e email invalida')
+                messages.error(request, '1Combinação de CPF e email invalida')
                 return HttpResponseRedirect('')
         else:
             messages.error(request, 'Combinação de CPF e email invalida')
