@@ -23,8 +23,6 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^home', pagina_base),
     url(r'^contato', formulario_contato),
-    # url(r'^login/$', auth_views.login, name='login'),
-    # url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^login/$', Login, name='login'),
     url(r'^logout/$', Logout, name='logout'),
     url(r'^recuperarsenha/$', RecuperarSenha, name='recuperarsenha'),
