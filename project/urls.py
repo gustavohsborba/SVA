@@ -42,6 +42,9 @@ urlpatterns = [
     url(r'^aluno/(?P<pk>\d+)/editaraluno/excluiraluno$', ExcluirAluno, name='Excluir_Aluno'),
     url(r'^aluno/(?P<pk>\d+)/perfil', ExibirAluno, name='Exibir_Aluno'),
     url(r'^layout', layout),
+    url(r'^recuperarsenha/$', RecuperarSenha, name='recuperarsenha'),
+
+
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 
 

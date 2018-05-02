@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from typing import Set, Tuple
 
 from django.utils.translation import gettext_lazy as _
 

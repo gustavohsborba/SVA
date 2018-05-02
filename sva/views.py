@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.contrib import messages
 from datetime import date, datetime
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -206,4 +208,21 @@ def layout(request):
     form = FormularioContato()
     return render(request, 'sva/layout.html', {'form': form})
 
+
+def RecuperarSenha(request):
+    if request.method == "POST":
+        cpf = request.POST['CPF']
+        email = request.POST['email']
+
+        user = Aluno.objects.filter(User.objects.get(email=email),Aluno.objects.get(cpf=cpf))
+        if user is not None:
+            if user.is_authenticated:
+                return HttpResponseRedirect('/')
+            else:
+                messages.error(request, '1Combinação de CPF e email invalida')
+                return HttpResponseRedirect('')
+        else:
+            messages.error(request, 'Combinação de CPF e email invalida')
+            return HttpResponseRedirect('')
+    return render(request, 'registration/recuperarSenha.html', {})
 
