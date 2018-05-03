@@ -31,7 +31,7 @@ def formulario_contato(request):
 @login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def principal_vaga(request):
-    return render(request, 'sva/vaga.html')
+    return render(request, 'sva/vaga/vaga.html')
 
 
 @login_required
@@ -42,7 +42,7 @@ def gerenciar_vaga(request):
     if gerente is None:
         return redirect("login")
     context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.user_ptr_id).order_by('-data_aprovacao','-data_submissao')
-    return render(request, 'sva/gerenciarVaga.html', context)
+    return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
 
 @login_required
@@ -66,7 +66,7 @@ def criar_vaga(request):
             return redirect('vaga_principal')
     else:
         form = FormularioVaga()
-    return render(request, 'sva/criarVaga.html', {'form': form})
+    return render(request, 'sva/vaga/criarVaga.html', {'form': form})
 
 
 @login_required
@@ -83,7 +83,7 @@ def lista_alunos_vaga(request, pkvaga):
         context = {}
         context['alunos'] = Aluno.objects.filter(vagas_inscritas=vaga)
         context['vaga'] = vaga
-        return render(request, 'sva/ListarAlunosVaga.html', context)
+        return render(request, 'sva/vaga/ListarAlunosVaga.html', context)
 
     else:
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
@@ -117,7 +117,7 @@ def visualizar_vaga(request, pkvaga):
     gerente = GerenteVaga.objects.get(vagas=vaga)
     context['gerente'] = gerente
 
-    return render(request, 'sva/visualizarVaga.html', context)
+    return render(request, 'sva/vaga/visualizarVaga.html', context)
 
 
 @login_required
@@ -136,7 +136,7 @@ def editar_vaga(request, pkvaga):
 
     if request.method == 'GET':
         form = FormularioVaga(instance=vaga)
-        return render(request, 'sva/editarVaga.html', {'form': form})
+        return render(request, 'sva/vaga/editarVaga.html', {'form': form})
 
     form = FormularioVaga(request.POST, instance=vaga)
     if form.is_valid():
@@ -181,7 +181,7 @@ def cadastrar_aluno(request):
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
         return HttpResponseRedirect('/home/')
-    return render(request, 'sva/CadastroAluno.html', {'form': form})
+    return render(request, 'sva/aluno/CadastroAluno.html', {'form': form})
 
 
 @transaction.atomic
@@ -216,7 +216,7 @@ def editar_aluno(request, pk):
             messages.success(request, 'Editado com sucesso')
     else:
         form = FormularioEditarAluno(instance=aluno,initial=initial)
-    return render(request, 'sva/EditarAluno.html', {'form': form})
+    return render(request, 'sva/aluno/EditarAluno.html', {'form': form})
 
 
 @login_required(login_url='/accounts/login/')
@@ -232,7 +232,7 @@ def excluir_aluno(request, pk):
 def exibir_aluno(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     context = {'aluno': aluno}
-    return render(request, 'sva/Perfil.html', context)
+    return render(request, 'sva/aluno/Perfil.html', context)
 
 
 def layout(request):
