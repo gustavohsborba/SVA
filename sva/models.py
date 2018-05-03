@@ -96,6 +96,8 @@ class Aluno(models.Model):
 
     def save(self, *args, **kwargs):
         self.user.username = self.cpf
+        self.user.groups.add(Group.objects.get(name='Aluno'))
+        self.user.save()
         super(Aluno, self).save(*args, **kwargs)
 
     @property
@@ -137,6 +139,9 @@ class Empresa(GerenteVaga):
     def save(self, *args, **kwargs):
         self.user.first_name = self.nome
         self.user.username = self.cnpj
+        self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
+        self.user.groups.add(Group.objects.get(name='Empresa'))
+        self.user.save()
         super(Empresa, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -155,6 +160,9 @@ class Professor(GerenteVaga):
 
     def save(self, *args, **kwargs):
         self.user.username = self.cpf
+        self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
+        self.user.groups.add(Group.objects.get(name='Professor'))
+        self.user.save()
         super(Professor, self).save(*args, **kwargs)
 
     def __str__(self):
