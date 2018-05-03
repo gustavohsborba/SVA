@@ -1,0 +1,43 @@
+{% extends 'adminlte/lib/_main_sidebar.html' %}
+{% load svatags %}
+
+{% block nav_links %}
+    <li>
+        <a href="/home">
+            <i class="fa fa-home"></i> <span>Início</span>
+        </a>
+    </li>
+
+    {% if request.user.is_staff %}
+        <li>
+            <a href="/admin">
+                <i class="fa fa-dashboard"></i> <span>Administração</span>
+            </a>
+        </li>
+    {% endif %}
+
+    {% if request.user|has_group:"Gerente Vagas" %}
+        <li>
+            <a href="/vagas">
+                <i class="fa fa-users"></i> <span>Vagas</span>
+            </a>
+        </li>
+    {% endif %}
+
+    {% if request.user|has_group:"Aluno" %}
+        <li>
+            <a href="/aluno/perfil/{{ request.user.pk }}">
+                <i class="fa fa-user"></i> <span>Perfil</span>
+            </a>
+        </li>
+    {% endif %}
+
+    {% if request.user|has_group:"Gerente Vagas" %}
+        <li>
+            <a href="/vagas">
+                <i class="fa fa-users"></i> <span>Vagas</span>
+            </a>
+        </li>
+    {% endif %}
+
+{% endblock nav_links %}
