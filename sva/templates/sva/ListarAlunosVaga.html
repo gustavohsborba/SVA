@@ -1,5 +1,8 @@
 {% extends 'sva/vaga.html' %}
 
+{% block title %} Alunos Interessados {% endblock %}
+
+
 {% block content %}
     <h1>Inscritos em <b>{{vaga.titulo}}</b></h1>
     {% for aluno in alunos %}

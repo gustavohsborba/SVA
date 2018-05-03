@@ -1,15 +1,8 @@
-{% load staticfiles %}
-<html>
-    <head>
-        <title>Criar vaga</title>
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-        <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    </head>
-    <body>
+{% extends 'sva/base.html' %}
+
+{% block title %} Gerenciamento de Vagas {% endblock %}
+
+{% block content %}
         <div class="content container">
             <div class="row">
                 <div class="col-sm-8">
@@ -25,5 +18,4 @@
                 </div>
             </div>
         </div>
-    </body>
-</html>
+{% endblock %}

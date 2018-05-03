@@ -56,23 +56,6 @@ class Migration(migrations.Migration):
                 ('nivel_ensino', models.IntegerField(choices=[(4, 'DOUTORADO'), (3, 'MESTRADO'), (5, 'ESPECIALIZACAO'), (2, 'GRADUACAO'), (1, 'TECNICO')])),
             ],
         ),
-        migrations.CreateModel(
-            name='Perfil',
-            fields=[
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
-                ('telefone', models.CharField(max_length=20, null=True, validators=[django.core.validators.validate_integer])),
-                ('curso', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='sva.Curso')),
-            ],
-            options={
-                'verbose_name': 'user',
-                'verbose_name_plural': 'users',
-                'abstract': False,
-            },
-            bases=('auth.user',),
-            managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
-            ],
-        ),
         migrations.RunPython(create_superuser_sva),
         migrations.RunPython(insert_roles),
     ]

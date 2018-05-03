@@ -69,45 +69,58 @@ class AreaAtuacao(models.Model):
         verbose_name = 'Área de Atuação'
         verbose_name_plural = 'Áreas de Atuação'
         permissions = (('can_request_area_atuacao', 'Pode solicitar área de atuação'),
-                       ('can_release_area_atuacao', 'Pode liberr área de atuaçãos'))
+                       ('can_release_area_atuacao', 'Pode liberar área de atuaçãos'))
 
+    area_mae = models.ForeignKey('self', blank=True, null=True)
     nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
 
     def __str__(self):
         return '%s' % self.nome
 
 
-class Aluno(User):
+class Aluno(models.Model):
     class Meta:
         verbose_name = 'Aluno'
         verbose_name_plural = 'Alunos'
 
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=False, related_name='alunos')
+    user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='alunos')
     curso = models.ForeignKey(to=Curso, null=False, blank=False, on_delete=models.PROTECT)
-    habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos')
-    areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos')
-    endereco = models.CharField(max_length=100, null=True )
+    habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos', blank=True)
+    areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos', blank=True)
+    endereco = models.CharField(max_length=100, null=True)
     matricula = models.CharField(max_length=12, null=True, validators=[validate_integer])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        self.user.username = self.cpf
+        super(Aluno, self).save(*args, **kwargs)
+
+    @property
+    def ativo(self):
+        return self.user.is_active
+
     def __str__(self):
-        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.cpf)
+        return '%s %s (%s - %s)' % (self.user.first_name, self.user.last_name, self.matricula, self.curso.sigla)
 
 
-class GerenteVaga(User):
+class GerenteVaga(models.Model):
     class Meta:
         verbose_name = 'Gerente de Vagas'
         verbose_name_plural = 'Gerentes de Vagas'
+        permissions = (('can_request_gerente_vaga', 'Pode solicitar criação de gerente'),
+                       ('can_release_gerente_vaga', 'Pode liberar criação de gerente'))
 
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=False, related_name='gerentes_vaga')
-
-    nome = models.CharField(max_length=60, null=False, blank=False, db_index=True)
+    user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='gerentes_vaga')
     nota_media = models.FloatField(null=False, default=0.0)
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
+
+    @property
+    def ativo(self):
+        return self.user.is_active
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
@@ -119,9 +132,15 @@ class Empresa(GerenteVaga):
         verbose_name_plural = 'Empresas'
 
     cnpj = models.CharField(unique=True, max_length=14, validators=[validate_CNPJ])
+    nome = models.CharField(max_length=60, null=False, blank=False, db_index=True)
+
+    def save(self, *args, **kwargs):
+        self.user.first_name = self.nome
+        self.user.username = self.cnpj
+        super(Empresa, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.cnpj)
+        return '%s (%s)' % (self.nome, self.cnpj)
 
 
 class Professor(GerenteVaga):
@@ -134,15 +153,15 @@ class Professor(GerenteVaga):
     siape = models.CharField(unique=True, max_length=8, validators=[integer_validator])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
 
+    def save(self, *args, **kwargs):
+        self.user.username = self.cpf
+        super(Professor, self).save(*args, **kwargs)
+
     def __str__(self):
-        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.curso)
+        return '%s %s (%s)' % (self.user.first_name, self.user.last_name, self.curso.sigla)
 
 
 class Vaga(models.Model):
-
-    @property
-    def vencida(self):
-        return datetime.now() > self.data_validade
 
     class Meta:
         get_latest_by = 'data_submissao'
@@ -179,8 +198,12 @@ class Vaga(models.Model):
     usuario_aprovacao = models.CharField(verbose_name='Responsável pela aprovação', max_length=60, blank=True, null=True)
     situacao = models.IntegerField(verbose_name='Situação', null=False, blank=False, default=1, choices=SITUACAO_VAGA_CHOICES)
 
+    @property
+    def vencida(self):
+        return datetime.now() > self.data_validade
+
     def __str__(self):
-        return '%s - %s' % (self.titulo, self.gerente_vaga.nome)
+        return '%s - %s' % (self.titulo, self.gerente_vaga.user.first_name)
 
 
 class Notificacao(models.Model):

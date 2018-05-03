@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*- 
 
 from django import forms
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
 from .validators import *
 
+
 class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
         fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+
 
 class FormularioContato(forms.Form):
 
@@ -20,12 +24,15 @@ class FormularioContato(forms.Form):
     seu_email = forms.EmailField(validators=[validate_email])
     copia = forms.BooleanField(required=False, label="Enviar uma cópia para mim")
 
+
 class FormularioCadastroAluno(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(),label='Senha')
-    confirm_password = forms.CharField(widget=forms.PasswordInput(),label='Confirmar senha')
+    password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
+    email = forms.CharField(max_length=30, validators=[validate_email])
+
     class Meta:
         model = Aluno
-        fields = ['cpf','first_name' ,'email', 'curso', 'password']
+        fields = ['cpf', 'email', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroAluno, self).clean()
@@ -37,6 +44,7 @@ class FormularioCadastroAluno(forms.ModelForm):
                 "Senha e Confirmar senha são diferentes"
             )
 
+
 class FormularioEditarAluno(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
     Rua = forms.CharField(max_length=40)
@@ -47,7 +55,7 @@ class FormularioEditarAluno(forms.ModelForm):
     
     class Meta:
         model = Aluno
-        fields = ['curso','matricula' , 'telefone' ]
+        fields = ['curso', 'matricula', 'telefone']
 
 
 class FormularioCadastroEmpresa(forms.models.BaseForm):
