@@ -3,6 +3,7 @@
 {% block content %}
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+
         <form action="" method="POST">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -21,9 +22,8 @@
              var resposta = confirm("Deseja desativar essa conta?");
 
              if (resposta == true) {
-                  window.location.href = "{{ 'excluiraluno' }}";
+                  window.location.href = "{{ 'desativar/' }}{{ request.user.pk }}";
              }
         }
         </script>
-
 {% endblock content %}

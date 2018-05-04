@@ -26,13 +26,14 @@ class FormularioContato(forms.Form):
 
 
 class FormularioCadastroAluno(forms.ModelForm):
+    first_name = forms.CharField(max_length=50,label='Primeiro Nome')
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])
 
     class Meta:
         model = Aluno
-        fields = ['cpf', 'email', 'curso', 'password', 'confirm_password']
+        fields = ['cpf','first_name', 'email', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroAluno, self).clean()
@@ -52,10 +53,10 @@ class FormularioEditarAluno(forms.ModelForm):
     Complemento = forms.CharField(max_length=10,required=False)
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
-    
+
     class Meta:
         model = Aluno
-        fields = ['curso', 'matricula', 'telefone']
+        fields = ['curso', 'matricula', 'telefone' ,'habilidades']
 
 
 class FormularioCadastroEmpresa(forms.models.BaseForm):
