@@ -156,10 +156,26 @@ def editar_vaga(request, pkvaga):
 def cadastro(request):
     context = {
         'form_aluno': FormularioCadastroAluno(),
-        'form_professor': FormularioCadastroProfessor(),
+       # 'form_professor': FormularioCadastroProfessor(),
         'form_empresa': FormularioCadastroEmpresa()
     }
     return render(request, 'sva/cadastro.html', context)
+
+
+@transaction.atomic
+def cadastrar_empresa(request):
+    form = FormularioCadastroEmpresa(request.POST or None)
+    empresa = Empresa()
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['cnpj']
+        usuario = User.objects.create_user(username)
+        empresa.user = usuario
+        empresa.cnpj = form.cleaned_data['cnpj']
+        empresa.user.set_password(form.cleaned_data['password'])
+        empresa.user.save()
+        empresa.data_cadastro = datetime.now()
+        return HttpResponseRedirect('/home/')
+    return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
 
 
 @transaction.atomic
@@ -169,7 +185,7 @@ def cadastrar_aluno(request):
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['cpf']
         usuario = User.objects.create_user(username)
-        aluno.user_ptr_id =usuario.id
+        aluno.user_ptr_id = usuario.id
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
         aluno.user.email = form.cleaned_data['email']

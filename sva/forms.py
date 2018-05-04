@@ -58,8 +58,24 @@ class FormularioEditarAluno(forms.ModelForm):
         fields = ['curso', 'matricula', 'telefone']
 
 
-class FormularioCadastroEmpresa(forms.models.BaseForm):
-    pass
+class FormularioCadastroEmpresa(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
+    email = forms.CharField(max_length=30, validators=[validate_email])
+
+    class Meta:
+        model = Empresa
+        fields = ['cnpj', 'email', 'password', 'confirm_password']
+
+    def clean(self):
+        cleaned_data = super(FormularioCadastroEmpresa, self).clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password != confirm_password:
+            raise forms.ValidationError(
+                "Senha e Confirmar senha são diferentes"
+            )
 
 
 class FormularioCadastroProfessor(forms.models.BaseForm):
