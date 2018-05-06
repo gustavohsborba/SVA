@@ -1,0 +1,14 @@
+{% extends 'sva/base.html' %}
+
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}SVA - Recuperar Senha{% endblock %}
+
+{% block content %}
+    <form method="post" class="col-xs-12 col-sm-6">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+{% endblock %}

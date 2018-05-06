@@ -123,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOGIN_REDIRECT_URL = '/'
 
-CRISPY_TEMPLATE_PACK = 'uni_form'
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

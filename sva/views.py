@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import messages
-from datetime import date, datetime
+from django.utils.translation import gettext_lazy as _
+
+
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render
@@ -301,4 +305,21 @@ def recuperar_senha(request):
     else:
         messages.error(request, mensagens.ERRO_COMBINACAO_CPF_EMAIL_INVALIDA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('')
+
+
+def alterar_senha(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, _('Sua senha foi alterada com sucesso!'))
+            return redirect('home')
+        else:
+            messages.error(request, _('Por favor, corrija os erros abaixo'))
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'registration/alterar_senha.html', {
+        'form': form
+    })
 
