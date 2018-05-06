@@ -2,6 +2,7 @@
 {% load i18n static %}
 {% load static %}
 {% load widget_tweaks %}
+{% load crispy_forms_tags %}
 
 {% block title %}SVA - Login{% endblock %}
 {% block body_class %}login-page{% endblock %}
@@ -16,7 +17,7 @@
             </div>
             {% endblock %}
             <!-- /.login-logo -->
-            <div class="login-box-body">
+            <div class="login-box-body col-xs-12">
 
                 {% if next %}
                     {% if user.is_authenticated %}
@@ -29,6 +30,15 @@
 
 
                 {% block select_login_or_register_form %}
+                    <div class="form-group center btn-group-lg col-xs-12 col-sm-12">
+                    {% if form.tipo_formulario or cadastro %}
+                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat">login</a>
+                        <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">Cadastrar</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">login</a>
+                        <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat ">Cadastrar</a>
+                    {% endif %}
+                    </div>
                 {% endblock %}
 
 
@@ -55,7 +65,7 @@
 
                 {% block login_form %}
 
-                    <form method="post">
+                    <form method="post" class="col-xs-12">
                         {% csrf_token %}
                         {% if message %}
                             <p class="login-box-msg" style="color: red;">{{ message }}</p>
@@ -100,8 +110,6 @@
                             <div class="col-xs-8">
                                 {% block login_form_links %}
                                     <a href="{% url 'recuperarsenha' %}">Esqueci minha Senha</a>
-                                    <br />
-                                    <a href="{% url 'cadastro' %}" class="text-center">Registrar</a>
                                 {% endblock %}
                             </div>
                             <div class="col-xs-4">

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*- 
 
 from django import forms
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -26,6 +23,7 @@ class FormularioContato(forms.Form):
 
 
 class FormularioCadastroAluno(forms.ModelForm):
+    tipo_formulario = "CADASTRO_ALUNO"
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])
@@ -59,6 +57,7 @@ class FormularioEditarAluno(forms.ModelForm):
 
 
 class FormularioCadastroEmpresa(forms.ModelForm):
+    tipo_formulario = "CADASTRO_EMPRESA"
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])
@@ -78,8 +77,25 @@ class FormularioCadastroEmpresa(forms.ModelForm):
             )
 
 
-class FormularioCadastroProfessor(forms.models.BaseForm):
-    pass
+class FormularioCadastroProfessor(forms.ModelForm):
+    tipo_formulario = "CADASTRO_PROFESSOR"
+    password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
+    email = forms.CharField(max_length=30, validators=[validate_email])
+
+    class Meta:
+        model = Professor
+        fields = ['cpf', 'email', 'curso', 'siape', 'password', 'confirm_password']
+
+    def clean(self):
+        cleaned_data = super(FormularioCadastroProfessor, self).clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password != confirm_password:
+            raise forms.ValidationError(
+                "Senha e Confirmar senha são diferentes"
+            )
 
 
 class LoginForm(AuthenticationForm):

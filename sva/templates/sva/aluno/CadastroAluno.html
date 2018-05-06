@@ -1,11 +1,13 @@
-{% extends 'sva/base.html' %}
-{% block content %}
+{% extends 'sva/cadastro.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
-    <body>
-        <form action="" method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Criar</button>
-        </form>
-{% endblock content %}
+
+{% block login_form %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+    <form action="" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary btn-flat">Criar</button>
+            <a href="{% url 'login' %}" class="btn btn-default btn-flat pull-right">Já tenho conta</a>
+    </form>
+{% endblock login_form %}

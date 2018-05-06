@@ -1,15 +1,17 @@
-{% extends 'sva/base.html' %}
-{% block title %}Login{% endblock %}
+{% extends 'registration/login.html' %}
 
-{% block content %}
-     <head>
-
-    </head>
+{% block title %}Recuperar Senha{% endblock %}
 
 
+{% block profile_select_form %}
+{% endblock %}
 
-     <div class="col-md-6 col-md-offset-3">
-        <h2>Recuperar Senha</h2>
+{% block select_login_or_register_form %}
+{% endblock %}
+
+{% block login_form %}
+
+        <h3 class="center-block">Recuperar Senha</h3>
 
         <form method="post" action="" name="Formlogin">
             {% csrf_token %}
@@ -29,11 +31,9 @@
 
 
             <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
-                <button [disabled]="loading" class="btn btn-primary">Entrar</button>
-                <input type="hidden" name="next" value="{{ next }}" />
-                <a [routerLink]="['/register']" class="btn btn-link">Recuperar Senha</a>
+                <button type="submit" class="btn btn-primary btn-flat">Recuperar Senha</button>
+                <a href="{% url 'login' %}" class="btn btn-default btn-flat pull-right">Voltar</a>
             </div>
         </form>
-    </div>
 
 {% endblock %}

@@ -4,6 +4,7 @@ from django.contrib import messages
 from datetime import date, datetime
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -148,7 +149,7 @@ def editar_vaga(request, pkvaga):
         vaga.local = form.cleaned_data['local']
         vaga.valor_bolsa = form.cleaned_data['valor_bolsa']
         vaga.beneficios = form.cleaned_data['beneficios']
-        vaga.situacao = 2;
+        vaga.situacao = 2
         vaga.save()
         return redirect(gerenciar_vaga)
 
@@ -157,7 +158,8 @@ def cadastro(request):
     context = {
         'form_aluno': FormularioCadastroAluno(),
        # 'form_professor': FormularioCadastroProfessor(),
-        'form_empresa': FormularioCadastroEmpresa()
+        'form_empresa': FormularioCadastroEmpresa(),
+        'cadastro': True
     }
     return render(request, 'sva/cadastro.html', context)
 
@@ -172,8 +174,10 @@ def cadastrar_empresa(request):
         empresa.user = usuario
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.user.set_password(form.cleaned_data['password'])
+        empresa.user.groups = Group.objects.filter(Q(name='Empresa')| Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.data_cadastro = datetime.now()
+        messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
 
@@ -196,8 +200,32 @@ def cadastrar_aluno(request):
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
+        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/aluno/CadastroAluno.html', {'form': form})
+
+
+@transaction.atomic
+def cadastrar_professor(request):
+    form = FormularioCadastroProfessor(request.POST or None)
+    professor = Professor()
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['cpf']
+        usuario = User.objects.create_user(username)
+        professor.user_ptr_id = usuario.id
+        professor.user = usuario
+        professor.user.username = form.cleaned_data['cpf']
+        professor.user.email = form.cleaned_data['email']
+        professor.user.set_password(form.cleaned_data['password'])
+        professor.user.save()
+        professor.curso = form.cleaned_data['curso']
+        professor.siape = form.cleaned_data['siape']
+        professor.cpf = form.cleaned_data['cpf']
+        professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
+        professor.save()
+        messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
+        return redirect('login')
+    return render(request, 'sva/professor/CadastroProfessor.html', {'form': form})
 
 
 @transaction.atomic
