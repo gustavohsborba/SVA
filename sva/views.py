@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
@@ -7,12 +10,16 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
+import string
+from random import choice
 
 from sva import mensagens
 from .models import *
@@ -292,12 +299,25 @@ def recuperar_senha(request):
     if request.method == "GET":
         return render(request, 'registration/recuperarSenha.html', {})
 
-    cpf = request.POST['CPF']
+    # cpf = request.POST['CPF']
     email = request.POST['email']
-    user = Aluno.objects.filter(user__email=email, cpf=cpf)
+    user = User.objects.filter(email=email)
+    novasenha = ''.join([choice(string.letters + string.digits) for i in range(8)])
+    user[0].set_password('kamikaze')
+    user[0].save()
+
+    print(novasenha)
+    send_mail(
+        'Recuperação de Senha - Sistema de Vagas Acadêmicas',
+        'Sua nova senha é:\n\n'+novasenha+'\n\nPara alterar acesse sua conta no site sva.cefetmg.br e vá '
+                                          'no menu configurações do Usuário',
+        'from@example.com',
+        ['sistemadevagasacedimicas@gmail.com'],
+    )
 
     if user is not None:
-        if user.is_authenticated:
+
+        if request.user.is_authenticated:
             return HttpResponseRedirect('/')
         else:
             messages.error(request, mensagens.ERRO_COMBINACAO_CPF_EMAIL_INVALIDA, mensagens.MSG_ERRO)

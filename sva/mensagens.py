@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 MSG_ERRO = 'alert alert-danger'
 MSG_INFO = 'alert alert-info'
