@@ -135,6 +135,9 @@ class Empresa(GerenteVaga):
 
     cnpj = models.CharField(unique=True, max_length=14, validators=[validate_CNPJ])
     nome = models.CharField(max_length=60, null=False, blank=False, db_index=True)
+    website = models.CharField(max_length=255, null=True, blank=True, validators=[URLValidator])
+    endereco = models.CharField(max_length=100, null=True, blank=True)
+    telefone = models.CharField(max_length=20, null=True, blank=True, validators=[validate_integer])
 
     def save(self, *args, **kwargs):
         self.user.first_name = self.nome

@@ -35,7 +35,7 @@ class FormularioContato(forms.Form):
 
 class FormularioCadastroAluno(forms.ModelForm):
     tipo_formulario = "CADASTRO_ALUNO"
-    first_name = forms.CharField(max_length=50,label='Primeiro Nome')
+    first_name = forms.CharField(max_length=50,label='Nome Completo')
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])

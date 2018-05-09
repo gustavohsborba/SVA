@@ -15,16 +15,10 @@
 
         <form method="post" action="" name="Formlogin">
             {% csrf_token %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="text" class="form-control" name="email" [(ngModel)]="model.email" #username="ngModel" required />
             </div>
-
-
 
             <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !username.valid }">
                 <button type="submit" class="btn btn-primary btn-flat">Recuperar Senha</button>

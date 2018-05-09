@@ -1,9 +1,12 @@
 {% extends 'registration/login.html' %}
 
+{% block select_login_or_register_form %}
+{% endblock %}
+
 
 {% block login_form %}
 
-<p><h3>Você foi deslogado com sucesso!</h3></p>
+<p><b>Você foi deslogado com sucesso!</b></p>
 
 <p><a href="{% url 'login' %}">Entrar novamente</a></p>
 

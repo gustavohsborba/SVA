@@ -4,23 +4,17 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 
-from datetime import date, datetime
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
-from django.core.mail import send_mail
 import string
 from random import choice
 
 from sva import mensagens
-from .models import *
 from .forms import *
 
 # Create your views here.
@@ -202,6 +196,7 @@ def cadastrar_aluno(request):
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
         aluno.user.first_name = form.cleaned_data['first_name']
+        aluno.user.last_name = ''
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
@@ -311,7 +306,7 @@ def recuperar_senha(request):
         user = None
 
     if user is not None:
-        novasenha = ''.join([choice(string.letters + string.digits) for i in range(8)])
+        novasenha = ''.join([choice(string.ascii_letters + string.digits) for i in range(8)])
         send_mail(
             'Recuperação de Senha - Sistema de Vagas Acadêmicas',
             'Sua nova senha é:\n\n'+novasenha+'\n\nPara alterar para uma nova senha de sua preferência,'
@@ -327,6 +322,7 @@ def recuperar_senha(request):
     else:
         messages.error(request, mensagens.ERRO_EMAIL_INVALIDO, mensagens.MSG_ERRO)
         return render(request, 'registration/recuperarSenha.html', {})
+
 
 def alterar_senha(request):
     if request.method == 'POST':

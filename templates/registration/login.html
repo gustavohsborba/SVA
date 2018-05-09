@@ -9,121 +9,128 @@
 
 {% block body %}
     <div class="col-md-6 col-lg-push-6">
+
+
         <div class="login-box">
+
             {% block logo %}
-            <div class="login-logo">
-                {# Mirrors block names used in _main_header.html #}
-                <a href="{% block logo_href %}/home{% endblock %}">{% block logo_text %}<b>SVA</b> CEFET-MG{% endblock %}</a>
-            </div>
+                <div class="login-logo">
+                    {# Mirrors block names used in _main_header.html #}
+                    <a href="{% block logo_href %}/home{% endblock %}">{% block logo_text %}<b>SVA</b> CEFET-MG{% endblock %}</a>
+                </div>
             {% endblock %}
-            <!-- /.login-logo -->
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-            <div class="login-box-body col-xs-12">
 
-                {% if next %}
-                    {% if user.is_authenticated %}
-                    <p>Seu perfil não tem acesso a essa página. Para continuar,
-                        por favor, logue com uma conta que tenha esse acesso.</p>
-                    {% else %}
-                    <p>Por favor, faça login para acessar a página.</p>
-                    {% endif %}
-                {% endif %}
+            <div class="login-box-body">
 
-
-                {% block select_login_or_register_form %}
-                    <div class="form-group center btn-group-lg col-xs-12 col-sm-12">
-                    {% if form.tipo_formulario or cadastro %}
-                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat">login</a>
-                        <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">Cadastrar</a>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">login</a>
-                        <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat ">Cadastrar</a>
-                    {% endif %}
+                <div class="box-body ">
+                    <div class="col-xs-12">
+                        {% block select_login_or_register_form %}
+                            {% if form.tipo_formulario or cadastro %}
+                                <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat">login</a>
+                                <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">Cadastrar</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">login</a>
+                                <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat ">Cadastrar</a>
+                            {% endif %}
+                        {% endblock %}
                     </div>
-                {% endblock %}
+
+                    {% block profile_select_form %}
+                    {% endblock %}
+                </div>
+
+                <div class="box-body">
+
+                    {% block mensagens %}
+                        <div class="col-xs-12 col-sm-12">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endblock %}
 
 
-
-                {% block profile_select_form %}
-                {% endblock %}
-
-                {% block login_errors %}
-                    {% if form.errors and not form.non_field_errors %}
-                        <p class="alert alert-danger">
-                            {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}
-                                {% trans "Please correct the errors below." %}{% endif %}
-                        </p>
+                    {% if next %}
+                        {% if user.is_authenticated %}
+                        <p>Seu perfil não tem acesso a essa página. Para continuar,
+                            por favor, logue com uma conta que tenha esse acesso.</p>
+                        {% else %}
+                        <p>Por favor, faça login para acessar a página.</p>
+                        {% endif %}
                     {% endif %}
 
-                    {% if form.non_field_errors %}
-                        {% for error in form.non_field_errors %}
+                    {% block login_errors %}
+                        {% if form.errors and not form.non_field_errors %}
                             <p class="alert alert-danger">
-                                {{ error }}
+                                {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}
+                                    {% trans "Please correct the errors below." %}{% endif %}
                             </p>
-                        {% endfor %}
-                    {% endif %}
-                {% endblock login_errors %}
-
-                {% block login_form %}
-
-                    <form method="post" class="col-xs-12">
-                        {% csrf_token %}
-                        {% if message %}
-                            <p class="login-box-msg" style="color: red;">{{ message }}</p>
                         {% endif %}
 
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <p class="alert alert-danger">
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        {% endif %}
+                    {% endblock login_errors %}
 
-                        {% csrf_token %}
+                    {% block login_form %}
 
-                        {% for hidden in form.hidden_fields %}
-                          {{ hidden }}
-                        {% endfor %}
+                        <form method="post" class="col-xs-12">
+                            {% csrf_token %}
 
-
-                        <div class="form-group has-feedback">
-                            {{ form.username|add_class:'form-control' }}
-                            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-                            {% if form.username.errors %}
-                                <ol>
-                                {% for error in form.username.errors %}
-                                    <li><strong>{{ error|escape }}</strong></li>
-                                {% endfor %}
-                                </ol>
-                            {% endif %}
-                        </div>
+                            {% for hidden in form.hidden_fields %}
+                              {{ hidden }}
+                            {% endfor %}
 
 
-                        <div class="form-group has-feedback">
-                            {{ form.password|add_class:'form-control' }}
-                            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                            {% if form.password.errors %}
-                                <ol>
-                                {% for error in form.password.errors %}
-                                    <li><strong>{{ error|escape }}</strong></li>
-                                {% endfor %}
-                                </ol>
-                            {% endif %}
-                        </div>
-
-
-
-                        <div class="row">
-                            <div class="col-xs-8">
-                                {% block login_form_links %}
-                                    <a href="{% url 'recuperarsenha' %}">Esqueci minha Senha</a>
-                                {% endblock %}
+                            <div class="form-group has-feedback">
+                                {{ form.username|add_class:'form-control' }}
+                                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                                {% if form.username.errors %}
+                                    <ol>
+                                    {% for error in form.username.errors %}
+                                        <li><strong>{{ error|escape }}</strong></li>
+                                    {% endfor %}
+                                    </ol>
+                                {% endif %}
                             </div>
-                            <div class="col-xs-4">
-                                <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+
+
+                            <div class="form-group has-feedback">
+                                {{ form.password|add_class:'form-control' }}
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                                {% if form.password.errors %}
+                                    <ol>
+                                    {% for error in form.password.errors %}
+                                        <li><strong>{{ error|escape }}</strong></li>
+                                    {% endfor %}
+                                    </ol>
+                                {% endif %}
                             </div>
-                        </div>
-                    </form>
-                {% endblock login_form %}
-            </div>
-        </div>
-    </div>
+
+
+
+                            <div class="row">
+                                <div class="col-xs-8">
+                                    {% block login_form_links %}
+                                        <a href="{% url 'recuperarsenha' %}">Esqueci minha Senha</a>
+                                    {% endblock %}
+                                </div>
+                                <div class="col-xs-4">
+                                    <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endblock login_form %}
+                </div> <!-- box-body -->
+
+            </div> <!-- login box-body -->
+        </div> <!-- login-box -->
+
+    </div> <!-- col-md-6 -->
 
     <div class="col-md-6 col-md-pull-6 visible-lg row body box-body vertical" style="height:80%;">
         <div class="login-box vertical">
