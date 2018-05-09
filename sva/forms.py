@@ -70,6 +70,7 @@ class FormularioEditarAluno(forms.ModelForm):
 
 class FormularioCadastroEmpresa(forms.ModelForm):
     tipo_formulario = "CADASTRO_EMPRESA"
+    cnpj = forms.CharField(max_length=14, validators=[validate_CNPJ])
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])

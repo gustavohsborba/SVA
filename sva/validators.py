@@ -23,7 +23,6 @@ def validate_email(value):
             params={'value': value},
         )
 
-
 def isGerenteVaga(user):
     return user.groups.filter(name='Gerente Vagas').exists()
 
@@ -40,6 +39,7 @@ __version__ = "1.0"
 
 error_messages = {
     'invalid': _("CPF inválido."),
+    'invalidCNPJ': _("CNPJ inválido."),
     'digits_only': _("Este campo requer apenas números."),
     'max_digits': _("Este campo permite apenas 11 digitos."),
 }
@@ -109,7 +109,7 @@ def validate_CNPJ(value):
     new_2dv = DV_maker(new_2dv % 11)
     value = value[:-1] + str(new_2dv)
     if value[-2:] != orig_dv:
-        raise ValidationError(error_messages['invalid'])
+        raise ValidationError(error_messages['invalidCNPJ'])
 
     return orig_value
 
