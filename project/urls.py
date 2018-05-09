@@ -42,7 +42,9 @@ urlpatterns = [
     url(r'^aluno/editaraluno/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editaraluno/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
-
+    url(r'^cadastroprofessor/$', cadastrar_professor, name='Cadastro_Professor'),
+    url(r'^professor/editarprofessor/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
+    url(r'^professor/editarprofessor/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
     url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
     url(r'^layout', layout),
 

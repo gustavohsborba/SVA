@@ -98,7 +98,7 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
     class Meta:
         model = Professor
-        fields = ['cpf', 'email', 'curso', 'siape', 'password', 'confirm_password']
+        fields = ['cpf', 'email', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroProfessor, self).clean()
@@ -109,6 +109,16 @@ class FormularioCadastroProfessor(forms.ModelForm):
             raise forms.ValidationError(
                 "Senha e Confirmar senha são diferentes"
             )
+
+
+class FormularioEditarProfessor(forms.ModelForm):
+    Nome_Completo = forms.CharField(max_length=100)
+    Telefone = forms.CharField(max_length=12)
+
+    class Meta:
+        model = Professor
+        fields = ['curso']
+
 
 
 class LoginForm(AuthenticationForm):
