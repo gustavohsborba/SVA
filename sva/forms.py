@@ -100,8 +100,7 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
 class FormularioEditarProfessor(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
-    Telefone = forms.CharField(max_length=7)
-    Departamento_Atuacao = forms.CharField(max_length=100)
+    Telefone = forms.CharField(max_length=12)
 
     class Meta:
         model = Professor

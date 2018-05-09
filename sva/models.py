@@ -153,7 +153,8 @@ class Professor(GerenteVaga):
         verbose_name = 'Professor'
         verbose_name_plural = 'Professores'
 
-#    curso = models.ForeignKey(to=Curso, null=True, blank=False, on_delete=models.PROTECT)
+    curso = models.ForeignKey(to=Curso, null=True, blank=False, on_delete=models.PROTECT)
+    telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
 
    # siape = models.CharField(unique=True, max_length=8, validators=[integer_validator])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
@@ -166,7 +167,7 @@ class Professor(GerenteVaga):
         super(Professor, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '%s %s (%s)' % (self.user.first_name, self.user.last_name)
+        return '%s %s' % (self.user.first_name, self.user.last_name)
 
 
 class Vaga(models.Model):

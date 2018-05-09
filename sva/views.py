@@ -325,20 +325,29 @@ def alterar_senha(request):
 @login_required(login_url='/accounts/login/')
 def editar_professor(request, pk):
     professor = get_object_or_404(Professor,pk=pk)
-    texto = professor.endereco
-    Parte = texto.split(",")
-    Nome = professor.user.first_name+' '+ professor.user.last_name
+    #curso = get_object_or_404(Curso, pk=professor.curso)
+    Nome = professor.user.first_name+' '+professor.user.last_name
+
+    Telefone = professor.telefone
+    Curso = professor.curso
+    initial = {
+               'Nome_Completo': Nome,
+               'Telefone': Telefone,
+               'Curso': Curso}
+
     if request.method == 'POST':
         form = FormularioEditarProfessor(request.POST,instance=professor,initial=initial)
         if form.is_valid():
+            professor.curso = form.cleaned_data['curso']
+            professor.telefone =  form.cleaned_data['Telefone']
             professor.save()
-            professor.user.first_name = Nome[0]
-            professor.user.last_name = Nome[1]
+            professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
+            professor.user.last_name = Nome[1] if len(Nome) > 1 else ''
             professor.user.save()
             messages.success(request, 'Editado com sucesso.')
     else:
-        form = FormularioEditarProfessor(instance=professor,initial=professor)
-    return render(request, 'sva/aluno/EditarProfessor.html', {'form': form})
+        form = FormularioEditarProfessor(instance=professor,initial=initial)
+    return render(request, 'sva/professor/EditarProfessor.html', {'form': form})
 
 @login_required(login_url='/accounts/login/')
 def excluir_professor(request, pk):
