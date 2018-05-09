@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
+
+
 from datetime import date, datetime
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -148,7 +154,7 @@ def editar_vaga(request, pkvaga):
         vaga.local = form.cleaned_data['local']
         vaga.valor_bolsa = form.cleaned_data['valor_bolsa']
         vaga.beneficios = form.cleaned_data['beneficios']
-        vaga.situacao = 2;
+        vaga.situacao = 2
         vaga.save()
         return redirect(gerenciar_vaga)
 
@@ -156,10 +162,29 @@ def editar_vaga(request, pkvaga):
 def cadastro(request):
     context = {
         'form_aluno': FormularioCadastroAluno(),
-        'form_professor': FormularioCadastroProfessor(),
-        'form_empresa': FormularioCadastroEmpresa()
+       # 'form_professor': FormularioCadastroProfessor(),
+        'form_empresa': FormularioCadastroEmpresa(),
+        'cadastro': True
     }
     return render(request, 'sva/cadastro.html', context)
+
+
+@transaction.atomic
+def cadastrar_empresa(request):
+    form = FormularioCadastroEmpresa(request.POST or None)
+    empresa = Empresa()
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['cnpj']
+        usuario = User.objects.create_user(username)
+        empresa.user = usuario
+        empresa.cnpj = form.cleaned_data['cnpj']
+        empresa.user.set_password(form.cleaned_data['password'])
+        empresa.user.groups = Group.objects.filter(Q(name='Empresa')| Q(name='Gerente Vagas'))
+        empresa.user.save()
+        empresa.data_cadastro = datetime.now()
+        messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')
+    return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
 
 
 @transaction.atomic
@@ -169,7 +194,9 @@ def cadastrar_aluno(request):
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['cpf']
         usuario = User.objects.create_user(username)
+        aluno.user_ptr_id = usuario.id
         aluno.user = usuario
+        aluno.user.username = form.cleaned_data['cpf']
         aluno.user.first_name = form.cleaned_data['first_name']
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
@@ -179,8 +206,32 @@ def cadastrar_aluno(request):
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
+        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/aluno/CadastroAluno.html', {'form': form})
+
+
+@transaction.atomic
+def cadastrar_professor(request):
+    form = FormularioCadastroProfessor(request.POST or None)
+    professor = Professor()
+    if request.method == 'POST' and form.is_valid():
+        username = form.cleaned_data['cpf']
+        usuario = User.objects.create_user(username)
+        professor.user_ptr_id = usuario.id
+        professor.user = usuario
+        professor.user.username = form.cleaned_data['cpf']
+        professor.user.email = form.cleaned_data['email']
+        professor.user.set_password(form.cleaned_data['password'])
+        professor.user.save()
+        professor.curso = form.cleaned_data['curso']
+        professor.siape = form.cleaned_data['siape']
+        professor.cpf = form.cleaned_data['cpf']
+        professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
+        professor.save()
+        messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
+        return redirect('login')
+    return render(request, 'sva/professor/CadastroProfessor.html', {'form': form})
 
 
 @transaction.atomic
@@ -212,8 +263,7 @@ def editar_aluno(request, pk):
                              form.cleaned_data['Estado']
             aluno.save()
             aluno.user.first_name = Nome[0]
-            if len(Nome) > 1:
-                aluno.user.last_name = Nome[1]
+            aluno.user.last_name = Nome[1] if if len(Nome) > 1 else None
             aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
@@ -226,18 +276,19 @@ def editar_aluno(request, pk):
 def excluir_aluno(request, pk):
     aluno = get_object_or_404(Aluno, user_id=pk)
     if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
     if aluno is not None:
         aluno.user.is_active = False
         aluno.user.save()
-        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
 
 
 def exibir_aluno(request, pk):
     aluno = get_object_or_404(Aluno, user_id=pk)
     context = {'aluno': aluno}
-    return render(request, 'sva/aluno/perfil.html', context)
+    return render(request, 'sva/aluno/Perfil.html', context)
 
 
 def layout(request):
@@ -262,4 +313,21 @@ def recuperar_senha(request):
     else:
         messages.error(request, mensagens.ERRO_COMBINACAO_CPF_EMAIL_INVALIDA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('')
+
+
+def alterar_senha(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, _('Sua senha foi alterada com sucesso!'))
+            return redirect('home')
+        else:
+            messages.error(request, _('Por favor, corrija os erros abaixo'))
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'registration/alterar_senha.html', {
+        'form': form
+    })
 

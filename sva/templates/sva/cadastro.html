@@ -1,18 +1,51 @@
 {% extends 'registration/login.html' %}
 
+{% load static %}
+
+
+{% block title %}SVA - Cadastro{% endblock %}
+
 {% block profile_select_form %}
-    <div id="seletor-perfil" class="col-xs-12">
+    <div id="seletor-perfil" class="form-group col-xs-12" style="padding:10px;">
+
         <div class="col-xs-4 col-sm-4 col-md-4">
-            <img class="profile-user-img img-responsive img-circle"  src="{% static 'img/login_aluno.png' %}" alt="Cadastrar como Aluno">
-            <h3 class="profile-username text-center">Aluno</h3>
+            <a href="{% url 'Cadastro_Aluno' %}">
+                <img class="profile-user-img img-responsive img-circle"
+                    {% if form.tipo_formulario != 'CADASTRO_EMPRESA' and form.tipo_formulario != 'CADASTRO_PROFESSOR'%}
+                        style="background-color:orange;"
+                    {% endif %}
+                    src="{% static 'img/login_aluno.png' %}" alt="Cadastrar como Aluno"/>
+                {% if form.tipo_formulario != 'CADASTRO_EMPRESA' and form.tipo_formulario != 'CADASTRO_PROFESSOR'%}
+                    <h4 class="profile-username text-center">Aluno</h4>
+                {% endif %}
+            </a>
         </div>
         <div class="col-xs-4 col-sm-4">
-            <img class="profile-user-img img-responsive img-circle"  src="{% static 'img/login_professor.png' %}" alt="Cadastrar como Professor">
-            <h3 class="profile-username text-center">Professor</h3>
+            <a href="{% url 'Cadastro_Aluno' %}">
+                <img class="profile-user-img img-responsive img-circle"
+                    {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_EMPRESA'%}
+                        style="background-color:orange;"
+                    {% endif %}
+                    src="{% static 'img/login_professor.png' %}" alt="Cadastrar como Professor"/>
+                {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_EMPRESA'%}
+                    <h4 class="profile-username text-center">Professor</h4>
+                {% endif %}
+            </a>
         </div>
         <div class="col-xs-4 col-sm-4 col-md-4">
-            <img class="profile-user-img img-responsive img-circle"  src="{% static 'img/login_empresa.png' %}" alt="Cadastrar como Empresa">
-            <h3 class="profile-username text-center">Empresa</h3>
+            <a href="{% url 'Cadastro_Empresa' %}">
+                <img class="profile-user-img img-responsive img-circle"
+                    {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_PROFESSOR'%}
+                         style="background-color:orange;"
+                    {% endif %}
+                    src="{% static 'img/login_empresa.png' %}" alt="Cadastrar como Empresa"/>
+                {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_PROFESSOR'%}
+                    <h4 class="profile-username text-center">Empresa</h4>
+                {% endif %}
+            </a>
         </div>
     </div>
+{% endblock %}
+
+{% block login_form %}
 {% endblock %}

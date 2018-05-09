@@ -25,7 +25,8 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', home),
     url(r'^home', home),
-    url(r'^accounts/password_change/$', recuperar_senha, name='recuperarsenha'),
+    url(r'^accounts/password_change/$', alterar_senha, name='alterarsenha'),
+    url(r'^accounts/recuperar_senha/$', recuperar_senha, name='recuperarsenha'),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^cadastro/', cadastro, name='cadastro'),
     url(r'^contato', formulario_contato),
@@ -42,6 +43,8 @@ urlpatterns = [
     url(r'^aluno/editaraluno/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editaraluno/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
+
+    url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
     url(r'^layout', layout),
 
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)

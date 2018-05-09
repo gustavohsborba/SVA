@@ -123,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOGIN_REDIRECT_URL = '/'
 
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -150,3 +151,9 @@ STATICFILES_DIR = (
 )
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
