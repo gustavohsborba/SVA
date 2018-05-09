@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
