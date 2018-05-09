@@ -1,10 +1,14 @@
-# -*- coding: utf-8 -*-
-from django import forms
+# -*- coding: utf-8 -*- 
 
+from django import forms
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
 from .validators import *
+
 
 class FormularioVaga(forms.ModelForm):
 
@@ -31,13 +35,14 @@ class FormularioContato(forms.Form):
 
 class FormularioCadastroAluno(forms.ModelForm):
     tipo_formulario = "CADASTRO_ALUNO"
+    first_name = forms.CharField(max_length=50,label='Primeiro Nome')
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.CharField(max_length=30, validators=[validate_email])
 
     class Meta:
         model = Aluno
-        fields = ['cpf', 'email', 'curso', 'password', 'confirm_password']
+        fields = ['cpf','first_name', 'email', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroAluno, self).clean()
@@ -57,10 +62,10 @@ class FormularioEditarAluno(forms.ModelForm):
     Complemento = forms.CharField(max_length=10,required=False)
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
-    
+
     class Meta:
         model = Aluno
-        fields = ['curso', 'matricula', 'telefone']
+        fields = ['curso', 'matricula', 'telefone' ,'habilidades']
 
 
 class FormularioCadastroEmpresa(forms.ModelForm):

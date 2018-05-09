@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^vagas/criar/$', criar_vaga, name='vaga_criar'),
     url(r'^cadastroaluno/$', cadastrar_aluno, name='Cadastro_Aluno'),
     url(r'^aluno/editaraluno/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
-    url(r'^aluno/editaraluno/(?P<pk>\d+)/excluir$', excluir_aluno, name='Excluir_Aluno'),
+    url(r'^aluno/editaraluno/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
 
     url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),

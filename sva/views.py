@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
 
+from datetime import date, datetime
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
@@ -196,6 +197,7 @@ def cadastrar_aluno(request):
         aluno.user_ptr_id = usuario.id
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
+        aluno.user.first_name = form.cleaned_data['first_name']
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
@@ -204,7 +206,7 @@ def cadastrar_aluno(request):
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
-        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/aluno/CadastroAluno.html', {'form': form})
 
@@ -227,7 +229,7 @@ def cadastrar_professor(request):
         professor.cpf = form.cleaned_data['cpf']
         professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
         professor.save()
-        messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
+        messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return redirect('login')
     return render(request, 'sva/professor/CadastroProfessor.html', {'form': form})
 
@@ -235,7 +237,9 @@ def cadastrar_professor(request):
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_aluno(request, pk):
-    aluno = get_object_or_404(Aluno,pk=pk)
+    if pk != str(request.user.id):
+       return HttpResponseRedirect('/home/')
+    aluno = get_object_or_404(Aluno,user_id=pk)
     texto = aluno.endereco
     Parte= texto.split(",")
     Nome = aluno.user.first_name+' '+aluno.user.last_name
@@ -259,7 +263,8 @@ def editar_aluno(request, pk):
                              form.cleaned_data['Estado']
             aluno.save()
             aluno.user.first_name = Nome[0]
-            aluno.user.last_name = Nome[1]
+            aluno.user.last_name = Nome[1] if len(Nome) > 1 else None
+            aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
     else:
@@ -269,16 +274,19 @@ def editar_aluno(request, pk):
 
 @login_required(login_url='/accounts/login/')
 def excluir_aluno(request, pk):
-    aluno = get_object_or_404(Aluno, pk=pk)
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
     if aluno is not None:
         aluno.user.is_active = False
         aluno.user.save()
-        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
 
 
 def exibir_aluno(request, pk):
-    aluno = get_object_or_404(Aluno, pk=pk)
+    aluno = get_object_or_404(Aluno, user_id=pk)
     context = {'aluno': aluno}
     return render(request, 'sva/aluno/Perfil.html', context)
 

@@ -4,4 +4,7 @@
         <h2>Nome  : {{ aluno.user.first_name }} {{ aluno.user.last_name }}</h2>
         <h3>Email  : {{ aluno.user.email }}</h3>
         <h3>Telefone : {{ aluno.telefone }}</h3>
+        {% if request.user.pk == aluno.user_id %}
+            <a href="/aluno/editaraluno/{{ request.user.pk }}"> Editar Perfil </a>
+        {%endif%}
 {% endblock content %}
