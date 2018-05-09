@@ -45,11 +45,12 @@ def gerenciar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
         return redirect("login")
-    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_submissao')
+    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
     return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
 
 @login_required
+@transaction.atomic
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def criar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
@@ -67,6 +68,7 @@ def criar_vaga(request):
                 return redirect(principal_vaga)
             form.instance.gerente_vaga = gerente
             form.save()
+            messages.success(request, 'Vaga criada com sucesso')
             return redirect(gerenciar_vaga)
     else:
         form = FormularioVaga()
@@ -95,6 +97,7 @@ def lista_alunos_vaga(request, pkvaga):
 
 
 @login_required
+@transaction.atomic
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def encerrar_inscricao_vaga(request, pkvaga):
     gerente = GerenteVaga.objects.get(user=request.user)
@@ -110,6 +113,7 @@ def encerrar_inscricao_vaga(request, pkvaga):
         vaga.data_validade = datetime.now()
         vaga.situacao = 4
         vaga.save()
+        messages.success(request, 'Inscrições encerradas')
         return redirect(gerenciar_vaga)
 
 
@@ -125,6 +129,7 @@ def visualizar_vaga(request, pkvaga):
 
 
 @login_required
+@transaction.atomic
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def editar_vaga(request, pkvaga):
 
@@ -154,6 +159,7 @@ def editar_vaga(request, pkvaga):
         vaga.beneficios = form.cleaned_data['beneficios']
         vaga.situacao = 2
         vaga.save()
+        messages.success(request, 'Editado com sucesso')
         return redirect(gerenciar_vaga)
 
 
