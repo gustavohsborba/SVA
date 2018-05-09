@@ -224,6 +224,7 @@ def cadastrar_professor(request):
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
         professor.cpf = form.cleaned_data['cpf']
+        professor.siape = form.cleaned_data['siape']
         professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
         professor.save()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
@@ -356,6 +357,7 @@ def editar_professor(request, pk):
         form = FormularioEditarProfessor(request.POST,instance=professor,initial=initial)
         if form.is_valid():
             professor.curso = form.cleaned_data['curso']
+            professor.siape = form.cleaned_data['siape']
             professor.telefone =  form.cleaned_data['Telefone']
             professor.save()
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''

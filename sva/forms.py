@@ -98,7 +98,7 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
     class Meta:
         model = Professor
-        fields = ['cpf', 'email', 'password', 'confirm_password']
+        fields = ['cpf', 'email', 'siape', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroProfessor, self).clean()
@@ -117,7 +117,7 @@ class FormularioEditarProfessor(forms.ModelForm):
 
     class Meta:
         model = Professor
-        fields = ['curso']
+        fields = ['curso', 'siape']
 
 
 

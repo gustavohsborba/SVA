@@ -159,8 +159,8 @@ class Professor(GerenteVaga):
     curso = models.ForeignKey(to=Curso, null=True, blank=False, on_delete=models.PROTECT)
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
 
-   # siape = models.CharField(unique=True, max_length=8, validators=[integer_validator])
-    cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
+    siape = models.CharField(unique=True, max_length=8, blank=False, null=False, validators=[integer_validator])
+    cpf = models.CharField(unique=True, max_length=14, blank=False, null=False,  validators=[validate_CPF])
 
     def save(self, *args, **kwargs):
         self.user.username = self.cpf
