@@ -1,17 +1,24 @@
-# -*- coding: utf-8 -*- 
-
+# -*- coding: utf-8 -*-
 from django import forms
+
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
 from .validators import *
 
-
 class FormularioVaga(forms.ModelForm):
+
+    def clean(self):
+        cleaned_data = super(FormularioVaga, self).clean()
+        if not cleaned_data['data_validade']:
+            cleaned_data['data_validade'] = None
+        return cleaned_data
 
     class Meta:
         model = Vaga
         fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+
+    data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
 
 
 class FormularioContato(forms.Form):

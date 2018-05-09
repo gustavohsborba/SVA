@@ -5,12 +5,12 @@
     <h1><b>{{ vaga.titulo }}</b></h1>
     <br>
     <div class="form-group">
-        <b>Criada por:</b> {{ gerente.first_name }} {{ gerente.last_name }}
+        <b>Criada por:</b> {{ gerente.user.first_name }} {{ gerente.user.last_name }}
     </div>
     <div class="form-group">
         <b>Áreas de atuação:</b>
             {% for area in vaga.areas_atuacao.all %}
-                {{area.nome}}
+                [{{area.nome}}]
             {% endfor %}
     </div>
     <div class="form-group">
@@ -35,7 +35,12 @@
         <b>Valor da bolsa:</b> R${{vaga.valor_bolsa|floatformat:2}}
     </div>
     <div class="form-group">
-        <b>Benefícios concedidos:</b> {{vaga.beneficios}}
+    <b>Benefícios concedidos: </b>
+    {% if vaga.beneficios == '' %}
+    Nenhum
+    {% else %}
+    {{vaga.beneficios}}
+    {% endif %}
     </div>
     <div class="form-group">
         <b>Avaliação da vaga:</b> {{vaga.nota_media}}

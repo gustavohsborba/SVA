@@ -9,29 +9,31 @@
     <form method="post" class="form-horizontal">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Título: </label><div class="col-sm-10"> {{ form.titulo }}</div>
+                    <label class="control-label col-sm-2">Título: <font size="2" color="red">*</font></label><div class="col-sm-10"> {{ form.titulo }}</div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Áreas de atuação: </label><div class="col-sm-10">{{form.areas_atuacao}}</div>
+                    <label class="control-label col-sm-2">Áreas de atuação: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.areas_atuacao}}</div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Descrição: </label><div class="col-sm-10">{{form.descricao}}</div>
+                    <label class="control-label col-sm-2">Descrição: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.descricao}}</div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-2">Inscrições até: </label><div class="col-sm-10">{{form.data_validade}}</div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Carga horária semanal: </label><div class="col-sm-10">{{form.carga_horaria_semanal}}</div>
+                    <label class="control-label col-sm-2">Carga horária semanal: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.carga_horaria_semanal}}</div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Local: </label><div class="col-sm-10">{{form.local}}</div>
+                    <label class="control-label col-sm-2">Local: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.local}}</div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2">Valor da bolsa: </label><div class="col-sm-10">R${{form.valor_bolsa}}</div>
+                    <label class="control-label col-sm-2">Valor da bolsa: <font size="2" color="red">*</font></label><div class="col-sm-10">R${{form.valor_bolsa}}</div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-sm-2">Benefícios concedidos: </label><div class="col-sm-10">{{form.beneficios}}</div>
                 </div>
+                <div class="col-sm-10"><b><font size="2" color="red">*</font> - Dados obrigatórios</b></div>
+                <br>
                 <br>
                 <input type="submit" class="save btn btn-default" value="Criar vaga" />
         </div>

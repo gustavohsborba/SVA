@@ -8,7 +8,7 @@
         </a>
     </li>
 
-    {% if request.user.is_staff %}
+    {% if request.user.is_staff and request.user|has_group:"Administrador" %}
         <li>
             <a href="/admin">
                 <i class="fa fa-dashboard"></i> <span>Administração</span>
@@ -17,10 +17,13 @@
     {% endif %}
 
     {% if request.user|has_group:"Gerente Vagas" %}
-        <li>
-            <a href="/vagas">
-                <i class="fa fa-users"></i> <span>Vagas</span>
-            </a>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-dashboard"></i> Gerenciar vagas<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/vagas/criar/"><i class="fa fa-plus"></i><span> Criar vaga</span></a></li>
+              <li><a href="/vagas/gerenciar/"><i class="fa fa-users"></i><span> Gerenciar vagas</span></a></li>
+
+            </ul>
         </li>
     {% endif %}
 
@@ -28,14 +31,6 @@
         <li>
             <a href="/aluno/perfil/{{ request.user.pk }}">
                 <i class="fa fa-user"></i> <span>Perfil</span>
-            </a>
-        </li>
-    {% endif %}
-
-    {% if request.user|has_group:"Gerente Vagas" %}
-        <li>
-            <a href="/vagas">
-                <i class="fa fa-users"></i> <span>Vagas</span>
             </a>
         </li>
     {% endif %}

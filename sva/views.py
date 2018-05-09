@@ -46,7 +46,7 @@ def gerenciar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
         return redirect("login")
-    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.user_ptr_id).order_by('-data_aprovacao','-data_submissao')
+    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_submissao')
     return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
 
@@ -68,7 +68,7 @@ def criar_vaga(request):
                 return redirect(principal_vaga)
             form.instance.gerente_vaga = gerente
             form.save()
-            return redirect('vaga_principal')
+            return redirect(gerenciar_vaga)
     else:
         form = FormularioVaga()
     return render(request, 'sva/vaga/criarVaga.html', {'form': form})
@@ -84,7 +84,7 @@ def lista_alunos_vaga(request, pkvaga):
 
     vaga = get_object_or_404(Vaga, id=pkvaga)
 
-    if vaga.gerente_vaga_id == gerente.user_ptr_id:
+    if vaga.gerente_vaga_id == gerente.id:
         context = {}
         context['alunos'] = Aluno.objects.filter(vagas_inscritas=vaga)
         context['vaga'] = vaga
@@ -104,7 +104,7 @@ def encerrar_inscricao_vaga(request, pkvaga):
         return redirect(principal_vaga)
 
     vaga = get_object_or_404(Vaga, pk=pkvaga)
-    if vaga is None or vaga.gerente_vaga_id != gerente.user_ptr_id:
+    if vaga is None or vaga.gerente_vaga_id != gerente.id:
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
     else:
@@ -135,7 +135,7 @@ def editar_vaga(request, pkvaga):
         return redirect(principal_vaga)
     vaga = get_object_or_404(Vaga, id=pkvaga)
 
-    if vaga.gerente_vaga_id != gerente.user_ptr_id:
+    if vaga.gerente_vaga_id != gerente.id:
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
 
