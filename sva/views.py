@@ -161,7 +161,7 @@ def editar_vaga(request, pkvaga):
 def cadastro(request):
     context = {
         'form_aluno': FormularioCadastroAluno(),
-       # 'form_professor': FormularioCadastroProfessor(),
+        'form_professor': FormularioCadastroProfessor(),
         'form_empresa': FormularioCadastroEmpresa(),
         'cadastro': True
     }
@@ -222,8 +222,6 @@ def cadastrar_professor(request):
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
-        professor.curso = form.cleaned_data['curso']
-        professor.siape = form.cleaned_data['siape']
         professor.cpf = form.cleaned_data['cpf']
         professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
         professor.save()
@@ -323,3 +321,30 @@ def alterar_senha(request):
         'form': form
     })
 
+@transaction.atomic
+@login_required(login_url='/accounts/login/')
+def editar_professor(request, pk):
+    professor = get_object_or_404(Professor,pk=pk)
+    texto = professor.endereco
+    Parte = texto.split(",")
+    Nome = professor.user.first_name+' '+ professor.user.last_name
+    if request.method == 'POST':
+        form = FormularioEditarProfessor(request.POST,instance=professor,initial=initial)
+        if form.is_valid():
+            professor.save()
+            professor.user.first_name = Nome[0]
+            professor.user.last_name = Nome[1]
+            professor.user.save()
+            messages.success(request, 'Editado com sucesso.')
+    else:
+        form = FormularioEditarProfessor(instance=professor,initial=professor)
+    return render(request, 'sva/aluno/EditarProfessor.html', {'form': form})
+
+@login_required(login_url='/accounts/login/')
+def excluir_professor(request, pk):
+    professor = get_object_or_404(Professor, pk=pk)
+    if professor is not None:
+        professor.user.is_active = False
+        professor.user.save()
+        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')

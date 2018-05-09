@@ -21,9 +21,9 @@
             </a>
         </div>
         <div class="col-xs-4 col-sm-4">
-            <a href="{% url 'Cadastro_Aluno' %}">
+            <a href="{% url 'Cadastro_Professor' %}">
                 <img class="profile-user-img img-responsive img-circle"
-                    {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_EMPRESA'%}
+                    {% if form.tipo_formulario != 'CADASTRO_ALUNO' and form.tipo_formulario != 'CADASTRO_EMPRESA' %}
                         style="background-color:orange;"
                     {% endif %}
                     src="{% static 'img/login_professor.png' %}" alt="Cadastrar como Professor"/>
@@ -45,6 +45,9 @@
             </a>
         </div>
     </div>
+
+
+
 {% endblock %}
 
 {% block login_form %}
