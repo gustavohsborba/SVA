@@ -7,7 +7,7 @@ MSG_WARNING = 'alert alert-warning'
 
 
 ERRO_PERMISSAO_NEGADA = 'Você não tem permissão para acessar essa página.'
-ERRO_COMBINACAO_CPF_EMAIL_INVALIDA = 'Combinação de CPF e email invalida'
+ERRO_EMAIL_INVALIDO = 'Email invalido'
 
 SUCESSO_ACAO_CONFIRMADA = 'Sua solicitação foi realizada com sucesso!'
 SUCESSO_AGUARDE_APROVACAO = 'Sua solicitação foi realizada com sucesso! Aguarde a aprovação dos Administradores para poder logar.'

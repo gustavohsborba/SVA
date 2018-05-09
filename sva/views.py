@@ -299,31 +299,26 @@ def recuperar_senha(request):
     if request.method == "GET":
         return render(request, 'registration/recuperarSenha.html', {})
 
-    # cpf = request.POST['CPF']
     email = request.POST['email']
-    user = User.objects.filter(email=email)
-    novasenha = ''.join([choice(string.letters + string.digits) for i in range(8)])
-    user[0].set_password('kamikaze')
-    user[0].save()
-
-    print(novasenha)
-    send_mail(
-        'Recuperação de Senha - Sistema de Vagas Acadêmicas',
-        'Sua nova senha é:\n\n'+novasenha+'\n\nPara alterar acesse sua conta no site sva.cefetmg.br e vá '
-                                          'no menu configurações do Usuário',
-        'from@example.com',
-        ['sistemadevagasacedimicas@gmail.com'],
-    )
+    user = get_object_or_404(User, email=email)
+    user = User.objects.get(email=email)
 
     if user is not None:
-
-        if request.user.is_authenticated:
-            return HttpResponseRedirect('/')
-        else:
-            messages.error(request, mensagens.ERRO_COMBINACAO_CPF_EMAIL_INVALIDA, mensagens.MSG_ERRO)
-            return HttpResponseRedirect('')
+        novasenha = ''.join([choice(string.letters + string.digits) for i in range(8)])
+        send_mail(
+            'Recuperação de Senha - Sistema de Vagas Acadêmicas',
+            'Sua nova senha é:\n\n'+novasenha+'\n\nPara alterar para uma nova senha de sua preferência,'
+                                              ' acesse sua conta no site sva.cefetmg.br e vá na pagina'
+                                              ' de configurações do Usuário\n\nSVA',
+            'from@example.com',
+            [email],
+        )
+        user.set_password(novasenha)
+        user.save()
+        messages.success(request, _('Sua nova senha foi enviado para o email a sua conta!'))
+        return redirect('login')
     else:
-        messages.error(request, mensagens.ERRO_COMBINACAO_CPF_EMAIL_INVALIDA, mensagens.MSG_ERRO)
+        messages.error(request, mensagens.ERRO_EMAIL_INVALIDO, mensagens.MSG_ERRO)
         return HttpResponseRedirect('')
 
 
