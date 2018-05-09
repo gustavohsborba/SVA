@@ -300,8 +300,10 @@ def recuperar_senha(request):
         return render(request, 'registration/recuperarSenha.html', {})
 
     email = request.POST['email']
-    user = get_object_or_404(User, email=email)
-    user = User.objects.get(email=email)
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        user = None
 
     if user is not None:
         novasenha = ''.join([choice(string.letters + string.digits) for i in range(8)])
@@ -319,8 +321,7 @@ def recuperar_senha(request):
         return redirect('login')
     else:
         messages.error(request, mensagens.ERRO_EMAIL_INVALIDO, mensagens.MSG_ERRO)
-        return HttpResponseRedirect('')
-
+        return render(request, 'registration/recuperarSenha.html', {})
 
 def alterar_senha(request):
     if request.method == 'POST':

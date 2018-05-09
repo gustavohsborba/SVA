@@ -17,6 +17,9 @@
             </div>
             {% endblock %}
             <!-- /.login-logo -->
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
             <div class="login-box-body col-xs-12">
 
                 {% if next %}
