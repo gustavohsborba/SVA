@@ -38,7 +38,7 @@ class FormularioCadastroAluno(forms.ModelForm):
     first_name = forms.CharField(max_length=50,label='Nome Completo')
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
-    email = forms.CharField(max_length=30, validators=[validate_email])
+    email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Aluno
@@ -73,7 +73,7 @@ class FormularioCadastroEmpresa(forms.ModelForm):
     cnpj = forms.CharField(max_length=14, validators=[validate_CNPJ])
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
-    email = forms.CharField(max_length=30, validators=[validate_email])
+    email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Empresa
@@ -94,7 +94,7 @@ class FormularioCadastroProfessor(forms.ModelForm):
     tipo_formulario = "CADASTRO_PROFESSOR"
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
-    email = forms.CharField(max_length=30, validators=[validate_email])
+    email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Professor

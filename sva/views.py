@@ -261,7 +261,8 @@ def editar_aluno(request, pk):
                              form.cleaned_data['Estado']
             aluno.save()
             aluno.user.first_name = Nome[0]
-            aluno.user.last_name = Nome[1] if len(Nome) > 1 else None
+            if len(Nome) > 1 :
+                aluno.user.last_name = Nome[1]
             aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
