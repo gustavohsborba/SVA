@@ -1,0 +1,29 @@
+{% extends 'sva/base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+
+        <form action="" method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Editar</button>
+        </form>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <a href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
+        <script language="Javascript">
+        function confirmacao() {
+             var resposta = confirm("Deseja desativar essa conta?");
+
+             if (resposta == true) {
+                  window.location.href = "{{ 'desativar/' }}{{ request.user.pk }}";
+             }
+        }
+        </script>
+{% endblock content %}
