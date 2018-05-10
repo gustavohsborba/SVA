@@ -46,6 +46,9 @@ urlpatterns = [
     url(r'^professor/editarprofessor/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
     url(r'^professor/editarprofessor/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
     url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
+    url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
+    url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
+    url(r'^empresa/perfil/(?P<pk>\d+)', exibir_empresa, name='Exibir_Empresa'),
     url(r'^layout', layout),
 
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)

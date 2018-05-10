@@ -185,6 +185,7 @@ def cadastrar_empresa(request):
         empresa.user.set_password(form.cleaned_data['password'])
         empresa.user.groups = Group.objects.filter(Q(name='Empresa')| Q(name='Gerente Vagas'))
         empresa.user.save()
+        empresa.save()
         empresa.data_cadastro = datetime.now()
         messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
@@ -240,10 +241,60 @@ def cadastrar_professor(request):
 
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
+def editar_empresa(request, pk):
+    if pk != str(request.user.id):
+       return HttpResponseRedirect('/home/')
+    empresa = get_object_or_404(Empresa, user_id=pk)
+    Nome = empresa.user.first_name + ' ' + empresa.user.last_name
+    initial = {
+               'Nome_Completo': Nome}
+    if request.method == 'POST':
+        form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
+        if form.is_valid():
+            empresa.website = form.cleaned_data['Site']
+            empresa.telefone = form.cleaned_data['telefone']
+            empresa.nome = form.cleaned_data['nome']
+            empresa.user.first_name = Nome
+            empresa.user.email = form.cleaned_data['Email']
+            empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
+                             form.cleaned_data['Rua'] + ',' + \
+                             form.cleaned_data['Numero'] + ',' +  \
+                             form.cleaned_data['Complemento'] + ',' +  \
+                             form.cleaned_data['Cidade'] + ',' +  \
+                             form.cleaned_data['Estado']
+            empresa.save()
+            empresa.user.save()
+            messages.success(request, 'Editado com sucesso')
+    else:
+        form = FormularioEditarEmpresa(instance=empresa,initial=initial)
+    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
+
+
+@login_required(login_url='/accounts/login/')
+def excluir_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    if empresa is not None:
+        empresa.user.is_active = False
+        empresa.user.save()
+        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')
+
+
+def exibir_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, user_id=pk)
+    context = {'empresa': empresa}
+    return render(request, 'sva/empresa/Perfil.html', context)
+
+
+@transaction.atomic
+@login_required(login_url='/accounts/login/')
 def editar_aluno(request, pk):
     if pk != str(request.user.id):
        return HttpResponseRedirect('/home/')
-    aluno = get_object_or_404(Aluno,user_id=pk)
+    aluno = get_object_or_404(Aluno, user_id=pk)
     texto = aluno.endereco
     Parte= texto.split(",")
     Nome = aluno.user.first_name+' '+aluno.user.last_name

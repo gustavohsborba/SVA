@@ -68,6 +68,21 @@ class FormularioEditarAluno(forms.ModelForm):
         fields = ['curso', 'matricula', 'telefone' ,'habilidades']
 
 
+class FormularioEditarEmpresa(forms.ModelForm):
+    Bairro = forms.CharField(max_length=40)
+    Rua = forms.CharField(max_length=40)
+    Numero = forms.CharField(max_length=4)
+    Complemento = forms.CharField(max_length=10, required=False)
+    Cidade = forms.CharField(max_length=20)
+    Estado = forms.CharField(max_length=20)
+    Email = forms.CharField(max_length=100, validators=[validate_email])
+    Site = forms.CharField(max_length=200)
+
+    class Meta:
+        model = Empresa
+        fields = ['nome', 'telefone']
+
+
 class FormularioCadastroEmpresa(forms.ModelForm):
     tipo_formulario = "CADASTRO_EMPRESA"
     cnpj = forms.CharField(max_length=14, validators=[validate_CNPJ])

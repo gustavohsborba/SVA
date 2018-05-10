@@ -1,0 +1,18 @@
+{% extends 'sva/base.html' %}
+{% block content %}
+    <div class="form-group">
+        <font size="5"><b>Perfil de {{ empresa.user.first_name }}</b></font>
+    </div>
+    <br>
+    <div class="form-group">
+        <b>Site: </b>{{ empresa.website}}
+    </div>
+    <div class="form-group">
+        <b>Email: </b>{{ empresa.user.email }}
+    </div>
+    <div class="form-group">
+        <b>Telefone: </b>{{ empresa.telefone }}
+    </div>
+    <br>
+
+{% endblock content %}
