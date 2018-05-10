@@ -3,10 +3,11 @@
 {% block title %} Gerenciar Vaga{% endblock %}
 
 {% block content %}
-    <h1>Suas vagas</h1>
-    <h4>Aprovadas:</h4>
+    <h2>Suas vagas</h2>
+    <br>
+    <h4><b><i class="fa fa-check"></i> Aprovadas:</b></h4>
     {% for vaga in vagas %}
-        {% if vaga.data_aprovacao is not null  %}
+        {% if vaga.situacao == 3  %}
             <p><b><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">{{vaga.titulo}}</a></b> - {{vaga.descricao|truncatechars:30}}</p>
             <p>
                 <b>Criada em:</b> {{vaga.data_submissao|date:"Y-m-d H:i"}} - <b>Última alteração em:</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
@@ -21,10 +22,32 @@
             <br>
         {% endif %}
     {% endfor %}
-    <h4>Não aprovadas:</h4>
+    <h4><b><i class="fa fa-gavel"></i> Aguardando aprovação:</b></h4>
     {% for vaga in vagas %}
-        {% if vaga.data_aprovacao is null  %}
+        {% if vaga.situacao == 1 or vaga.situacao == 2  %}
             <p><b><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">{{vaga.titulo}}</a></b> - {{vaga.descricao|truncatechars:30}}</p>
+            <p>
+                <b>Criada em:</b> {{vaga.data_submissao|date:"Y-m-d H:i"}} - <b>Última alteração em:</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+            </p>
+            <p>
+                <a href="{% url 'vaga_editar' pkvaga=vaga.id %}"><em>Editar vaga</em></a>
+                -
+                <a href="{% url 'vaga_listar' pkvaga=vaga.id %}"><em>Listar alunos inscritos</em></a>
+            </p>
+            <br>
+        {% endif %}
+    {% endfor %}
+    <h4><b><i class="fa fa-times"></i> Reprovadas ou inativas:</b></h4>
+    {% for vaga in vagas %}
+        {% if vaga.situacao == 4 or vaga.situacao == 5  %}
+            <p><b><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">
+                {% if vaga.situacao == 5 %}
+                <font color="red">(REPROVADA) </font>
+                {% else %}
+                <font color="gray">(INATIVA) </font>
+                {% endif %}
+                {{vaga.titulo}}
+            </a></b> - {{vaga.descricao|truncatechars:30}}</p>
             <p>
                 <b>Criada em:</b> {{vaga.data_submissao|date:"Y-m-d H:i"}} - <b>Última alteração em:</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
             </p>

@@ -17,21 +17,23 @@
     {% endif %}
 
     {% if request.user|has_group:"Gerente Vagas" %}
-        <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-dashboard"></i> Gerenciar vagas<span class="caret"></span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="/vagas/criar/"><i class="fa fa-plus"></i><span> Criar vaga</span></a></li>
-              <li><a href="/vagas/gerenciar/"><i class="fa fa-users"></i><span> Gerenciar vagas</span></a></li>
+        <li class="treeview active">
+            <a href="#"><i class="fa fa-dashboard"></i> Vagas<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+              <li><a href="{% url 'vaga_criar' %}"><i class="fa fa-plus"></i><span>Nova vaga</span></a></li>
+              <li><a href="{% url 'vaga_gerenciar' %}"><i class="fa fa-gear"></i><span>Gerenciar vagas</span></a></li>
 
             </ul>
         </li>
     {% endif %}
 
     {% if request.user|has_group:"Aluno" %}
-        <li>
-            <a href="/aluno/perfil/{{ request.user.pk }}">
-                <i class="fa fa-user"></i> <span>Perfil</span>
-            </a>
+        <li class="treeview active">
+            <a href="#"><i class="fa fa-user"></i> Perfil<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'Exibir_Aluno' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
+                <li><a href="{% url 'Editar_Aluno' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+            </ul>
         </li>
     {% endif %}
 

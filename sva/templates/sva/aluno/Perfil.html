@@ -1,10 +1,25 @@
 {% extends 'sva/base.html' %}
 {% block content %}
-    <body>
-        <h2>Nome  : {{ aluno.user.first_name }} {{ aluno.user.last_name }}</h2>
-        <h3>Email  : {{ aluno.user.email }}</h3>
-        <h3>Telefone : {{ aluno.telefone }}</h3>
-        {% if request.user.pk == aluno.user_id %}
-            <a href="/aluno/editaraluno/{{ request.user.pk }}"> Editar Perfil </a>
-        {%endif%}
+    <div class="form-group">
+        <font size="5"><b>Perfil de {{ aluno.user.first_name }} {{ aluno.user.last_name }}</b></font>
+    </div>
+    <br>
+    <div class="form-group">
+        <b>Curso: </b>{{ aluno.curso.nome }} ({{ aluno.curso.sigla }})
+    </div>
+    <div class="form-group">
+        <b>Email: </b>{{ aluno.user.email }}
+    </div>
+    <div class="form-group">
+        <b>Telefone: </b>{{ aluno.telefone }}
+    </div>
+    <br>
+    <div class="form-group">
+        <b>Habilidades: </b>
+        <br>
+        {% for hab in aluno.habilidades.all %}
+            [{{hab.nome}}]
+        {% endfor %}
+    </div>
+
 {% endblock content %}
