@@ -434,3 +434,10 @@ def excluir_professor(request, pk):
         professor.user.save()
         messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
+
+
+@login_required(login_url='/accounts/login/')
+def exibir_professor(request, pk):
+    professor = get_object_or_404(Professor, user_id=pk)
+    context = {'professor': professor}
+    return render(request, 'sva/professor/Perfil.html', context)

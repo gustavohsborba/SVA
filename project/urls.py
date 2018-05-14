@@ -21,16 +21,23 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', home),
     url(r'^home', home),
+
     url(r'^accounts/password_change/$', alterar_senha, name='alterarsenha'),
     url(r'^accounts/recuperar_senha/$', recuperar_senha, name='recuperarsenha'),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^cadastro/', cadastro, name='cadastro'),
     url(r'^contato', formulario_contato),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
+
+    url(r'^cadastro/', cadastro, name='cadastro'),
+    url(r'^cadastroaluno/$', cadastrar_aluno, name='Cadastro_Aluno'),
+    url(r'^cadastroprofessor/$', cadastrar_professor, name='Cadastro_Professor'),
+    url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
+
     url(r'^vagas/$', principal_vaga, name='vaga_principal'),
     url(r'^vagas/gerenciar/$', gerenciar_vaga, name='vaga_gerenciar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)$', editar_vaga, name='vaga_editar'),
@@ -38,14 +45,15 @@ urlpatterns = [
     url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', encerrar_inscricao_vaga),
     url(r'^vagas/inscritos/(?P<pkvaga>\d+)$', lista_alunos_vaga, name='vaga_listar'),
     url(r'^vagas/criar/$', criar_vaga, name='vaga_criar'),
-    url(r'^cadastroaluno/$', cadastrar_aluno, name='Cadastro_Aluno'),
+
     url(r'^aluno/editar/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
-    url(r'^cadastroprofessor/$', cadastrar_professor, name='Cadastro_Professor'),
-    url(r'^professor/editarprofessor/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
-    url(r'^professor/editarprofessor/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
-    url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
+
+    url(r'^professor/editar/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
+    url(r'^professor/editar/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
+    url(r'^professor/perfil/(?P<pk>\d+)', exibir_professor, name='Exibir_Empresa'),
+
     url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
     url(r'^empresa/perfil/(?P<pk>\d+)', exibir_empresa, name='Exibir_Empresa'),

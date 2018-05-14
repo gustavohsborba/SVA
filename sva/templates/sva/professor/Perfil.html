@@ -1,0 +1,22 @@
+{% extends 'sva/base.html' %}
+{% block content %}
+    <div class="form-group">
+        <font size="5"><b>Perfil de {{ professor.user.first_name }}</b></font>
+    </div>
+    <br>
+    <div class="form-group">
+        <b>Curso: </b>{{ professor.curso }}
+    </div>
+    <div class="form-group">
+        <b>Email: </b>{{ professor.user.email }}
+    </div>
+    <div class="form-group">
+        <b>Telefone: </b>{{ professor.telefone }}
+    </div>
+    <br>
+    <div class="form-group">
+        <b>SIAPE: </b>{{ professor.siape }}
+    </div>
+    <br>
+
+{% endblock content %}
