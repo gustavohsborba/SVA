@@ -52,7 +52,7 @@ urlpatterns = [
 
     url(r'^professor/editar/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
     url(r'^professor/editar/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
-    url(r'^professor/perfil/(?P<pk>\d+)', exibir_professor, name='Exibir_Empresa'),
+    url(r'^professor/perfil/(?P<pk>\d+)', exibir_professor, name='Exibir_Professor'),
 
     url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
