@@ -123,6 +123,9 @@ def visualizar_vaga(request, pkvaga):
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
     gerente = GerenteVaga.objects.get(vagas=vaga)
+    if(request.user.groups.filter(name='Aluno').exists()):
+        aluno = Aluno.objects.get(user_id=request.user.id)
+        context['aluno'] = aluno
     context['gerente'] = gerente
 
     return render(request, 'sva/vaga/visualizarVaga.html', context)

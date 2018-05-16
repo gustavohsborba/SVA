@@ -2,10 +2,12 @@
 
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.admin import UserAdmin
 from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
+import datetime
 
 from .validators import *
 
@@ -22,7 +24,8 @@ class FormularioVaga(forms.ModelForm):
         model = Vaga
         fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
-    data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
+    #data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
+    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False, initial = datetime.datetime.now().strftime('%d/%m/%YT%H:%M'))
 
 
 class FormularioContato(forms.Form):
