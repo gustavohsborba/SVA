@@ -3,7 +3,6 @@
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
-
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
@@ -17,20 +16,23 @@ from random import choice
 from sva import mensagens
 from .forms import *
 
+
 # Create your views here.
 
 
 @login_required
 def home(request):
-    context = {}
-    context['cursos'] = Curso.objects.all()
-    return render(request, 'sva/base.html', context)
+    return render(request, 'sva/base.html')
 
 
 def formulario_contato(request):
     form = FormularioContato()
     return render(request, 'sva/contato.html', {'form': form})
 
+
+###############################################################################
+#                                  VAGAS                                      #
+###############################################################################
 
 @login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
@@ -45,7 +47,8 @@ def gerenciar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
         return redirect("login")
-    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
+    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao', '-data_alteracao',
+                                                                                '-data_submissao')
     return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
 
@@ -118,7 +121,6 @@ def encerrar_inscricao_vaga(request, pkvaga):
 
 
 def visualizar_vaga(request, pkvaga):
-
     context = {}
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
@@ -132,7 +134,6 @@ def visualizar_vaga(request, pkvaga):
 @transaction.atomic
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def editar_vaga(request, pkvaga):
-
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
@@ -163,6 +164,11 @@ def editar_vaga(request, pkvaga):
         return redirect(gerenciar_vaga)
 
 
+###############################################################################
+#                               CADASTRO                                      #
+###############################################################################
+
+
 def cadastro(request):
     context = {
         'form_aluno': FormularioCadastroAluno(),
@@ -183,7 +189,7 @@ def cadastrar_empresa(request):
         empresa.user = usuario
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.user.set_password(form.cleaned_data['password'])
-        empresa.user.groups = Group.objects.filter(Q(name='Empresa')| Q(name='Gerente Vagas'))
+        empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
         empresa.data_cadastro = datetime.now()
@@ -208,7 +214,7 @@ def cadastrar_aluno(request):
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
         aluno.curso = form.cleaned_data['curso']
-        aluno.endereco = ','+','+','+','
+        aluno.endereco = ',' + ',' + ',' + ','
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
@@ -232,22 +238,26 @@ def cadastrar_professor(request):
         professor.user.save()
         professor.cpf = form.cleaned_data['cpf']
         professor.siape = form.cleaned_data['siape']
-        professor.user.groups = Group.objects.filter(Q(name='Professor')| Q(name='Gerente Vagas'))
+        professor.user.groups = Group.objects.filter(Q(name='Professor') | Q(name='Gerente Vagas'))
         professor.save()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return redirect('login')
     return render(request, 'sva/professor/CadastroProfessor.html', {'form': form})
 
 
+###############################################################################
+#                                EMPRESA                                      #
+###############################################################################
+
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_empresa(request, pk):
     if pk != str(request.user.id):
-       return HttpResponseRedirect('/home/')
+        return HttpResponseRedirect('/home/')
     empresa = get_object_or_404(Empresa, user_id=pk)
     Nome = empresa.user.first_name + ' ' + empresa.user.last_name
     initial = {
-               'Nome_Completo': Nome}
+        'Nome_Completo': Nome}
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
@@ -257,16 +267,16 @@ def editar_empresa(request, pk):
             empresa.user.first_name = Nome
             empresa.user.email = form.cleaned_data['Email']
             empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
-                             form.cleaned_data['Rua'] + ',' + \
-                             form.cleaned_data['Numero'] + ',' +  \
-                             form.cleaned_data['Complemento'] + ',' +  \
-                             form.cleaned_data['Cidade'] + ',' +  \
-                             form.cleaned_data['Estado']
+                               form.cleaned_data['Rua'] + ',' + \
+                               form.cleaned_data['Numero'] + ',' + \
+                               form.cleaned_data['Complemento'] + ',' + \
+                               form.cleaned_data['Cidade'] + ',' + \
+                               form.cleaned_data['Estado']
             empresa.save()
             empresa.user.save()
             messages.success(request, 'Editado com sucesso')
     else:
-        form = FormularioEditarEmpresa(instance=empresa,initial=initial)
+        form = FormularioEditarEmpresa(instance=empresa, initial=initial)
     return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
 
 
@@ -289,15 +299,45 @@ def exibir_empresa(request, pk):
     return render(request, 'sva/empresa/Perfil.html', context)
 
 
+@login_required(login_url='/accounts/login/')
+def listar_empresa(request):
+    context = {
+        'titulo_lista': 'Empresas Cadastradas',
+        'liberar_cadastro': False,
+        'professores': Empresa.objects.filter(data_cadastro__isnull=False),
+    }
+    return render(request, 'sva/empresa/ListarEmpresas.html', context)
+
+
+@login_required(login_url='/accounts/login/')
+def liberar_cadastro_empresas_lista(request):
+    context = {
+        'titulo_lista': 'Empresas com Cadastro Pendente',
+        'liberar_cadastro': True,
+        'professores': Empresa.objects.filter(data_cadastro__isnull=True),
+    }
+    return render(request, 'sva/empresa/ListarEmpresas.html', context)
+
+
+@transaction.atomic
+@login_required
+def liberar_empresa(request, pk):
+    pass
+
+
+###############################################################################
+#                                 ALUNO                                       #
+###############################################################################
+
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_aluno(request, pk):
     if pk != str(request.user.id):
-       return HttpResponseRedirect('/home/')
+        return HttpResponseRedirect('/home/')
     aluno = get_object_or_404(Aluno, user_id=pk)
     texto = aluno.endereco
-    Parte= texto.split(",")
-    Nome = aluno.user.first_name+' '+aluno.user.last_name
+    Parte = texto.split(",")
+    Nome = aluno.user.first_name + ' ' + aluno.user.last_name
     initial = {'Rua': Parte[0],
                'Numero': Parte[1],
                'Complemento': Parte[2],
@@ -305,26 +345,26 @@ def editar_aluno(request, pk):
                'Estado': Parte[4],
                'Nome_Completo': Nome}
     if request.method == 'POST':
-        form = FormularioEditarAluno(request.POST,instance=aluno,initial=initial)
+        form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
         if form.is_valid():
             aluno.curso = form.cleaned_data['curso']
-            aluno.telefone =  form.cleaned_data['telefone']
+            aluno.telefone = form.cleaned_data['telefone']
             texto = form.cleaned_data['Nome_Completo']
-            Nome = texto.split(" ",1)
+            Nome = texto.split(" ", 1)
             aluno.endereco = form.cleaned_data['Rua'] + ',' + \
-                             form.cleaned_data['Numero'] + ',' +  \
-                             form.cleaned_data['Complemento'] + ',' +  \
-                             form.cleaned_data['Cidade'] + ',' +  \
+                             form.cleaned_data['Numero'] + ',' + \
+                             form.cleaned_data['Complemento'] + ',' + \
+                             form.cleaned_data['Cidade'] + ',' + \
                              form.cleaned_data['Estado']
             aluno.save()
             aluno.user.first_name = Nome[0]
-            if len(Nome) > 1 :
+            if len(Nome) > 1:
                 aluno.user.last_name = Nome[1]
             aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
     else:
-        form = FormularioEditarAluno(instance=aluno,initial=initial)
+        form = FormularioEditarAluno(instance=aluno, initial=initial)
     return render(request, 'sva/aluno/EditarAluno.html', {'form': form})
 
 
@@ -347,6 +387,11 @@ def exibir_aluno(request, pk):
     return render(request, 'sva/aluno/Perfil.html', context)
 
 
+###############################################################################
+#                                 ACESSO                                      #
+###############################################################################
+
+
 def layout(request):
     form = FormularioContato()
     return render(request, 'sva/layout.html', {'form': form})
@@ -366,9 +411,9 @@ def recuperar_senha(request):
         novasenha = ''.join([choice(string.ascii_letters + string.digits) for i in range(8)])
         send_mail(
             'Recuperação de Senha - Sistema de Vagas Acadêmicas',
-            'Sua nova senha é:\n\n'+novasenha+'\n\nPara alterar para uma nova senha de sua preferência,'
-                                              ' acesse sua conta no site sva.cefetmg.br e vá na pagina'
-                                              ' de configurações do Usuário\n\nSVA',
+            'Sua nova senha é:\n\n' + novasenha + '\n\nPara alterar para uma nova senha de sua preferência,'
+                                                  ' acesse sua conta no site sva.cefetmg.br e vá na pagina'
+                                                  ' de configurações do Usuário\n\nSVA',
             'from@example.com',
             [email],
         )
@@ -397,34 +442,41 @@ def alterar_senha(request):
         'form': form
     })
 
+
+###############################################################################
+#                               PROFESSOR                                     #
+###############################################################################
+
+
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_professor(request, pk):
-    professor = get_object_or_404(Professor,pk=pk)
-    #curso = get_object_or_404(Curso, pk=professor.curso)
-    Nome = professor.user.first_name+' '+professor.user.last_name
+    professor = get_object_or_404(Professor, pk=pk)
+    # curso = get_object_or_404(Curso, pk=professor.curso)
+    Nome = professor.user.first_name + ' ' + professor.user.last_name
 
     Telefone = professor.telefone
     Curso = professor.curso
     initial = {
-               'Nome_Completo': Nome,
-               'Telefone': Telefone,
-               'Curso': Curso}
+        'Nome_Completo': Nome,
+        'Telefone': Telefone,
+        'Curso': Curso}
 
     if request.method == 'POST':
-        form = FormularioEditarProfessor(request.POST,instance=professor,initial=initial)
+        form = FormularioEditarProfessor(request.POST, instance=professor, initial=initial)
         if form.is_valid():
             professor.curso = form.cleaned_data['curso']
             professor.siape = form.cleaned_data['siape']
-            professor.telefone =  form.cleaned_data['Telefone']
+            professor.telefone = form.cleaned_data['Telefone']
             professor.save()
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
             professor.user.last_name = Nome[1] if len(Nome) > 1 else ''
             professor.user.save()
             messages.success(request, 'Editado com sucesso.')
     else:
-        form = FormularioEditarProfessor(instance=professor,initial=initial)
+        form = FormularioEditarProfessor(instance=professor, initial=initial)
     return render(request, 'sva/professor/EditarProfessor.html', {'form': form})
+
 
 @login_required(login_url='/accounts/login/')
 def excluir_professor(request, pk):
@@ -441,3 +493,33 @@ def exibir_professor(request, pk):
     professor = get_object_or_404(Professor, user_id=pk)
     context = {'professor': professor}
     return render(request, 'sva/professor/Perfil.html', context)
+
+
+# TODO: https://github.com/shymonk/django-datatable
+
+@login_required(login_url='/accounts/login/')
+def listar_professor(request):
+    context = {
+        'titulo_lista': 'Professores Cadastrados',
+        'liberar_cadastro': False,
+        'professores': Professor.objects.filter(data_cadastro__isnull=False),
+    }
+    return render(request, 'sva/professor/ListarProfessores.html', context)
+
+
+@login_required(login_url='/accounts/login/')
+def liberar_cadastro_professores_lista(request):
+    context = {
+        'titulo_lista': 'Professores com Cadastro Pendente',
+        'liberar_cadastro': True,
+        'professores': Professor.objects.filter(data_cadastro__isnull=True),
+    }
+    return render(request, 'sva/professor/ListarProfessores.html', context)
+
+
+@transaction.atomic
+@login_required
+def liberar_empresa(request, pk):
+    pass
+
+#  TODO: FAZER VIEW PARA APROVAR/REPROVAR CADASTRO DE PROFESSOR

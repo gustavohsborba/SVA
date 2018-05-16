@@ -1,4 +1,6 @@
 {% extends 'sva/base.html' %}
+{% load svatags %}
+
 {% block content %}
     <div class="form-group">
         <font size="5"><b>Perfil de {{ empresa.nome }}</b></font>
@@ -14,5 +16,10 @@
         <b>Telefone: </b>{{ empresa.telefone }}
     </div>
     <br>
+
+    {# TODO: FAZER URL PARA APROVAR/REPROVAR CADASTRO DE EMPRESA #}
+    {% if empresa.data_cadastro and request.user|has_groups:"Administrador,Setor de Estágios" %}
+        <a href="{% url 'FAZER ESSA URL' %}" class="btn btn-primary"></a>
+    {% endif %}
 
 {% endblock content %}

@@ -10,7 +10,8 @@ from .models import *
 class NotificacaoMiddleware(MiddlewareMixin):
 
     def process_template_response(self, request, response):
-        response.context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
+        if request.user.is_authenticated():
+            response.context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
         return response
 
     TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR = 'O professor %s se cadastrou no sistema. Clique aqui para moderar o acesso'

@@ -145,6 +145,10 @@ class Empresa(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Empresa'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Empresa, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -167,6 +171,10 @@ class Professor(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Professor'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Professor, self).save(*args, **kwargs)
 
     def __str__(self):

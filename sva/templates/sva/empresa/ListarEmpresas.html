@@ -1,0 +1,58 @@
+{% extends 'sva/base_listagem.html' %}
+{% load svatags %}
+
+
+{% block titulo_listagem %}
+    {% if liberar_cadastro %}
+        Empresas com Cadastro Pendente
+    {% else %}
+        Empresas Ativas no Sistema
+    {% endif %}
+{% endblock %}
+
+
+{% block cabecalho_tabela %}
+    <th>CNPJ</th>
+    <th>Nome</th>
+    <th>Website</th>
+    <th>Data de Cadastro</th>
+    <th>Data de Aprovação</th>
+    <th>Consultar</th>
+    {% if liberar_cadastro %}
+        <th>Aprovar</th>
+    {% endif %}
+{% endblock %}
+
+
+{% block corpo_tabela %}
+    {% for empresa in empresas %}
+
+        <tr role="row"
+            {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
+          <td>{{ empresa.cnpj }}</td>
+          <td>{{ empresa.nome }}</td>
+          <td>{{ empresa.website }}</td>
+          <td>{{ empresa.user.date_joined }}</td>
+          <td>{{ empresa.data_cadastro }}</td>
+          <td>
+              <a href="{% url 'Exibir_Empresa' pk=empresa.user.pk %}">
+                <i class="fa fa-search"></i><span>Consultar</span>
+            </a>
+          </td>
+
+          {% if liberar_cadastro %}
+            <td>
+                <a href="{% url 'Aprovar_Empresa' pk=empresa.user.pk %}">
+                  <i class="fa fa-check-square-o"></i><span>Aprovar</span>
+                </a>
+            </td>
+          {% endif %}
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+
+{% block paginacao_label %}
+    Mostrando {{ empresas.count }} entradas
+{% endblock %}
+

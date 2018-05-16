@@ -20,11 +20,14 @@ from sva.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
+## TODO: FAZER URL DAS VIEWS DE CADASTRO/REPROVAÇÃO PROFESSOR/EMPRESA
+## TODO: FAZER URL DAS VIEWS DE LISTAGEM DE PROFESSOR/EMPRESA
 urlpatterns = [
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', home),
     url(r'^home', home),
+    url(r'^layout', layout),
 
     url(r'^accounts/password_change/$', alterar_senha, name='alterarsenha'),
     url(r'^accounts/recuperar_senha/$', recuperar_senha, name='recuperarsenha'),
@@ -39,9 +42,9 @@ urlpatterns = [
     url(r'^cadastroempresa/$', cadastrar_empresa, name='Cadastro_Empresa'),
 
     url(r'^vagas/$', principal_vaga, name='vaga_principal'),
+    url(r'^vagas/(?P<pkvaga>\d+)$', visualizar_vaga, name='vaga_visualizar'),
     url(r'^vagas/gerenciar/$', gerenciar_vaga, name='vaga_gerenciar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)$', editar_vaga, name='vaga_editar'),
-    url(r'^vagas/(?P<pkvaga>\d+)$', visualizar_vaga, name='vaga_visualizar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', encerrar_inscricao_vaga),
     url(r'^vagas/inscritos/(?P<pkvaga>\d+)$', lista_alunos_vaga, name='vaga_listar'),
     url(r'^vagas/criar/$', criar_vaga, name='vaga_criar'),
@@ -50,14 +53,19 @@ urlpatterns = [
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
 
+    url(r'^professor/listar/$', listar_professor, name='Listar_Professor'),
+    url(r'^empresa/gerenciar/$', liberar_cadastro_professores_lista, name='Gerenciar_Professor'),
     url(r'^professor/editar/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
     url(r'^professor/editar/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
     url(r'^professor/perfil/(?P<pk>\d+)', exibir_professor, name='Exibir_Professor'),
+    url(r'^professor/perfil/(?P<pk>\d+)/aprovar_cadastro', liberar_professor, name='Aprovar_Professor'),
 
+    url(r'^empresa/listar/$', listar_empresa, name='Listar_Empresa'),
+    url(r'^empresa/gerenciar/$', liberar_cadastro_empresas_lista, name='Gerenciar_Empresas'),
     url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
     url(r'^empresa/perfil/(?P<pk>\d+)', exibir_empresa, name='Exibir_Empresa'),
-    url(r'^layout', layout),
+    url(r'^empresa/perfil/(?P<pk>\d+)/aprovar_cadastro', liberar_empresa, name='Aprovar_Empresa'),
 
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 
