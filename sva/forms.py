@@ -11,7 +11,6 @@ import datetime
 
 from .validators import *
 
-
 class FormularioVaga(forms.ModelForm):
 
     def clean(self):
@@ -24,9 +23,7 @@ class FormularioVaga(forms.ModelForm):
         model = Vaga
         fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
-    #data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
-    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False, initial = datetime.datetime.now().strftime('%d/%m/%YT%H:%M'))
-
+    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
 class FormularioContato(forms.Form):
 

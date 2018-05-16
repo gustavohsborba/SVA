@@ -1,5 +1,12 @@
 {% extends 'sva/vaga/vaga.html' %}
 {% load svatags %}
+
+.divider{
+    width:5px;
+    height:auto;
+    display:inline-block;
+}
+
 {% block content %}
     {% csrf_token %}
     <h1><b>{{ vaga.titulo }}</b></h1>
@@ -22,7 +29,7 @@
     {% elif vaga.vencida %}
         <div class="form-group"> <b>Inscrições fechadas</b></div>
     {% else %}
-        <div class="form-group"> <b>Inscrições abertas</b> até {{ vaga.data_validade|date:"Y-m-d H:i" }}</div>
+        <div class="form-group"> <b>Inscrições abertas</b> até {{ vaga.data_validade}}</div>
     {% endif %}
 
     <div class="form-group">
@@ -45,8 +52,26 @@
     <div class="form-group">
         <b>Avaliação da vaga:</b> {{vaga.nota_media}}
     </div>
-    <br>
     {% if request.user|has_group:"Aluno" %}
-        <input type="datetime-local"  value="Atualizar vaga" />
+        {% if vaga.situacao == 3 and vaga.data_validade is None or not vaga.vencida %}
+            <br>
+            <form action="" method="post">
+                {% csrf_token %}
+                {% if interessado == 1 %}
+                    <input type="submit" style="background-color: #ff6666; color: white;"  class="save btn btn-default" name="uninterested" value="&#10006; Remover interesse"/>
+                {% elif interessado == 0 %}
+                    <input type="submit" style="background-color: #3872B7; color: white;"  class="save btn btn-default" name="interested" value="&#10004; Tenho interesse"/>
+                {% elif interessado == 2 %}
+                    <input type="submit" style="background-color: #808080; color: white;"  class="save btn btn-default" name="donothing" value="&#10004; Candidatado"/>
+                {% endif %}
+                &nbsp;
+                {% if inscrito == 1 %}
+                    <input type="submit" style="background-color: #ff6666; color: white;"  class="save btn btn-default" name="unsubscribe" value="&#10006; Remover candidatura"/>
+                {% elif inscrito == 0 %}
+                    <input type="submit" style="background-color: #3872B7; color: white;"  class="save btn btn-default" name="subscribe" value="&#10004; Candidatar-me"/>
+                {% endif %}
+            </div>
+            </form>
+        {% endif %}
     {% endif %}
 {% endblock %}

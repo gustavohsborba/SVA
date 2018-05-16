@@ -13,6 +13,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from sva import mensagens
 from .forms import *
@@ -110,7 +112,7 @@ def encerrar_inscricao_vaga(request, pkvaga):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
     else:
-        vaga.data_validade = datetime.now()
+        vaga.data_validade = datetime.datetime.now()
         vaga.situacao = 4
         vaga.save()
         messages.success(request, 'Inscrições encerradas')
@@ -126,8 +128,36 @@ def visualizar_vaga(request, pkvaga):
     if(request.user.groups.filter(name='Aluno').exists()):
         aluno = Aluno.objects.get(user_id=request.user.id)
         context['aluno'] = aluno
-    context['gerente'] = gerente
+        # Verifica se aluno logado eh interessado na vaga
+        if (vaga.alunos_interessados.filter(id=aluno.id).exists()):
+            context['interessado'] = 1
+        else:
+            context['interessado'] = 0
+        #Verifica se aluno logado eh inscrito na vaga
+        if(vaga.alunos_inscritos.filter(id=aluno.id).exists()):
+            context['inscrito'] = 1
+            context['interessado'] = 2
+        else:
+            context['inscrito'] = 0
 
+    context['gerente'] = gerente
+    if request.method == 'POST':
+        if 'subscribe' in request.POST:
+            vaga.alunos_inscritos.add(aluno)
+            if (vaga.alunos_interessados.filter(id=aluno.id).exists()):
+                vaga.alunos_interessados.remove(aluno)
+            messages.success(request, 'Candidatado com sucesso')
+            return redirect(visualizar_vaga, vaga.id)
+        elif 'unsubscribe' in request.POST:
+            vaga.alunos_inscritos.remove(aluno)
+            messages.success(request, 'Candidatura removida com sucesso')
+            return redirect(visualizar_vaga, vaga.id)
+        elif 'interested' in request.POST:
+            vaga.alunos_interessados.add(aluno)
+            return redirect(visualizar_vaga, vaga.id)
+        elif 'uninterested' in request.POST:
+            vaga.alunos_interessados.remove(aluno)
+            return redirect(visualizar_vaga, vaga.id)
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
 
