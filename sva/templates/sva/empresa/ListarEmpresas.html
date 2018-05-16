@@ -33,7 +33,7 @@
           <td>{{ empresa.nome }}</td>
           <td>{{ empresa.website }}</td>
           <td>{{ empresa.user.date_joined }}</td>
-          <td>{{ empresa.data_cadastro }}</td>
+          <td>{{ empresa.data_aprovacao }}</td>
           <td>
               <a href="{% url 'Exibir_Empresa' pk=empresa.user.pk %}">
                 <i class="fa fa-search"></i><span>Consultar</span>
@@ -53,6 +53,6 @@
 
 
 {% block paginacao_label %}
-    Mostrando {{ empresas.count }} entradas
+    Mostrando {{ empresas|length }} {% if empresas|length_is:'1' %}registro{% else %}registros{% endif %}
 {% endblock %}
 

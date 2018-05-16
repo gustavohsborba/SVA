@@ -17,9 +17,23 @@
     </div>
     <br>
 
-    {# TODO: FAZER URL PARA APROVAR/REPROVAR CADASTRO DE EMPRESA #}
-    {% if empresa.data_cadastro and request.user|has_groups:"Administrador,Setor de Estágios" %}
-        <a href="{% url 'FAZER ESSA URL' %}" class="btn btn-primary"></a>
+    {# TODO: FAZER JUSTIFICATIVA PARA APROVAR/REPROVAR CADASTRO DE EMPRESA #}
+    {% if request.user|has_groups:"Administrador,Setor de Estágios" %}
+
+        {% if not empresa.data_aprovacao %}
+            <a href="{% url 'Aprovar_Empresa' empresa.user.pk %}" class="btn btn-primary">Aprovar Cadastro</a>
+        {% endif %}
+
+        <a href="javascript:func()" onclick="confirmacao()" class="btn btn-danger"> Desativar conta </a>
+        <script language="Javascript">
+        function confirmacao() {
+             var resposta = confirm("Deseja desativar essa conta?");
+
+             if (resposta == true) {
+                  window.location.href = "{% url 'Excluir_Empresa' empresa.user.pk %}";
+             }
+        }
+
     {% endif %}
 
 {% endblock content %}

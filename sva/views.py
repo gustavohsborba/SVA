@@ -13,8 +13,22 @@ from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
 
+from django.views.decorators.http import require_POST
+
 from sva import mensagens
 from .forms import *
+
+
+def is_admin(user):
+    ADMINISTRADOR = Group.objects.get_or_create(name='Administrador')
+    SETOR_ESTAGIOS = Group.objects.get_or_create(name='Setor de Estágios')
+    if user.is_superuser:
+        return True
+    if ADMINISTRADOR in user.groups.all():
+        return True
+    if SETOR_ESTAGIOS in user.groups.all():
+        return True
+    return False
 
 
 # Create your views here.
@@ -188,12 +202,13 @@ def cadastrar_empresa(request):
         usuario = User.objects.create_user(username)
         empresa.user = usuario
         empresa.cnpj = form.cleaned_data['cnpj']
+        empresa.nome = form.cleaned_data['nome']
         empresa.user.set_password(form.cleaned_data['password'])
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
-        empresa.data_cadastro = datetime.now()
-        messages.error(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
+        empresa.data_aprovacao = datetime.now()
+        messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
 
@@ -218,7 +233,7 @@ def cadastrar_aluno(request):
         aluno.cpf = form.cleaned_data['cpf']
         aluno.user.groups = Group.objects.filter(name='Aluno')
         aluno.save()
-        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/aluno/CadastroAluno.html', {'form': form})
 
@@ -289,7 +304,7 @@ def excluir_empresa(request, pk):
     if empresa is not None:
         empresa.user.is_active = False
         empresa.user.save()
-        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
 
 
@@ -304,7 +319,7 @@ def listar_empresa(request):
     context = {
         'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': False,
-        'professores': Empresa.objects.filter(data_cadastro__isnull=False),
+        'empresas': Empresa.objects.filter(data_aprovacao__isnull=False),
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -314,15 +329,25 @@ def liberar_cadastro_empresas_lista(request):
     context = {
         'titulo_lista': 'Empresas com Cadastro Pendente',
         'liberar_cadastro': True,
-        'professores': Empresa.objects.filter(data_cadastro__isnull=True),
+        'empresas': Empresa.objects.filter(data_aprovacao__isnull=True),
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
 
 @transaction.atomic
 @login_required
-def liberar_empresa(request, pk):
-    pass
+#@require_POST
+@user_passes_test(is_admin)
+def aprovar_cadastro_empresa(request, pk):
+    empresa = get_object_or_404(Empresa, pk=pk)
+    if empresa is not None:
+        empresa.user.is_active = True
+        empresa.user.is_staff = True
+        empresa.user.save()
+        empresa.data_aprovacao = datetime.now()
+        empresa.save()
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return render(request, 'sva/empresa/Perfil.html', {'empresa': empresa})
 
 
 ###############################################################################
@@ -377,7 +402,7 @@ def excluir_aluno(request, pk):
     if aluno is not None:
         aluno.user.is_active = False
         aluno.user.save()
-        messages.info(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
 
 
@@ -502,7 +527,7 @@ def listar_professor(request):
     context = {
         'titulo_lista': 'Professores Cadastrados',
         'liberar_cadastro': False,
-        'professores': Professor.objects.filter(data_cadastro__isnull=False),
+        'professores': Professor.objects.filter(data_aprovacao__isnull=False),
     }
     return render(request, 'sva/professor/ListarProfessores.html', context)
 
@@ -512,14 +537,21 @@ def liberar_cadastro_professores_lista(request):
     context = {
         'titulo_lista': 'Professores com Cadastro Pendente',
         'liberar_cadastro': True,
-        'professores': Professor.objects.filter(data_cadastro__isnull=True),
+        'professores': Professor.objects.filter(data_aprovacao__isnull=True),
     }
     return render(request, 'sva/professor/ListarProfessores.html', context)
 
 
 @transaction.atomic
 @login_required
-def liberar_empresa(request, pk):
-    pass
-
-#  TODO: FAZER VIEW PARA APROVAR/REPROVAR CADASTRO DE PROFESSOR
+#@require_POST
+def aprovar_cadastro_professor(request, pk):
+    professor = get_object_or_404(Professor, pk=pk)
+    if professor is not None:
+        professor.user.is_active = True
+        professor.user.is_staff = True
+        professor.user.save()
+        professor.data_aprovacao = datetime.now()
+        professor.save()
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return render(request, 'sva/professor/Perfil.html', {'professor': professor})

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*- 
 
 from django import forms
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -86,13 +83,14 @@ class FormularioEditarEmpresa(forms.ModelForm):
 class FormularioCadastroEmpresa(forms.ModelForm):
     tipo_formulario = "CADASTRO_EMPRESA"
     cnpj = forms.CharField(max_length=14, validators=[validate_CNPJ])
+    nome = forms.CharField(max_length=60, label="Nome da Empresa")
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Empresa
-        fields = ['cnpj', 'email', 'password', 'confirm_password']
+        fields = ['cnpj', 'nome', 'email', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroEmpresa, self).clean()

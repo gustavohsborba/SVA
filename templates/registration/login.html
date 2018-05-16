@@ -46,6 +46,22 @@
                 {% block profile_select_form %}
                 {% endblock %}
 
+                {% block messages %}
+
+                    {% if message %}
+                        <p class="login-box-msg" style="color: red;">{{ message }}</p>
+                    {% endif %}
+
+                    {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                {% endblock %}
+
                 {% block login_errors %}
                     {% if form.errors and not form.non_field_errors %}
                         <p class="alert alert-danger">
@@ -66,20 +82,6 @@
                 {% block login_form %}
 
                     <form method="post" class="col-xs-12">
-                        {% csrf_token %}
-                        {% if message %}
-                            <p class="login-box-msg" style="color: red;">{{ message }}</p>
-                        {% endif %}
-
-                        {% if messages %}
-                        <ul class="messages">
-                            {% for message in messages %}
-                            <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-
-
                         {% csrf_token %}
 
                         {% for hidden in form.hidden_fields %}

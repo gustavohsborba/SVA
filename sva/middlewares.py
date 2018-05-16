@@ -1,4 +1,6 @@
 from datetime import timedelta
+
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -43,28 +45,28 @@ class NotificacaoMiddleware(MiddlewareMixin):
     def cria_notificacao_cadastro_empresa(sender, instance, created, **kwargs):
         if created:
             grupos = Group.objects.filter(name__in=['Administrador', 'Setor de Estágios'])
-            usuarios = User.objects.filter(groups__in=grupos)
+            usuarios = User.objects.filter(Q(groups__in=grupos) | Q(is_superuser=True))
             for usuario in usuarios:
                 notificacao = Notificacao()
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_EMPRESA
                 notificacao.vaga = None
                 notificacao.usuario = usuario
                 notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_EMPRESA % instance.nome
-                notificacao.link = reverse("Exibir_Empresa", {'pk': instance.pk})
+                notificacao.link = reverse("Exibir_Empresa", args={instance.user.pk})
                 notificacao.save()
 
     @receiver(post_save, sender=Professor)
     def cria_notificacao_cadastro_professor(sender, instance, created, **kwargs):
         if created:
             grupos = Group.objects.filter(name__in=['Administrador', 'Setor de Estágios'])
-            usuarios = User.objects.filter(groups__in=grupos)
+            usuarios = User.objects.filter(Q(groups__in=grupos) | Q(is_superuser=True))
             for usuario in usuarios:
                 notificacao = Notificacao()
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_PROFESSOR
                 notificacao.vaga = None
                 notificacao.usuario = usuario
                 notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR % instance.user.nome
-                notificacao.link = reverse("Exibir_Professor", {'pk': instance.pk})
+                notificacao.link = reverse("Exibir_Professor", args={instance.user.pk})
                 notificacao.save()
 
     @receiver(post_save, sender=Vaga)

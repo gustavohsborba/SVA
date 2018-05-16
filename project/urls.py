@@ -14,14 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.conf.urls.i18n import i18n_patterns
 from sva.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
-## TODO: FAZER URL DAS VIEWS DE CADASTRO/REPROVAÇÃO PROFESSOR/EMPRESA
-## TODO: FAZER URL DAS VIEWS DE LISTAGEM DE PROFESSOR/EMPRESA
 urlpatterns = [
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
@@ -54,18 +53,18 @@ urlpatterns = [
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
 
     url(r'^professor/listar/$', listar_professor, name='Listar_Professor'),
-    url(r'^empresa/gerenciar/$', liberar_cadastro_professores_lista, name='Gerenciar_Professor'),
+    url(r'^professor/gerenciar/$', liberar_cadastro_professores_lista, name='Gerenciar_Professor'),
     url(r'^professor/editar/(?P<pk>\d+)$', editar_professor, name='Editar_Professor'),
     url(r'^professor/editar/(?P<pk>\d+)/excluir$', excluir_professor, name='Excluir_Professor'),
-    url(r'^professor/perfil/(?P<pk>\d+)', exibir_professor, name='Exibir_Professor'),
-    url(r'^professor/perfil/(?P<pk>\d+)/aprovar_cadastro', liberar_professor, name='Aprovar_Professor'),
+    url(r'^professor/perfil/(?P<pk>\d+)$', exibir_professor, name='Exibir_Professor'),
+    url(r'^professor/perfil/(?P<pk>\d+)/aprovar_cadastro$', aprovar_cadastro_professor, name='Aprovar_Professor'),
 
     url(r'^empresa/listar/$', listar_empresa, name='Listar_Empresa'),
     url(r'^empresa/gerenciar/$', liberar_cadastro_empresas_lista, name='Gerenciar_Empresas'),
     url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
-    url(r'^empresa/perfil/(?P<pk>\d+)', exibir_empresa, name='Exibir_Empresa'),
-    url(r'^empresa/perfil/(?P<pk>\d+)/aprovar_cadastro', liberar_empresa, name='Aprovar_Empresa'),
+    url(r'^empresa/perfil/(?P<pk>\d+)$', exibir_empresa, name='Exibir_Empresa'),
+    url(r'^empresa/perfil/(?P<pk>\d+)/aprovar_cadastro$', aprovar_cadastro_empresa, name='Aprovar_Empresa'),
 
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 

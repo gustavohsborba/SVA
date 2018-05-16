@@ -6,7 +6,7 @@
     {% if liberar_cadastro %}
         Professores com Cadastro Pendente
     {% else %}
-        Professores Ativas no Sistema
+        Professores Ativos no Sistema
     {% endif %}
 {% endblock %}
 
@@ -31,10 +31,10 @@
         <tr role="row"
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
           <td>{{ professor.cnpj }}</td>
-          <td>{{ professor.user.first_name professor.user.last_name }}</td>
+          <td>{{ professor.user.first_name}} {{ professor.user.last_name }}</td>
           <td>{{ professor.website }}</td>
           <td>{{ professor.user.date_joined }}</td>
-          <td>{{ professor.data_cadastro }}</td>
+          <td>{{ professor.data_aprovacao }}</td>
           <td>
               <a href="{% url 'Exibir_Professor' pk=professor.user.pk %}">
                 <i class="fa fa-search"></i><span>Consultar</span>
@@ -53,5 +53,5 @@
 
 
 {% block paginacao_label %}
-    Mostrando {{ professores.count }} entradas
+    Mostrando {{ professores|length }} entradas
 {% endblock %}
