@@ -339,7 +339,7 @@ def liberar_cadastro_empresas_lista(request):
 #@require_POST
 @user_passes_test(is_admin)
 def aprovar_cadastro_empresa(request, pk):
-    empresa = get_object_or_404(Empresa, pk=pk)
+    empresa = get_object_or_404(Empresa, user__pk=pk)
     if empresa is not None:
         empresa.user.is_active = True
         empresa.user.is_staff = True
@@ -546,7 +546,7 @@ def liberar_cadastro_professores_lista(request):
 @login_required
 #@require_POST
 def aprovar_cadastro_professor(request, pk):
-    professor = get_object_or_404(Professor, pk=pk)
+    professor = get_object_or_404(Professor, user__pk=pk)
     if professor is not None:
         professor.user.is_active = True
         professor.user.is_staff = True
