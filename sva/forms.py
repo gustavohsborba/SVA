@@ -21,7 +21,7 @@ class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
-        fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+        fields = ('cursos','areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
     data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 

@@ -178,10 +178,16 @@ def editar_vaga(request, pkvaga):
 
     if request.method == 'GET':
         form = FormularioVaga(instance=vaga)
-        return render(request, 'sva/vaga/editarVaga.html', {'form': form})
+        context = {}
+        if(vaga.data_validade is not None):
+            data_val = vaga.data_validade.strftime('%Y-%m-%dT%H:%M')
+            context['data_val'] = data_val
+        context['form'] = form
+        return render(request, 'sva/vaga/editarVaga.html', context)
 
     form = FormularioVaga(request.POST, instance=vaga)
     if form.is_valid():
+        vaga.cursos = form.cleaned_data['cursos']
         vaga.areas_atuacao = form.cleaned_data['areas_atuacao']
         vaga.titulo = form.cleaned_data['titulo']
         vaga.descricao = form.cleaned_data['descricao']
