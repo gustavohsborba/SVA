@@ -1,0 +1,24 @@
+{% extends 'sva/base.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="col-sm-2"> {{ form.Vaga_Cadastrada }}</div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2">{{form.Area_Atuacao}}</div>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-flat">Buscar</button>
+        </div>
+    </form>
+    {% for vaga in vagas_inscritas %}
+    <p><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}"><em>{{vaga.titulo}}</em></a>    --  Inscrito - R${{vaga.valor_bolsa}} - {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} - <em>Nota:</em> {{vaga.nota_media}} </p>
+    {% endfor %}
+    {% for vaga in vagas_interesse %}
+    <p>Interesse-<a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}"><em>{{vaga.titulo}}</em></a> - R${{vaga.valor_bolsa}} - {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} - <em>Nota:</em> {{vaga.nota_media}} </p>
+    {% endfor %}
+{% endblock %}

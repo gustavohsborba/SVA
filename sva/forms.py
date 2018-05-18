@@ -151,3 +151,6 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+class FormularioPesquisaVagasAluno(forms.Form):
+    Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga Cadastrada'}))
+    Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação'}))
