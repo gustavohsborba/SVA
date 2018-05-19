@@ -2,7 +2,7 @@
 
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -492,16 +492,17 @@ def Listar_Vagas_Aluno(request, pk):
                 context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
                 context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno,titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
             elif form.cleaned_data['Vaga_Cadastrada']=="":
-                areas=AreaAtuacao.objects.filter(nome= form.cleaned_data['Area_Atuacao'])
+                areas=AreaAtuacao.objects.filter(nome__icontains= form.cleaned_data['Area_Atuacao'])
                 for area in areas:
                     context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno, areas_atuacao=area.id)
                     context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno, areas_atuacao=area.id)
             else:
-                areas = AreaAtuacao.objects.filter(nome=form.cleaned_data['Area_Atuacao'])
+                areas = AreaAtuacao.objects.filter(nome__icontains=form.cleaned_data['Area_Atuacao'])
                 for area in areas:
                     context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
                     context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
     else:
         context['vagas'] = Vaga.objects.filter(alunos_inscritos=aluno)
+    context['now']= timezone.now()
     return render(request, 'sva/aluno/Vagas.html', context)
 
