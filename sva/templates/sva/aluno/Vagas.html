@@ -1,24 +1,51 @@
 {% extends 'sva/base.html' %}
 {% block content %}
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+<div class="row">
+    <div class="col-md-10 col-md-offset-3">
+        <form action="" method="POST" class="form-inline"  style=" margin-bottom:50px">
+            {% csrf_token %}
+            <div class="input-group  ">
+                <div class="input-group-prepend input-group-lg" >
+                    {{ form.Vaga_Cadastrada }}
+                    {{form.Area_Atuacao}}
+                    <div class="input-group-btn" >
+                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="list-group ">
+            {% for vaga in vagas_inscritas %}
+                <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                   <div class="d-flex w-100 justify-content-between">
+                       <small class="text-muted pull-right" >Inscrito</small>
+                       <h4 class="mb-1">{{vaga.titulo}}</h4>
 
-    <form action="" method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <div class="col-sm-2"> {{ form.Vaga_Cadastrada }}</div>
+                   </div>
+                    <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right"><em >Bolsa:</em> R${{vaga.valor_bolsa}}</font></p>
+                    <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                </a>
+            {% endfor %}
         </div>
-        <div class="form-group">
-            <div class="col-sm-2">{{form.Area_Atuacao}}</div>
+        <div class="list-group ">
+            {% for vaga in vagas_interesse %}
+                     <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                       <div class="d-flex w-100 justify-content-between">
+                           <small class="text-muted pull-right" >Interesse</small>
+                           <h4 class="mb-1">{{vaga.titulo}}</h4>
+                       </div>
+                        <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right"><em >Bolsa:</em> R${{vaga.valor_bolsa}}</font></p>
+                        <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                    </a>
+            {% endfor %}
         </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary btn-flat">Buscar</button>
-        </div>
-    </form>
-    {% for vaga in vagas_inscritas %}
-    <p><a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}"><em>{{vaga.titulo}}</em></a>    --  Inscrito - R${{vaga.valor_bolsa}} - {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} - <em>Nota:</em> {{vaga.nota_media}} </p>
-    {% endfor %}
-    {% for vaga in vagas_interesse %}
-    <p>Interesse-<a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}"><em>{{vaga.titulo}}</em></a> - R${{vaga.valor_bolsa}} - {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} - <em>Nota:</em> {{vaga.nota_media}} </p>
-    {% endfor %}
+    </div>
+</div>
+
+
 {% endblock %}
+
