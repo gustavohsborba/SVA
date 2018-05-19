@@ -337,12 +337,15 @@ def editar_aluno(request, pk):
     texto = aluno.endereco
     Parte= texto.split(",")
     Nome = aluno.user.first_name+' '+aluno.user.last_name
-    initial = {'Rua': Parte[0],
-               'Numero': Parte[1],
-               'Complemento': Parte[2],
-               'Cidade': Parte[3],
-               'Estado': Parte[4],
-               'Nome_Completo': Nome}
+    if len(Nome) ==4 :
+        initial = {'Rua': Parte[0],
+                   'Numero': Parte[1],
+                   'Complemento': Parte[2],
+                   'Cidade': Parte[3],
+                   'Estado': Parte[4],
+                   'Nome_Completo': Nome}
+    else:
+        initial = {'Nome_Completo': Nome}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST,instance=aluno,initial=initial)
         if form.is_valid():
@@ -473,3 +476,32 @@ def excluir_professor(request, pk):
         professor.user.save()
         messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
+
+
+@login_required(login_url="/home/")
+def Listar_Vagas_Aluno(request, pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    form =  FormularioPesquisaVagasAluno(request.POST)
+    context = {}
+    context['form']=form
+    if form.is_valid():
+            if form.cleaned_data['Area_Atuacao']=="":
+                context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
+                context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno,titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
+            elif form.cleaned_data['Vaga_Cadastrada']=="":
+                areas=AreaAtuacao.objects.filter(nome= form.cleaned_data['Area_Atuacao'])
+                for area in areas:
+                    context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno, areas_atuacao=area.id)
+                    context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno, areas_atuacao=area.id)
+            else:
+                areas = AreaAtuacao.objects.filter(nome=form.cleaned_data['Area_Atuacao'])
+                for area in areas:
+                    context['vagas_inscritas'] = Vaga.objects.filter(alunos_inscritos=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
+                    context['vagas_interesse'] = Vaga.objects.filter(alunos_interessados=aluno,titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
+    else:
+        context['vagas'] = Vaga.objects.filter(alunos_inscritos=aluno)
+    return render(request, 'sva/aluno/Vagas.html', context)
+
