@@ -47,7 +47,13 @@ def gerenciar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
     if gerente is None:
         return redirect("login")
-    context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
+
+    form = FormularioGerenciaVaga(request.POST)
+    context['form'] = form
+    if form.is_valid() and form.cleaned_data['vaga_nome']!= "":
+        context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id, titulo__icontains=form.cleaned_data['vaga_nome']).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
+    else:
+        context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
     return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
 

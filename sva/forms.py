@@ -25,6 +25,9 @@ class FormularioVaga(forms.ModelForm):
 
     data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
+class FormularioGerenciaVaga(forms.Form):
+    vaga_nome = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Título da vaga','class':'form-control'}))
+
 class FormularioContato(forms.Form):
 
     assunto = forms.CharField(max_length=100)
