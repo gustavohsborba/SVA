@@ -1,13 +1,52 @@
 {% extends 'sva/base.html' %}
 
 {% block content %}
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+<div class="row">
 
+    <div class="col-md-10 col-md-offset-1">
         <form action="" method="POST">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Editar</button>
+                <div class="form-group ">
+                    <label class=" col-form-label">Curso</label>
+                    {{form.curso}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Matricula</label>
+                    {{form.matricula}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Telefone</label>
+                    {{form.telefone}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Habilidades</label>
+                    {{form.habilidades}}
+                </div>
+                 <div class="form-group ">
+                    <label class=" col-form-label">Nome Completo</label>
+                    {{form.Nome_Completo}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Rua</label>
+                    {{form.Rua}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Numero</label>
+                    {{form.Numero}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Complemento</label>
+                    {{form.Complemento}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Cidade</label>
+                    {{form.Cidade}}
+                </div>
+                <div class="form-group ">
+                    <label class=" col-form-label">Estado</label>
+                    {{form.Estado}}
+                </div>
+                <button class="btn btn-primary  " type="submit">Editar</button>
         </form>
         {% if messages %}
         <ul class="messages">
@@ -16,7 +55,7 @@
             {% endfor %}
         </ul>
         {% endif %}
-        <a href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
+        <a class="pull-right" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
         <script language="Javascript">
         function confirmacao() {
              var resposta = confirm("Deseja desativar essa conta?");
@@ -26,4 +65,6 @@
              }
         }
         </script>
+    </div>
+</div>
 {% endblock content %}

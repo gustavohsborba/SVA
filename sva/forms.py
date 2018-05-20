@@ -11,7 +11,6 @@ import datetime
 
 from .validators import *
 
-
 class FormularioVaga(forms.ModelForm):
 
     def clean(self):
@@ -22,11 +21,9 @@ class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
-        fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+        fields = ('cursos','areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
-    #data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
-    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False, initial = datetime.datetime.now().strftime('%d/%m/%YT%H:%M'))
-
+    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
 class FormularioContato(forms.Form):
 
@@ -59,13 +56,16 @@ class FormularioCadastroAluno(forms.ModelForm):
 
 
 class FormularioEditarAluno(forms.ModelForm):
-    Nome_Completo = forms.CharField(max_length=100)
-    Rua = forms.CharField(max_length=40)
-    Numero = forms.CharField(max_length=4)
-    Complemento = forms.CharField(max_length=10,required=False)
-    Cidade = forms.CharField(max_length=20)
-    Estado = forms.CharField(max_length=20)
-
+    Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Complemento = forms.CharField(max_length=10,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
+    habilidades = forms.ModelChoiceField(queryset=Habilidade.objects.all(),widget=forms.SelectMultiple(attrs={"class":"form-control"}))
     class Meta:
         model = Aluno
         fields = ['curso', 'matricula', 'telefone' ,'habilidades']
@@ -154,3 +154,6 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+class FormularioPesquisaVagasAluno(forms.Form):
+    Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga Cadastrada','class':'form-control'}))
+    Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
