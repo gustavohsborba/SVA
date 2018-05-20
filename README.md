@@ -15,6 +15,7 @@
 * mysql-server
 * libmysqlclient-dev
 * Django > 1.10
+* django-datatable
 
 ## Softwares Recomendados:
 * gitkraken
