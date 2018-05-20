@@ -39,14 +39,22 @@
                            <h4 class="mb-1">{{vaga.titulo}}</h4>
                        </div>
                         <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
-                         {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
-                         {%if teste <= 3 %}
-                         <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
-                         {%else%}
-                          <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                         {%endif%}
-
+                         {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
+                             {%ifnotequal data "dias"%}
+                                 {%ifnotequal data "dia"%}
+                                    <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                 {%else%}
+                                     {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                         {%if teste <= 3 %}
+                                             <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                         {%else%}
+                                             <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                         {%endif%}
+                                     {%endwith%}
+                                {%endifnotequal%}
+                             {%endifnotequal%}
                          {%endwith%}
+
                          <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
                      </a>
             {% endfor %}
