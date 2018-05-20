@@ -612,8 +612,6 @@ def Listar_Vagas_Aluno(request, pk):
     return render(request, 'sva/aluno/Vagas.html', context)
 
 
-
-
 @login_required(login_url='/accounts/login/')
 def exibir_professor(request, pk):
     professor = get_object_or_404(Professor, user_id=pk)

@@ -38,7 +38,7 @@ class NotificacaoMiddleware(MiddlewareMixin):
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
                 notificacao.vaga = instance
                 notificacao.usuario = usuario
-                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
                 notificacao.save()
 
     @receiver(post_save, sender=Empresa)
