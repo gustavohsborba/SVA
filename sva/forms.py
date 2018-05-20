@@ -28,7 +28,7 @@ class FormularioVaga(forms.ModelForm):
     data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
 class FormularioGerenciaVaga(forms.Form):
-    vaga_nome = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Título da vaga','class':'form-control'}))
+    vaga_nome = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Procurar vagas','class':'form-control'}))
 
 class FormularioContato(forms.Form):
 
@@ -162,6 +162,7 @@ class LoginForm(AuthenticationForm):
 class FormularioPesquisaVagasAluno(forms.Form):
     Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga','class':'form-control'}))
     Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
+
 # TODO: https://github.com/shymonk/django-datatable
 class ProfessorTable(Table):
     CPF = Column(field='cpf', searchable=True, sortable=True)
