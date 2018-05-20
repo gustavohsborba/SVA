@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^aluno/editar/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
+    url(r'^aluno/vagas/(?P<pk>\d+)$', Listar_Vagas_Aluno, name='Listar_Vagas_Aluno'),
 
     url(r'^professor/listar/$', listar_professor, name='Listar_Professor'),
     url(r'^professor/gerenciar/$', liberar_cadastro_professores_lista, name='Gerenciar_Professor'),
@@ -59,8 +60,8 @@ urlpatterns = [
     url(r'^professor/perfil/(?P<pk>\d+)$', exibir_professor, name='Exibir_Professor'),
     url(r'^professor/perfil/(?P<pk>\d+)/aprovar_cadastro$', aprovar_cadastro_professor, name='Aprovar_Professor'),
 
-    url(r'^empresa/listar/$', listar_empresa, name='Listar_Empresa'),
     url(r'^empresa/gerenciar/$', liberar_cadastro_empresas_lista, name='Gerenciar_Empresas'),
+    url(r'^empresa/listar/$', listar_empresa, name='Listar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)$', editar_empresa, name='Editar_Empresa'),
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
     url(r'^empresa/perfil/(?P<pk>\d+)$', exibir_empresa, name='Exibir_Empresa'),

@@ -43,6 +43,7 @@
             <ul class="treeview-menu" role="menu">
                 <li><a href="{% url 'Exibir_Aluno' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
                 <li><a href="{% url 'Editar_Aluno' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+                <li><a href="{% url 'Listar_Vagas_Aluno' pk=request.user.pk  %}"><i class="fa fa-list"></i><span>Minhas Vagas</span></a></li>
             </ul>
         </li>
     {% endif %}
