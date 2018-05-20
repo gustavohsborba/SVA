@@ -1,12 +1,16 @@
 {% extends 'adminlte/lib/_main_sidebar.html' %}
 {% load svatags %}
 
+
+{% block nav_links_outer %}
+<li class="header">{% block nav_heading %}Navegação Principal{% endblock %}</li>
+<li>
+    <a href="/home">
+        <i class="fa fa-home"></i> <span>Início</span>
+    </a>
+</li>
+
 {% block nav_links %}
-    <li>
-        <a href="/home">
-            <i class="fa fa-home"></i> <span>Início</span>
-        </a>
-    </li>
 
     {% if request.user.is_superuser or request.user.is_staff and request.user|has_group:"Administrador" %}
         <li>
@@ -64,3 +68,5 @@
     {% endif %}
 
 {% endblock nav_links %}
+
+{% endblock nav_links_outer %}

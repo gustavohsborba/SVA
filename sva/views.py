@@ -2,7 +2,7 @@
 
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-
+from datetime import date, datetime
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
@@ -16,6 +16,7 @@ from random import choice
 from django.views.decorators.http import require_POST
 
 from sva import mensagens
+from .models import *
 from .forms import *
 
 
@@ -220,7 +221,6 @@ def cadastrar_aluno(request):
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['cpf']
         usuario = User.objects.create_user(username)
-        aluno.user_ptr_id = usuario.id
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
         aluno.user.first_name = form.cleaned_data['first_name']
@@ -377,16 +377,15 @@ def aprovar_cadastro_empresa(request, pk):
 @login_required(login_url='/accounts/login/')
 def editar_aluno(request, pk):
     if pk != str(request.user.id):
-        return HttpResponseRedirect('/home/')
-    aluno = get_object_or_404(Aluno, user_id=pk)
-    texto = aluno.endereco
-    Parte = texto.split(",")
-    Nome = aluno.user.first_name + ' ' + aluno.user.last_name
-    initial = {'Rua': Parte[0],
-               'Numero': Parte[1],
-               'Complemento': Parte[2],
-               'Cidade': Parte[3],
-               'Estado': Parte[4],
+       return HttpResponseRedirect('/home/')
+    aluno = get_object_or_404(Aluno,user_id=pk)
+    Parte= aluno.endereco.split(",")
+    Nome = aluno.user.first_name+' '+aluno.user.last_name
+    initial = {'Rua': Parte[0] if len(Parte) >= 1 else '',
+               'Numero': Parte[1] if len(Parte) >= 2 else '',
+               'Cidade': Parte[2] if len(Parte) >= 3 else '',
+               'Estado': Parte[3] if len(Parte) >= 4 else '',
+               'Complemento': Parte[4] if len(Parte) >= 5 else '',
                'Nome_Completo': Nome}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
@@ -396,9 +395,9 @@ def editar_aluno(request, pk):
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
             aluno.endereco = form.cleaned_data['Rua'] + ',' + \
-                             form.cleaned_data['Numero'] + ',' + \
-                             form.cleaned_data['Complemento'] + ',' + \
-                             form.cleaned_data['Cidade'] + ',' + \
+                             form.cleaned_data['Numero'] + ',' +  \
+                             form.cleaned_data['Complemento'] + ',' +  \
+                             form.cleaned_data['Cidade'] + ',' +  \
                              form.cleaned_data['Estado']
             aluno.save()
             aluno.user.first_name = Nome[0]
@@ -445,6 +444,7 @@ def recuperar_senha(request):
     if request.method == "GET":
         return render(request, 'registration/recuperarSenha.html', {})
 
+    cpf = request.POST['CPF']
     email = request.POST['email']
     try:
         user = User.objects.get(email=email)
@@ -538,6 +538,8 @@ def exibir_professor(request, pk):
     context = {'professor': professor}
     return render(request, 'sva/professor/Perfil.html', context)
 
+
+# TODO: https://github.com/shymonk/django-datatable
 
 @login_required(login_url='/accounts/login/')
 def listar_professor(request):

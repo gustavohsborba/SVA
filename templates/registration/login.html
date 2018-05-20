@@ -19,11 +19,26 @@
             <!-- /.login-logo -->
             <div class="login-box-body col-xs-12">
 
+
+                {% block messages %}
+
+                    {% if message %}
+                        <p class="login-box-msg" style="color: red;">{{ message }}</p>
+                    {% endif %}
+
+                    {% if messages %}
+                        {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    {% endif %}
+
+                {% endblock %}
+
                 {% if next %}
                     {% if user.is_authenticated %}
                     <p>Seu perfil não tem acesso a essa página. Para continuar,
                         por favor, logue com uma conta que tenha esse acesso.</p>
-                    {% else %}
+                    {% elif messages %}
                     <p>Por favor, faça login para acessar a página.</p>
                     {% endif %}
                 {% endif %}
@@ -44,22 +59,6 @@
 
 
                 {% block profile_select_form %}
-                {% endblock %}
-
-                {% block messages %}
-
-                    {% if message %}
-                        <p class="login-box-msg" style="color: red;">{{ message }}</p>
-                    {% endif %}
-
-                    {% if messages %}
-                    <ul class="messages">
-                        {% for message in messages %}
-                        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-
                 {% endblock %}
 
                 {% block login_errors %}
