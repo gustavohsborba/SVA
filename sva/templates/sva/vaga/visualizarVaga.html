@@ -1,5 +1,5 @@
 {% extends 'sva/vaga/vaga.html' %}
-
+{% load svatags %}
 {% block content %}
     {% csrf_token %}
     <h1><b>{{ vaga.titulo }}</b></h1>
@@ -45,4 +45,8 @@
     <div class="form-group">
         <b>Avaliação da vaga:</b> {{vaga.nota_media}}
     </div>
+    <br>
+    {% if request.user|has_group:"Aluno" %}
+        <input type="datetime-local"  value="Atualizar vaga" />
+    {% endif %}
 {% endblock %}

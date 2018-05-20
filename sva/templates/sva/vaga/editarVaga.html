@@ -26,7 +26,7 @@
                 <div class="form-group">
                     <label class="control-label col-sm-2">Inscrições até: </label>
                     <div class="col-sm-10">
-                        {{form.data_validade}}
+                        <input type="datetime-local" id="data_validade" name="data_validade" value="{{form.data_validade|date:'d/m/YTH:i'}}">
                         <a href="javascript:func()" onclick="encerrar()">Encerrar inscrições</a>
                         <script language="Javascript">
                         function encerrar() {

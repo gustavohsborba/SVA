@@ -123,6 +123,9 @@ def visualizar_vaga(request, pkvaga):
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
     gerente = GerenteVaga.objects.get(vagas=vaga)
+    if(request.user.groups.filter(name='Aluno').exists()):
+        aluno = Aluno.objects.get(user_id=request.user.id)
+        context['aluno'] = aluno
     context['gerente'] = gerente
 
     return render(request, 'sva/vaga/visualizarVaga.html', context)
@@ -227,6 +230,8 @@ def cadastrar_professor(request):
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
+        #professor.user.first_name = form.cleaned_data['first_name']
+        #professor.user.last_name = ''
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
@@ -401,9 +406,7 @@ def alterar_senha(request):
 @login_required(login_url='/accounts/login/')
 def editar_professor(request, pk):
     professor = get_object_or_404(Professor,pk=pk)
-    #curso = get_object_or_404(Curso, pk=professor.curso)
     Nome = professor.user.first_name+' '+professor.user.last_name
-
     Telefone = professor.telefone
     Curso = professor.curso
     initial = {
@@ -414,9 +417,12 @@ def editar_professor(request, pk):
     if request.method == 'POST':
         form = FormularioEditarProfessor(request.POST,instance=professor,initial=initial)
         if form.is_valid():
+            Nome = professor.user.first_name + ' ' + professor.user.last_name
+            texto = form.cleaned_data['Nome_Completo']
+            Nome = texto.split(" ", 1)
             professor.curso = form.cleaned_data['curso']
             professor.siape = form.cleaned_data['siape']
-            professor.telefone =  form.cleaned_data['Telefone']
+            professor.telefone = form.cleaned_data['Telefone']
             professor.save()
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
             professor.user.last_name = Nome[1] if len(Nome) > 1 else ''
