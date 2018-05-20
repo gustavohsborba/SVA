@@ -359,8 +359,19 @@ def editar_empresa(request, pk):
         return HttpResponseRedirect('/home/')
     empresa = get_object_or_404(Empresa, user_id=pk)
     Nome = empresa.user.first_name + ' ' + empresa.user.last_name
+    parte = empresa.endereco.split(",")
     initial = {
-        'Nome_Completo': Nome}
+        'Nome_Completo': Nome,
+        'Telefone' : empresa.telefone,
+        'Email':empresa.user.email,
+        'Site' : empresa.website,
+        'Bairro': parte[0],
+        'Rua': parte[1] if len(parte) >= 2 else '',
+        'Numero': parte[2] if len(parte) >= 3 else '',
+        'Complemento': parte[3] if len(parte) >= 4 else '',
+        'Cidade': parte[4] if len(parte) >= 5 else '',
+        'Estado': parte[5] if len(parte) >= 6 else '',
+    }
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
