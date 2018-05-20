@@ -10,6 +10,19 @@
     {% endif %}
 {% endblock %}
 
+{% block filtros_tabela %}
+    <form method="post" action="{% url 'Listar_Empresa' %}">
+        {% csrf_token %}
+        <div class="form-group col-sm-6">
+          <label class="control-label" for="inputError">Filtrar por nome:</label>
+          <input type="text" id="filtro" name="filtro" class="form-control form-inline"
+                 placeholder="Nome da empresa" value="{{ request.POST.filtro }}"/>
+            <button type="submit" class="btn btn-primary">
+                <b>Filtrar</b>
+            </button>
+        </div>
+    </form>
+{% endblock %}
 
 {% block cabecalho_tabela %}
     <th>CNPJ</th>
@@ -18,9 +31,6 @@
     <th>Data de Cadastro</th>
     <th>Data de Aprovação</th>
     <th>Consultar</th>
-    {% if liberar_cadastro %}
-        <th>Aprovar</th>
-    {% endif %}
 {% endblock %}
 
 
@@ -39,14 +49,6 @@
                 <i class="fa fa-search"></i><span>Consultar</span>
             </a>
           </td>
-
-          {% if liberar_cadastro %}
-            <td>
-                <a href="{% url 'Aprovar_Empresa' pk=empresa.user.pk %}">
-                  <i class="fa fa-check-square-o"></i><span>Aprovar</span>
-                </a>
-            </td>
-          {% endif %}
         </tr>
     {% endfor %}
 {% endblock %}

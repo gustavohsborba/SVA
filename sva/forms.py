@@ -3,6 +3,8 @@
 from django import forms
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
+from table import Table
+from table.columns import Column
 
 from .validators import *
 
@@ -133,7 +135,6 @@ class FormularioEditarProfessor(forms.ModelForm):
         fields = ['curso', 'siape']
 
 
-
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         max_length=11, label='usuário',
@@ -149,3 +150,14 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+
+# TODO: https://github.com/shymonk/django-datatable
+class ProfessorTable(Table):
+    CPF = Column(field='cpf', searchable=True, sortable=True)
+    SIAPE = Column(field='siape', searchable=True, sortable=True)
+    Nome = Column(field='user.first_name', searchable=True, sortable=True)
+    Curso = Column(field='curso', searchable=True, sortable=True)
+    Data_Cadastro = Column(field='user.date_joined', searchable=False, sortable=False)
+    Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
+    class Meta:
+        model = Professor

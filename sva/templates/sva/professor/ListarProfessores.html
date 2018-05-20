@@ -1,5 +1,6 @@
 {% extends 'sva/base_listagem.html' %}
 {% load svatags %}
+{% load table_tags %}
 
 
 {% block titulo_listagem %}
@@ -19,20 +20,18 @@
     <th>Data de Cadastro</th>
     <th>Data de Aprovação</th>
     <th>Consultar</th>
-    {% if liberar_cadastro %}
-        <th>Aprovar</th>
-    {% endif %}
 {% endblock %}
 
 
 {% block corpo_tabela %}
-    {% for empresa in professores %}
+    {% for professor in professores %}
 
         <tr role="row"
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
-          <td>{{ professor.cnpj }}</td>
+          <td>{{ professor.cpf }}</td>
+          <td>{{ professor.siape }}</td>
           <td>{{ professor.user.first_name}} {{ professor.user.last_name }}</td>
-          <td>{{ professor.website }}</td>
+          <td>{{ professor.curso }}</td>
           <td>{{ professor.user.date_joined }}</td>
           <td>{{ professor.data_aprovacao }}</td>
           <td>
@@ -40,13 +39,6 @@
                 <i class="fa fa-search"></i><span>Consultar</span>
             </a>
           </td>
-          {% if liberar_cadastro %}
-          <td>
-              <a href="{% url 'Aprovar_Professor' pk=professor.user.pk %}">
-                <i class="fa fa-check-square-o"></i><span>Aprovar</span>
-              </a>
-          </td>
-          {% endif %}
         </tr>
     {% endfor %}
 {% endblock %}

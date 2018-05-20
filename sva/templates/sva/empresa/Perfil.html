@@ -17,14 +17,59 @@
     </div>
     <br>
 
-    {# TODO: FAZER JUSTIFICATIVA PARA APROVAR/REPROVAR CADASTRO DE EMPRESA #}
-    {% if request.user|has_groups:"Administrador,Setor de Estágios" %}
+    {% if request.user.is_superuser or request.user|has_groups:"Administrador,Setor de Estágios" %}
 
         {% if not empresa.data_aprovacao %}
-            <a href="{% url 'Aprovar_Empresa' empresa.user.pk %}" class="btn btn-primary">Aprovar Cadastro</a>
+            <button type="button" class="btn btn-primary"  onClick="setar_valor_aprovado('true')" data-toggle="modal" data-target="#modal-default">
+                Deferir Cadastro
+            </button>
+            <button type="button" class="btn btn-danger" onClick="setar_valor_aprovado('false')" data-toggle="modal" data-target="#modal-default">
+                Indeferir o Cadastro
+            </button>
         {% endif %}
 
-        <a href="javascript:func()" onclick="confirmacao()" class="btn btn-danger"> Desativar conta </a>
+        <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px;">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">Confirmar Ação</h4>
+              </div>
+
+              <form method="post" action="{% url 'Aprovar_Empresa' empresa.user.pk %}">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                    {% block conteudo_modal %}
+                        <input type="hidden" name="aprovado" id="aprovado"/>
+                        <div class="form-group">
+                          <label class="control-label" for="inputError">Justificativa</label>
+                          <textarea id="justificativa" name="justificativa" class="form-control"
+                                    rows="3" placeholder="Insira uma Justificativa"></textarea>
+                          <span class="help-block"></span>
+                        </div>
+                        <span>Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário </span>
+                    {% endblock %}
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">{% block label_botao %} Confirmar {% endblock %}</button>
+                  </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+        <script>
+           function setar_valor_aprovado(valor) {
+               document.getElementById("aprovado").value = valor;
+           }
+        </script>
+
+    {% endif %}
+
+    {% if empresa.user.pk == request.user.pk or request.user.is_superuser %}
+        <a href="javascript:func()" onclick="confirmacao()" class="btn btn-danger pull-right"> Desativar conta </a>
         <script language="Javascript">
         function confirmacao() {
              var resposta = confirm("Deseja desativar essa conta?");
@@ -33,7 +78,7 @@
                   window.location.href = "{% url 'Excluir_Empresa' empresa.user.pk %}";
              }
         }
-
+        </script>
     {% endif %}
 
 {% endblock content %}

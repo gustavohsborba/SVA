@@ -316,38 +316,57 @@ def exibir_empresa(request, pk):
 
 @login_required(login_url='/accounts/login/')
 def listar_empresa(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
+    else:
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=False)
     context = {
         'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': False,
-        'empresas': Empresa.objects.filter(data_aprovacao__isnull=False),
+        'empresas': empresas,
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
 
 @login_required(login_url='/accounts/login/')
 def liberar_cadastro_empresas_lista(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
+                                          nome__icontains=request.POST['filtro'])
+    else:
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=True)
     context = {
         'titulo_lista': 'Empresas com Cadastro Pendente',
         'liberar_cadastro': True,
-        'empresas': Empresa.objects.filter(data_aprovacao__isnull=True),
+        'empresas': empresas,
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
 
 @transaction.atomic
 @login_required
-#@require_POST
+@require_POST
 @user_passes_test(is_admin)
 def aprovar_cadastro_empresa(request, pk):
-    empresa = get_object_or_404(Empresa, pk=pk)
-    if empresa is not None:
+    empresa = get_object_or_404(Empresa, user__pk=pk)
+    if empresa is not None and request.POST['aprovado'] == 'true':
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
         empresa.data_aprovacao = datetime.now()
         empresa.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return render(request, 'sva/empresa/Perfil.html', {'empresa': empresa})
+        mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
+                   'Você agora pode acessar o sistema\n\nSVA' \
+                   % (request.user.first_name, request.POST['justificativa'])
+        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [empresa.user.email])
+    else:
+        mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
+                   % (request.user.first_name, request.POST['justificativa'])
+        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [empresa.user.email])
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return render(request, 'sva/empresa/Perfil.html', {'empresa': empresa})
 
 
 ###############################################################################
@@ -520,38 +539,59 @@ def exibir_professor(request, pk):
     return render(request, 'sva/professor/Perfil.html', context)
 
 
-# TODO: https://github.com/shymonk/django-datatable
-
 @login_required(login_url='/accounts/login/')
 def listar_professor(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        professores = Professor.objects.filter(data_aprovacao__isnull=False, user__first_name__icontains=request.POST['filtro'])
+    else:
+        professores = Professor.objects.filter(data_aprovacao__isnull=False)
     context = {
         'titulo_lista': 'Professores Cadastrados',
         'liberar_cadastro': False,
-        'professores': Professor.objects.filter(data_aprovacao__isnull=False),
+        'professores': professores,
+        'people': ProfessorTable(),
     }
     return render(request, 'sva/professor/ListarProfessores.html', context)
 
 
 @login_required(login_url='/accounts/login/')
 def liberar_cadastro_professores_lista(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        professores = Professor.objects.filter(data_aprovacao__isnull=True,
+                                               user__first_name__icontains=request.POST['filtro'])
+    else:
+        professores = Professor.objects.filter(data_aprovacao__isnull=True)
     context = {
         'titulo_lista': 'Professores com Cadastro Pendente',
         'liberar_cadastro': True,
-        'professores': Professor.objects.filter(data_aprovacao__isnull=True),
+        'professores': professores,
+        'people': ProfessorTable(),
     }
     return render(request, 'sva/professor/ListarProfessores.html', context)
 
 
 @transaction.atomic
 @login_required
-#@require_POST
+@require_POST
+@user_passes_test(is_admin)
 def aprovar_cadastro_professor(request, pk):
-    professor = get_object_or_404(Professor, pk=pk)
-    if professor is not None:
+    professor = get_object_or_404(Professor, user__pk=pk)
+    if professor is not None and request.POST['aprovado'] == 'true':
         professor.user.is_active = True
         professor.user.is_staff = True
         professor.user.save()
         professor.data_aprovacao = datetime.now()
         professor.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return render(request, 'sva/professor/Perfil.html', {'professor': professor})
+        mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
+                   'Você agora pode acessar o sistema\n\nSVA' \
+                   % (request.user.first_name, request.POST['justificativa'])
+        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [professor.user.email])
+    else:
+        mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
+                   % (request.user.first_name, request.POST['justificativa'])
+        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [professor.user.email])
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return render(request, 'sva/professor/Perfil.html', {'professor': professor})
+
