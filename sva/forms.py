@@ -27,6 +27,9 @@ class FormularioVaga(forms.ModelForm):
 
     data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
+class FormularioGerenciaVaga(forms.Form):
+    vaga_nome = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Título da vaga','class':'form-control'}))
+
 class FormularioContato(forms.Form):
 
     assunto = forms.CharField(max_length=100)
@@ -157,17 +160,15 @@ class LoginForm(AuthenticationForm):
         fields = ['usuário', 'senha']
 
 class FormularioPesquisaVagasAluno(forms.Form):
+    Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga','class':'form-control'}))
     Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
-    Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga Cadastrada','class':'form-control'}))
-
 # TODO: https://github.com/shymonk/django-datatable
 class ProfessorTable(Table):
     CPF = Column(field='cpf', searchable=True, sortable=True)
-    SIAPE = Column(field='siape', searchable=True, sortable=True)
     Nome = Column(field='user.first_name', searchable=True, sortable=True)
+    SIAPE = Column(field='siape', searchable=True, sortable=True)
     Curso = Column(field='curso', searchable=True, sortable=True)
-    Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
     Data_Cadastro = Column(field='user.date_joined', searchable=False, sortable=False)
+    Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
     class Meta:
-
         model = Professor
