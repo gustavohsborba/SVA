@@ -1,5 +1,5 @@
 {% extends 'adminlte/lib/_main_header.html' %}
-
+{% load adminlte_helpers i18n %}
 
 {% block logo %}
 <a href="{% block logo_href %}/home{% endblock %}" class="logo">
@@ -11,14 +11,61 @@
 {% endblock %}
 
 
-{% block menu_footer %}
-<li class="user-footer">
-    <div class="pull-left">
-        <a href="{% block change_password_url %}{% url 'password_change' %}{% endblock %}"
-           class="btn btn-default btn-flat">Alterar Senha</a>
-    </div>
-    <div class="pull-right">
-        <a href="{% block logout_url %}{% url 'logout' %}{% endblock %}" class="btn btn-default btn-flat">Sair</a>
-    </div>
-</li>
-{% endblock %}
+{% block header_dropdowns %}
+    <li class="dropdown notifications-menu">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+          <i class="fa fa-bell-o"></i>
+          {% if notificacoes|length %}<span class="label label-warning">{{ notificacoes|length }}</span>{% endif %}
+        </a>
+        <ul class="dropdown-menu">
+          <li class="header">Você tem {{ notificacoes|length }} notificações </li>
+          <li>
+            <!-- inner menu: contains the actual data -->
+            <ul class="menu">
+              {% for notificacao in notificacoes %}
+                  <li>
+                    <a href="{{ notificacao.url }}">
+                      <i class="fa fa-users text-aqua {{ notificacao.classes_css }}"></i> {{ notificacao.mensagem }}
+                    </a>
+                  </li>
+              {% endfor %}
+            </ul>
+          </li>
+        </ul>
+    </li>
+
+
+    {% if request.user.is_authenticated %}
+        <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="{% avatar_url size=50 %}" class="user-image" alt="User Image">
+                <span class="hidden-xs">{% firstof request.user.get_short_name request.user.get_username %}</span>
+            </a>
+            <ul class="dropdown-menu">
+                {% block user_header %}
+                <li class="user-header">
+                    <img src="{% avatar_url size=180 %}" class="img-circle" alt="User Image">
+                    <p>
+                        {% firstof request.user.get_short_name request.user.get_username %}
+                        <small>Member since {{ request.user.date_joined }}</small>
+                    </p>
+                </li>
+                {% endblock %}
+
+                <!-- Menu Footer-->
+                {% block menu_footer %}
+                <li class="user-footer">
+                    <div class="pull-left">
+                        <a href="{% block change_password_url %}{% url 'password_change' %}{% endblock %}"
+                           class="btn btn-default btn-flat">Alterar Senha</a>
+                    </div>
+                    <div class="pull-right">
+                        <a href="{% block logout_url %}{% url 'logout' %}{% endblock %}" class="btn btn-default btn-flat">Sair</a>
+                    </div>
+                </li>
+                {% endblock %}
+
+            </ul>
+        </li>
+    {% endif %}
+{% endblock header_dropdowns %}

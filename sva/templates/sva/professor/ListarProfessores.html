@@ -1,0 +1,49 @@
+{% extends 'sva/base_listagem.html' %}
+{% load svatags %}
+{% load table_tags %}
+
+
+{% block titulo_listagem %}
+    {% if liberar_cadastro %}
+        Professores com Cadastro Pendente
+    {% else %}
+        Professores Ativos no Sistema
+    {% endif %}
+{% endblock %}
+
+
+{% block cabecalho_tabela %}
+    <th>CPF</th>
+    <th>SIAPE</th>
+    <th>Nome</th>
+    <th>Curso</th>
+    <th>Data de Cadastro</th>
+    <th>Data de Aprovação</th>
+    <th>Consultar</th>
+{% endblock %}
+
+
+{% block corpo_tabela %}
+    {% for professor in professores %}
+
+        <tr role="row"
+            {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
+          <td>{{ professor.cpf }}</td>
+          <td>{{ professor.siape }}</td>
+          <td>{{ professor.user.first_name}} {{ professor.user.last_name }}</td>
+          <td>{{ professor.curso }}</td>
+          <td>{{ professor.user.date_joined }}</td>
+          <td>{{ professor.data_aprovacao }}</td>
+          <td>
+              <a href="{% url 'Exibir_Professor' pk=professor.user.pk %}">
+                <i class="fa fa-search"></i><span>Consultar</span>
+            </a>
+          </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+
+{% block paginacao_label %}
+    Mostrando {{ professores|length }} entradas
+{% endblock %}

@@ -2,13 +2,16 @@
 
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.admin import UserAdmin
 from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
+import datetime
+from table import Table
+from table.columns import Column
 
 from .validators import *
-
 
 class FormularioVaga(forms.ModelForm):
 
@@ -20,10 +23,12 @@ class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
-        fields = ('areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+        fields = ('cursos','areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
 
-    data_validade = forms.DateTimeField(widget=forms.SelectDateWidget(),required=False)
+    data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
+class FormularioGerenciaVaga(forms.Form):
+    vaga_nome = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Procurar vagas','class':'form-control'}))
 
 class FormularioContato(forms.Form):
 
@@ -56,13 +61,16 @@ class FormularioCadastroAluno(forms.ModelForm):
 
 
 class FormularioEditarAluno(forms.ModelForm):
-    Nome_Completo = forms.CharField(max_length=100)
-    Rua = forms.CharField(max_length=40)
-    Numero = forms.CharField(max_length=4)
-    Complemento = forms.CharField(max_length=10,required=False)
-    Cidade = forms.CharField(max_length=20)
-    Estado = forms.CharField(max_length=20)
-
+    Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Complemento = forms.CharField(max_length=10,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
+    habilidades = forms.ModelChoiceField(queryset=Habilidade.objects.all(),widget=forms.SelectMultiple(attrs={"class":"form-control"}))
     class Meta:
         model = Aluno
         fields = ['curso', 'matricula', 'telefone' ,'habilidades']
@@ -86,13 +94,14 @@ class FormularioEditarEmpresa(forms.ModelForm):
 class FormularioCadastroEmpresa(forms.ModelForm):
     tipo_formulario = "CADASTRO_EMPRESA"
     cnpj = forms.CharField(max_length=14, validators=[validate_CNPJ])
+    nome = forms.CharField(max_length=60, label="Nome da Empresa")
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Empresa
-        fields = ['cnpj', 'email', 'password', 'confirm_password']
+        fields = ['cnpj', 'nome', 'email', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroEmpresa, self).clean()
@@ -135,7 +144,6 @@ class FormularioEditarProfessor(forms.ModelForm):
         fields = ['curso', 'siape']
 
 
-
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         max_length=11, label='usuário',
@@ -151,3 +159,17 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+class FormularioPesquisaVagasAluno(forms.Form):
+    Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga','class':'form-control'}))
+    Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
+
+# TODO: https://github.com/shymonk/django-datatable
+class ProfessorTable(Table):
+    CPF = Column(field='cpf', searchable=True, sortable=True)
+    Nome = Column(field='user.first_name', searchable=True, sortable=True)
+    SIAPE = Column(field='siape', searchable=True, sortable=True)
+    Curso = Column(field='curso', searchable=True, sortable=True)
+    Data_Cadastro = Column(field='user.date_joined', searchable=False, sortable=False)
+    Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
+    class Meta:
+        model = Professor

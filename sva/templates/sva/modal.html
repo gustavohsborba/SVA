@@ -1,0 +1,16 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">×</span></button>
+    <h4 class="modal-title">{% block titulo_modal %}Título do Modal{% endblock %}</h4>
+  </div>
+  <form action="{% block form_action_url %} {% endblock %}">
+      <div class="modal-body">
+        {% block conteudo_modal %} {% endblock %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fechar</button>
+        <button type="submit" class="btn btn-primary">{% block label_botao %} Confirmar {% endblock %}</button>
+      </div>
+  </form>
+</div>

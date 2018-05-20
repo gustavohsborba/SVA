@@ -1,20 +1,53 @@
 {% extends 'adminlte/lib/_main_sidebar.html' %}
 {% load svatags %}
 
-{% block nav_links %}
-    <li>
-        <a href="/home">
-            <i class="fa fa-home"></i> <span>Início</span>
-        </a>
-    </li>
 
-    {% if request.user.is_staff and request.user|has_group:"Administrador" %}
+{% block nav_links_outer %}
+<li class="header">{% block nav_heading %}Navegação Principal{% endblock %}</li>
+<li>
+    <a href="/home">
+        <i class="fa fa-home"></i> <span>Início</span>
+    </a>
+</li>
+
+{% block nav_links %}
+
+    {% if request.user.is_superuser or request.user.is_staff and request.user|has_group:"Administrador" %}
         <li>
             <a href="/admin">
                 <i class="fa fa-dashboard"></i> <span>Administração</span>
             </a>
         </li>
     {% endif %}
+
+
+    {# PROFESSOR: Exibir Perfil e Gerenciar Perfil #}
+
+    {% if request.user|has_group:"Professor" %}
+        <li class="treeview active">
+            <a href="#"><i class="fa fa-user"></i> Perfil<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'Exibir_Professor' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
+                <li><a href="{% url 'Editar_Professor' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+            </ul>
+        </li>
+    {% endif %}
+
+
+    {# EMPRESA: Exibir Perfil e Gerenciar Perfil #}
+
+    {% if request.user|has_group:"Empresa" %}
+        <li class="treeview active">
+            <a href="#"><i class="fa fa-user"></i> Perfil<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'Exibir_Empresa' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
+                <li><a href="{% url 'Editar_Empresa' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+            </ul>
+        </li>
+    {% endif %}
+
+
+    {# GERENTE DE VAGAS: Criar e Gerenciar vagas #}
 
     {% if request.user|has_group:"Gerente Vagas" %}
         <li class="treeview active">
@@ -27,14 +60,40 @@
         </li>
     {% endif %}
 
+
+    {# ALUNO: Exibir Perfil e Gerenciar Perfil #}
+
     {% if request.user|has_group:"Aluno" %}
         <li class="treeview active">
             <a href="#"><i class="fa fa-user"></i> Perfil<span class="caret"></span></a>
             <ul class="treeview-menu" role="menu">
                 <li><a href="{% url 'Exibir_Aluno' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
                 <li><a href="{% url 'Editar_Aluno' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+                <li><a href="{% url 'Listar_Vagas_Aluno' pk=request.user.pk  %}"><i class="fa fa-list"></i><span>Minhas Vagas</span></a></li>
+            </ul>
+        </li>
+    {% endif %}
+
+
+    {# SETOR DE ESTÁGIOS: Listar e Aprovar/Reprovar Empresa e Professor #}
+
+    {% if request.user.is_superuser or request.user|has_groups:"Administrador,Setor de Estágios" %}
+        <li class="treeview">
+            <a href="#"><i class="fa fa-briefcase"></i> Empresas<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'Listar_Empresa'%}"><i class="fa fa-list-ul"></i><span>Listar</span></a></li>
+                <li><a href="{% url 'Gerenciar_Empresas'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastros</span></a>/li>
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-graduation-cap"></i> Professores<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'Listar_Professor'%}"><i class="fa fa-list-ul"></i><span>Listar</span></a></li>
+                <li><a href="{% url 'Gerenciar_Professor'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastro</span></a>/li>
             </ul>
         </li>
     {% endif %}
 
 {% endblock nav_links %}
+
+{% endblock nav_links_outer %}

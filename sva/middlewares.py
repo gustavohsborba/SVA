@@ -1,20 +1,32 @@
-from datetime import datetime, timedelta
-from django.conf import settings
-from django.utils import translation
+from datetime import timedelta
+
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
+from django.utils.deprecation import MiddlewareMixin
+
 from .models import *
 
-class NotificacaoMiddleware:
 
-    TEXTO_NOTIFICACAO_INDICACAO_VAGA = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_CADASTRO_EMPRESA = '%s cadastrou uma nova vaga. Clique para visualizar'
+class NotificacaoMiddleware(MiddlewareMixin):
+
+    def process_template_response(self, request, response):
+        if request.user.is_authenticated():
+            response.context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
+        return response
+
+    TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR = 'O professor %s se cadastrou no sistema. Clique aqui para moderar o acesso'
+    TEXTO_NOTIFICACAO_CADASTRO_EMPRESA = 'A empresa %s deseja acessar o SVA. Clique aqui para liberar ou negar o acesso'
+
+    TEXTO_NOTIFICACAO_INDICACAO_VAGA = '%s indicou a vaga %s pra você. Clique para visualizar'
     TEXTO_NOTIFICACAO_CADASTRO_VAGA = '%s cadastrou uma nova vaga. Clique para visualizar'
     TEXTO_NOTIFICACAO_APROVACAO_VAGA = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_SOLICITACAO_AREA = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_NOVA_MENSAGEM_FORUM = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_RESPOSTA_FORUM = '%s cadastrou uma nova vaga. Clique para visualizar'
+
+    TEXTO_NOTIFICACAO_SOLICITACAO_AREA = '%s solicitou uma nova área de atuação. Clique para verificar.'
+
+    TEXTO_NOTIFICACAO_NOVA_MENSAGEM_FORUM = '%s cadastrou uma nova pergunta no fórum da vaga %. Clique para visualizar'
+    TEXTO_NOTIFICACAO_RESPOSTA_FORUM = '%s respondeu sua pergunta na vaga %. Clique para visualizar'
 
     @receiver(post_save, sender=Vaga)
     def cria_notificacao_cadastro_vaga(sender, instance, created, **kwargs):
@@ -23,10 +35,38 @@ class NotificacaoMiddleware:
             usuarios = User.objects.filter(groups__in=grupos_admin)
             for usuario in usuarios:
                 notificacao = Notificacao()
-                notificacao.tipo = 4  # Cadastro de Vaga
+                notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
                 notificacao.vaga = instance
                 notificacao.usuario = usuario
-                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
+                notificacao.save()
+
+    @receiver(post_save, sender=Empresa)
+    def cria_notificacao_cadastro_empresa(sender, instance, created, **kwargs):
+        if created:
+            grupos = Group.objects.filter(name__in=['Administrador', 'Setor de Estágios'])
+            usuarios = User.objects.filter(Q(groups__in=grupos) | Q(is_superuser=True))
+            for usuario in usuarios:
+                notificacao = Notificacao()
+                notificacao.tipo = Notificacao.TIPO_CADASTRO_EMPRESA
+                notificacao.vaga = None
+                notificacao.usuario = usuario
+                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_EMPRESA % instance.nome
+                notificacao.link = reverse("Exibir_Empresa", args={instance.user.pk})
+                notificacao.save()
+
+    @receiver(post_save, sender=Professor)
+    def cria_notificacao_cadastro_professor(sender, instance, created, **kwargs):
+        if created:
+            grupos = Group.objects.filter(name__in=['Administrador', 'Setor de Estágios'])
+            usuarios = User.objects.filter(Q(groups__in=grupos) | Q(is_superuser=True))
+            for usuario in usuarios:
+                notificacao = Notificacao()
+                notificacao.tipo = Notificacao.TIPO_CADASTRO_PROFESSOR
+                notificacao.vaga = None
+                notificacao.usuario = usuario
+                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR % instance.user.nome
+                notificacao.link = reverse("Exibir_Professor", args={instance.user.pk})
                 notificacao.save()
 
     @receiver(post_save, sender=Vaga)
@@ -42,7 +82,7 @@ class NotificacaoMiddleware:
             notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
             notificacao.vaga = instance
             notificacao.usuario = gerente.user
-            notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+            notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
             notificacao.save()
 
             # Gera uma notificação pros alunos interessados:

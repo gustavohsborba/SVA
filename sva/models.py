@@ -117,7 +117,7 @@ class GerenteVaga(models.Model):
 
     user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='gerentes_vaga')
     nota_media = models.FloatField(null=False, default=0.0)
-    data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
+    data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', null=True, blank=True)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
 
     @property
@@ -145,6 +145,10 @@ class Empresa(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Empresa'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Empresa, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -167,11 +171,14 @@ class Professor(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Professor'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Professor, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
-
 
 class Vaga(models.Model):
 
@@ -193,8 +200,10 @@ class Vaga(models.Model):
 
     gerente_vaga = models.ForeignKey(to=GerenteVaga, null=False, blank=False, related_name='vagas')
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
+    cursos = models.ManyToManyField(to=Curso, blank=True, related_name='vagas_atribuidas')
     alunos_inscritos = models.ManyToManyField(to=Aluno, blank=True, related_name='vagas_inscritas')
     alunos_interessados = models.ManyToManyField(to=Aluno, blank=True, related_name='vagas_interesse')
+    avaliacoes = models.ManyToManyField(Aluno, through='Avaliacao', blank=True, related_name='avaliacao_vaga')
 
     titulo = models.CharField(verbose_name='Título', max_length=255, null=False, blank=False, db_index=True)
     descricao = models.TextField(verbose_name='Descrição', null=False, blank=False)
@@ -217,6 +226,12 @@ class Vaga(models.Model):
     def __str__(self):
         return '%s - %s' % (self.titulo, self.gerente_vaga.user.first_name)
 
+
+class Avaliacao(models.Model):
+    aluno_avaliador = models.ForeignKey(Aluno, blank=False, null=False)
+    vaga_avaliada = models.ForeignKey(Vaga, blank=False, null=False)
+
+    nota = models.IntegerField(verbose_name='Nota atribuída', null=False, blank=False)
 
 class Notificacao(models.Model):
     class Meta:
