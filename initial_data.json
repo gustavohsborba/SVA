@@ -197,7 +197,7 @@
         "fields":{
             "user":5,
             "nota_media":0.0,
-            "data_cadastro":"2018-05-02T23:24:50.591",
+            "data_aprovacao":"2018-05-02T23:24:50.591",
             "data_fim":null
         }
     },
@@ -207,7 +207,7 @@
         "fields":{
             "user":4,
             "nota_media":0.0,
-            "data_cadastro":"2018-05-02T23:28:31.872",
+            "data_aprovacao":"2018-05-02T23:28:31.872",
             "data_fim":null
         }
     },

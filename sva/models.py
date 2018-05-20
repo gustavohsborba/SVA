@@ -117,7 +117,7 @@ class GerenteVaga(models.Model):
 
     user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='gerentes_vaga')
     nota_media = models.FloatField(null=False, default=0.0)
-    data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
+    data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', null=True, blank=True)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
 
     @property
@@ -145,6 +145,10 @@ class Empresa(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Empresa'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Empresa, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -167,6 +171,10 @@ class Professor(GerenteVaga):
         self.user.groups.add(Group.objects.get(name='Gerente Vagas'))
         self.user.groups.add(Group.objects.get(name='Professor'))
         self.user.save()
+        if not self.pk:
+            # se ainda não está no banco -> Está sendo Criado
+            self.user.is_active = False
+            self.user.is_staff = False
         super(Professor, self).save(*args, **kwargs)
 
     def __str__(self):

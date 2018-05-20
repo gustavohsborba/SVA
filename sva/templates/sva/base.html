@@ -4,6 +4,17 @@
 {% load widget_tweaks %}
 {% load crispy_forms_tags %}
 {% block title %}SVA{% endblock %}
+
+{% block mensagens %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 
     Conteúdo aqui.

@@ -1,4 +1,4 @@
-pip==9.0.3
+pip
 Django==1.11.11
 setuptools==28.8.0
 wheel==0.24.0

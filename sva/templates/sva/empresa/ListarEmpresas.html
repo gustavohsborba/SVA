@@ -1,0 +1,60 @@
+{% extends 'sva/base_listagem.html' %}
+{% load svatags %}
+
+
+{% block titulo_listagem %}
+    {% if liberar_cadastro %}
+        Empresas com Cadastro Pendente
+    {% else %}
+        Empresas Ativas no Sistema
+    {% endif %}
+{% endblock %}
+
+{% block filtros_tabela %}
+    <form method="post" action="{% url 'Listar_Empresa' %}">
+        {% csrf_token %}
+        <div class="form-group col-sm-6">
+          <label class="control-label" for="inputError">Filtrar por nome:</label>
+          <input type="text" id="filtro" name="filtro" class="form-control form-inline"
+                 placeholder="Nome da empresa" value="{{ request.POST.filtro }}"/>
+            <button type="submit" class="btn btn-primary">
+                <b>Filtrar</b>
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block cabecalho_tabela %}
+    <th>CNPJ</th>
+    <th>Nome</th>
+    <th>Website</th>
+    <th>Data de Cadastro</th>
+    <th>Data de Aprovação</th>
+    <th>Consultar</th>
+{% endblock %}
+
+
+{% block corpo_tabela %}
+    {% for empresa in empresas %}
+
+        <tr role="row"
+            {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
+          <td>{{ empresa.cnpj }}</td>
+          <td>{{ empresa.nome }}</td>
+          <td>{{ empresa.website }}</td>
+          <td>{{ empresa.user.date_joined }}</td>
+          <td>{{ empresa.data_aprovacao }}</td>
+          <td>
+              <a href="{% url 'Exibir_Empresa' pk=empresa.user.pk %}">
+                <i class="fa fa-search"></i><span>Consultar</span>
+            </a>
+          </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+
+{% block paginacao_label %}
+    Mostrando {{ empresas|length }} {% if empresas|length_is:'1' %}registro{% else %}registros{% endif %}
+{% endblock %}
+

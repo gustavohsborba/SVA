@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nota_media', models.FloatField(default=0.0)),
-                ('data_cadastro', models.DateTimeField(auto_now_add=True, verbose_name='Data de Cadastro')),
+                ('data_aprovacao', models.DateTimeField(blank=True, null=True, verbose_name='Data de Cadastro')),
                 ('data_fim', models.DateTimeField(blank=True, null=True, verbose_name='Data de Cancelamento')),
             ],
             options={
