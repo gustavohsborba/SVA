@@ -4,9 +4,31 @@
 
 
 {% block content %}
-    <h1>Inscritos em <b>{{vaga.titulo}}</b></h1>
-    {% for aluno in alunos %}
-    <p><a href="{% url 'Exibir_Aluno' pk=aluno.user_id %}"><em>{{aluno.user.first_name}} {{aluno.user.last_name}}</em></a> - {{aluno.user.email}}</p>
-    {% endfor %}
+    <div class="container-fluid">
+        <div class="box">
+            <div class="box-header">
+                <div class="text-center">
+                    {% if qtd_alunos == 1 %}
+                        <h3 class="box-title">{{qtd_alunos}} inscrito em <b>{{vaga.titulo}}</b></h3></div>
+                    {% else %}
+                        <h3 class="box-title">{{qtd_alunos}} inscritos em <b>{{vaga.titulo}}</b></h3></div>
+                    {% endif %}
+                <div class="box-body padding">
+                    <table class="table">
+                    <tbody><tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                    </tr>
+                    {% for aluno in alunos %}
+                        <tr>
+                            <td><a href="{% url 'Exibir_Aluno' pk=aluno.user_id %}"><em>{{aluno.user.first_name}} {{aluno.user.last_name}}</em></a></td>
+                            <td>{{aluno.user.email}}</td>
+                        </tr>
+                    {% endfor %}
+                  </tbody></table>
+                </div>
+            <!-- /.box-body -->
+          </div>
+    </div>
 
 {% endblock %}

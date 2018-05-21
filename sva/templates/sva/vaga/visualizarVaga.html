@@ -8,76 +8,87 @@
 }
 
 {% block content %}
-    {% csrf_token %}
-    <h1><b>{{ vaga.titulo }}</b></h1>
-    <br>
-    <div class="form-group">
-        <b>Criada por:</b> {{ gerente.user.first_name }} {{ gerente.user.last_name }}
-    </div>
-    <div class="form-group">
-        <b>Ofertada aos cursos de:</b>
-            {% for curso in vaga.cursos.all %}
-                [{{curso.nome}} ({{curso.get_nivel_ensino_display}})]
-            {% endfor %}
-    </div>
-    <div class="form-group">
-        <b>Áreas de atuação:</b>
-            {% for area in vaga.areas_atuacao.all %}
-                [{{area.nome}}]
-            {% endfor %}
-    </div>
-    <div class="form-group">
-        <b>Descrição:</b> {{vaga.descricao}}
-    </div>
-
-    {% if vaga.data_validade is None %}
-        <div class="form-group"> <b>Inscrições abertas</b></div>
-    {% elif vaga.vencida %}
-        <div class="form-group"> <b>Inscrições fechadas</b></div>
-    {% else %}
-        <div class="form-group"> <b>Inscrições abertas</b> até {{ vaga.data_validade}}</div>
-    {% endif %}
-
-    <div class="form-group">
-        <b>Carga horária semanal:</b> {{vaga.carga_horaria_semanal}}
-    </div>
-    <div class="form-group">
-        <b>Local:</b> {{vaga.local}}
-    </div>
-    <div class="form-group">
-        <b>Valor da bolsa:</b> R${{vaga.valor_bolsa|floatformat:2}}
-    </div>
-    <div class="form-group">
-    <b>Benefícios concedidos: </b>
-    {% if vaga.beneficios == '' %}
-    Nenhum
-    {% else %}
-    {{vaga.beneficios}}
-    {% endif %}
-    </div>
-    <div class="form-group">
-        <b>Avaliação da vaga:</b> {{vaga.nota_media}}
-    </div>
-    {% if request.user|has_group:"Aluno" %}
-        {% if vaga.situacao == 3 and vaga.data_validade is None or not vaga.vencida %}
-            <br>
-            <form action="" method="post">
-                {% csrf_token %}
-                {% if interessado == 1 %}
-                    <input type="submit" style="background-color: #ff6666; color: white;"  class="save btn btn-default" name="uninterested" value="&#10006; Remover interesse"/>
-                {% elif interessado == 0 %}
-                    <input type="submit" style="background-color: #3872B7; color: white;"  class="save btn btn-default" name="interested" value="&#10004; Tenho interesse"/>
-                {% elif interessado == 2 %}
-                    <input type="submit" style="background-color: #808080; color: white;"  class="save btn btn-default" name="donothing" value="&#10004; Candidatado"/>
+    <div class="container-fluid">
+        <div class="box box-primary">
+            <div class="box-body box-profile">
+                <p class="text-muted text-right" >Avaliação da vaga {{vaga.nota_media}}</p>
+                <p><h3 class="profile-username text-center">{{ vaga.titulo }}</h3></p>
+                {% if gerente.user|has_group:"Professor" %}
+                    <p class="text-muted text-center"><b>Criada por</b> <a href="{% url 'Exibir_Professor' pk=gerente.user_id %}"><em>{{ gerente.user.first_name }} {{ gerente.user.last_name }}</em></a></p>
+                {% elif gerente.user|has_group:"Empresa" %}
+                    <p class="text-muted text-center"><b>Criada por</b> <a href="{% url 'Exibir_Empresa' pk=gerente.user_id %}"><em>{{ gerente.user.first_name }} {{ gerente.user.last_name }}</em></a></p>
                 {% endif %}
-                &nbsp;
-                {% if inscrito == 1 %}
-                    <input type="submit" style="background-color: #ff6666; color: white;"  class="save btn btn-default" name="unsubscribe" value="&#10006; Remover candidatura"/>
-                {% elif inscrito == 0 %}
-                    <input type="submit" style="background-color: #3872B7; color: white;"  class="save btn btn-default" name="subscribe" value="&#10004; Candidatar-me"/>
+                <p class="text-muted text-center">{{vaga.descricao}}</p>
+                <hr>
+                {% if vaga.data_validade is None %}
+                    <p class="text-muted text-center"><b>Inscrições abertas</b></p>
+                {% elif vaga.vencida %}
+                    <p class="text-muted text-center"><b>Inscrições fechadas</b></p>
+                {% else %}
+                    <p class="text-muted text-center"><b>Inscrições abertas</b> até {{ vaga.data_validade}}</p>
+                {% endif %}
+                <hr>
+                <strong><i class="fa fa-graduation-cap margin-r-5"></i> Ofertada aos cursos de </strong>
+                <p>
+                    {% for curso in vaga.cursos.all %}
+                        <span class="label label-primary">[{{curso.nome}} ({{curso.get_nivel_ensino_display}})]</span>&nbsp;
+                    {% endfor %}
+                </p>
+                <strong><i class="fa fa-pencil margin-r-5"></i> Áreas de atuação </strong>
+                <p>
+                    {% for area in vaga.areas_atuacao.all %}
+                        <span class="label label-success">[{{area.nome}}]</span>&nbsp;
+                    {% endfor %}
+                </p>
+                {% if request.user|has_group:"Aluno" %}
+                    <hr>
+                    {% if vaga.situacao == 3 and vaga.data_validade is None or not vaga.vencida %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="text-center">
+                                <div class="btn-group">
+                                    {% if interessado == 1 %}
+                                        <input type="submit" style="background-color: #ff6666; color: white;"  class="btn btn-default" name="uninterested" value="&#10006; Remover interesse"/>
+                                    {% elif interessado == 0 %}
+                                        <input type="submit" style="background-color: #3872B7; color: white;"  class="btn btn-default" name="interested" value="&#10025; Tenho interesse"/>
+                                    {% elif interessado == 2 %}
+                                        <input type="submit" style="background-color: #808080; color: white;"  class="btn btn-default" name="donothing" value="&#10025; Candidatado"/>
+                                    {% endif %}
+                                    &nbsp;
+                                    {% if inscrito == 1 %}
+                                        <input type="submit" style="background-color: #ff6666; color: white;"  class="btn btn-default" name="unsubscribe" value="&#10006; Remover candidatura"/>
+                                    {% elif inscrito == 0 %}
+                                        <input type="submit" style="background-color: #3872B7; color: white;"  class="btn btn-default" name="subscribe" value="&#10004; Candidatar-me"/>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
                 {% endif %}
             </div>
-            </form>
-        {% endif %}
-    {% endif %}
+        </div>
+        <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title text-center">Informações básicas</h3>
+            </div>
+            <div class="box-body">
+                <strong><i class="fa fa-map-marker margin-r-5"></i> Local </strong>
+                <p>{{vaga.local}}</p>
+                <strong><i class="fa fa-clock-o margin-r-5"></i> Carga horária semanal </strong>
+                <p>{{vaga.carga_horaria_semanal}}</p>
+                <strong><i class="fa fa-credit-card margin-r-5"></i> Valor da bolsa </strong>
+                <p>R${{vaga.valor_bolsa|floatformat:2}}</p>
+
+
+                <strong><i class="fa fa-handshake-o margin-r-5"></i> Benefícios concedidos </strong>
+                <p>
+                    {% if vaga.beneficios == '' %}
+                        Nenhum
+                    {% else %}
+                        {{vaga.beneficios}}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

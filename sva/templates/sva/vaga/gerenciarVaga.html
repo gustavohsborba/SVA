@@ -48,11 +48,11 @@
                                             <br>
                                             <div class = "text-center">
                                                 <small class="text-muted">
-                                                    Vaga aprovada em {{vaga.data_aprovacao}} por {{vaga.usuario_aprovacao}}
+                                                    Aprovada em {{vaga.data_aprovacao|date:"d-m-Y H:i"}} por {{vaga.usuario_aprovacao}}
                                                     <br>
-                                                    <b>Criada em</b> {{vaga.data_submissao|date:"Y-m-d H:i"}}
+                                                    <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                     &nbsp;
-                                                    <b>Última alteração em</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+                                                    <b>Última alteração em</b> {{vaga.data_alteracao|date:"d-m-Y H:i"}}
                                                 </small>
                                             </div>
                                         </div>
@@ -92,9 +92,9 @@
                                             <br>
                                             <div class = "text-center">
                                                 <small class="text-muted">
-                                                    <b>Criada em</b> {{vaga.data_submissao|date:"Y-m-d H:i"}}
+                                                    <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                     &nbsp;
-                                                    <b>Última alteração em</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+                                                    <b>Última alteração em</b> {{vaga.data_alteracao|date:"d-m-Y H:i"}}
                                                 </small>
                                             </div>
                                         </div>
@@ -137,9 +137,9 @@
                                         <br>
                                         <div class = "text-center">
                                             <small class="text-muted">
-                                                <b>Criada em</b> {{vaga.data_submissao|date:"Y-m-d H:i"}}
+                                                <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                 &nbsp;
-                                                <b>Última alteração em</b> {{vaga.data_alteracao|date:"Y-m-d H:i"}}
+                                                <b>Última alteração em</b> {{vaga.data_alteracao|date:"d-m-Y H:i"}}
                                             </small>
                                         </div>
                                     </div>

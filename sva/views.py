@@ -114,6 +114,7 @@ def lista_alunos_vaga(request, pkvaga):
     if vaga.gerente_vaga_id == gerente.id:
         context = {}
         context['alunos'] = Aluno.objects.filter(vagas_inscritas=vaga)
+        context['qtd_alunos'] = Aluno.objects.filter(vagas_inscritas=vaga).count()
         context['vaga'] = vaga
         return render(request, 'sva/vaga/ListarAlunosVaga.html', context)
 
