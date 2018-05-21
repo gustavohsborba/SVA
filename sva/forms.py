@@ -15,6 +15,22 @@ from .validators import *
 
 class FormularioVaga(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(FormularioVaga, self).__init__(*args, **kwargs)
+        self.fields['cursos'].widget.attrs['class'] = 'form-control'
+        self.fields['areas_atuacao'].widget.attrs['class'] = 'form-control'
+        self.fields['descricao'].widget.attrs['class'] = 'form-control'
+        self.fields['descricao'].widget.attrs['rows'] = '3'
+        self.fields['descricao'].widget.attrs['placeholder'] = 'Descrição básica'
+        self.fields['valor_bolsa'].widget.attrs['min'] = '0'
+        self.fields['valor_bolsa'].widget.attrs['class'] = 'form-control'
+        self.fields['valor_bolsa'].widget.attrs['placeholder'] = '000,00'
+        self.fields['carga_horaria_semanal'].widget.attrs['class'] = 'form-control'
+        self.fields['carga_horaria_semanal'].widget.attrs['placeholder'] = '0'
+        self.fields['beneficios'].widget.attrs['class'] = 'form-control'
+        self.fields['beneficios'].widget.attrs['rows'] = '5'
+        self.fields['beneficios'].widget.attrs['placeholder'] = 'Benefícios concedidos (opcional)'
+
     def clean(self):
         cleaned_data = super(FormularioVaga, self).clean()
         if not cleaned_data['data_validade']:
