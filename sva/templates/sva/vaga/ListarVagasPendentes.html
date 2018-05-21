@@ -1,0 +1,57 @@
+{% extends 'sva/base_listagem.html' %}
+{% load svatags %}
+{% load table_tags %}
+
+
+{% block titulo_listagem %}
+    {% if liberar_cadastro %}
+        Vagas com aprovação pendente
+    {% else %}
+        Vagas ativas no sistema
+    {% endif %}
+{% endblock %}
+
+{% block filtros_tabela %}
+    <form method="post" action="{% url 'vaga_gerenciar_pendentes' %}">
+        {% csrf_token %}
+        <div class="form-group col-sm-6">
+          <label class="control-label" for="filtro">Filtrar por nome:</label>
+          <input type="text" id="filtro" name="filtro" class="form-control form-inline"
+                 placeholder="Nome da vaga" value="{{ request.POST.filtro }}"/>
+            <button type="submit" class="btn btn-primary">
+                <b>Filtrar</b>
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block cabecalho_tabela %}
+    <th>Título</th>
+    <th>Criada por</th>
+    <th>Data de Cadastro</th>
+    <th>Última alteração</th>
+    <th>Consultar</th>
+{% endblock %}
+
+{% block corpo_tabela %}
+    {% for vaga in vagas %}
+
+        <tr role="row"
+            {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
+          <td>{{ vaga.titulo }}</td>
+          <td>{{ vaga.gerente_vaga.user.first_name }} {{ vaga.gerente_vaga.user.last_name }}</td>
+          <td>{{ vaga.data_submissao|date:"d-m-Y H:i" }}</td>
+          <td>{{ vaga.data_alteracao|date:"d-m-Y H:i" }}</td>
+          <td>
+              <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">
+                <i class="fa fa-search"></i><span>Consultar</span>
+            </a>
+          </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+
+{% block paginacao_label %}
+    Mostrando {{ vagas|length }} entradas
+{% endblock %}

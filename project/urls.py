@@ -47,6 +47,8 @@ urlpatterns = [
     url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', encerrar_inscricao_vaga),
     url(r'^vagas/inscritos/(?P<pkvaga>\d+)$', lista_alunos_vaga, name='vaga_listar'),
     url(r'^vagas/criar/$', criar_vaga, name='vaga_criar'),
+    url(r'^vagas/pendentes/$', gerenciar_vaga_pendente, name='vaga_gerenciar_pendentes'),
+    url(r'^vagas/(?P<pkvaga>\d+)/aprovar$', aprovar_vaga, name='vaga_aprovar'),
 
     url(r'^aluno/editar/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),

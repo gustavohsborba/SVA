@@ -82,14 +82,20 @@
             <a href="#"><i class="fa fa-briefcase"></i> Empresas<span class="caret"></span></a>
             <ul class="treeview-menu" role="menu">
                 <li><a href="{% url 'Listar_Empresa'%}"><i class="fa fa-list-ul"></i><span>Listar</span></a></li>
-                <li><a href="{% url 'Gerenciar_Empresas'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastros</span></a>/li>
+                <li><a href="{% url 'Gerenciar_Empresas'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastros</span></a></li>
             </ul>
         </li>
         <li class="treeview">
             <a href="#"><i class="fa fa-graduation-cap"></i> Professores<span class="caret"></span></a>
             <ul class="treeview-menu" role="menu">
                 <li><a href="{% url 'Listar_Professor'%}"><i class="fa fa-list-ul"></i><span>Listar</span></a></li>
-                <li><a href="{% url 'Gerenciar_Professor'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastro</span></a>/li>
+                <li><a href="{% url 'Gerenciar_Professor'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastro</span></a></li>
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-dashboard"></i> Vagas<span class="caret"></span></a>
+            <ul class="treeview-menu" role="menu">
+                <li><a href="{% url 'vaga_gerenciar_pendentes'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar Cadastro</span></a></li>
             </ul>
         </li>
     {% endif %}

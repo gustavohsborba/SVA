@@ -7,7 +7,7 @@
         <div class = "text-center">
             <form action="" method="POST" class="form-inline"  style=" margin-bottom:50px">
                 {% csrf_token %}
-                <div class="input-group  ">
+                <div class="input-group">
                     <div class="input-group-prepend input-group-lg" >
                         {{ form.vaga_nome }}
                         <div class="input-group-btn" >
@@ -22,19 +22,6 @@
         <div class="row align-items-start">
             <div class="col-md-4">
                 <div class = "text-center"><h4><b><font color="green"><i class="fa fa-check"></i></font> Vagas aprovadas</b></h4></div>
-            </div>
-            <div class="col-md-4">
-                <div class = "text-center"><h4><b><font color="orange"><i class="fa fa-gavel"></i></font> Vagas aguardando aprovação</b></h4></div>
-            </div>
-            <div class="col-md-4">
-                <div class = "text-center"><h4><b><font color="red"><i class="fa fa-times"></i></font> Vagas reprovadas ou inativas</b></h4></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container-fluid">
-        <div class="row align-items-start">
-            <div class="col-md-4">
                     {% for vaga in vagas %}
                         {% if vaga.situacao == 3  %}
                             <div class = "panel-group">
@@ -48,6 +35,11 @@
                                             <br>
                                             <div class = "text-center">
                                                 <small class="text-muted">
+                                                    {% if vaga.alunos_inscritos.count == 1 %}
+                                                    <div class="text-center"><b>{{vaga.alunos_inscritos.count}} aluno inscrito</b></div>
+                                                    {% else %}
+                                                        <div class="text-center"><b>{{vaga.alunos_inscritos.count}} alunos inscritos</b></div>
+                                                    {% endif %}
                                                     Aprovada em {{vaga.data_aprovacao|date:"d-m-Y H:i"}} por {{vaga.usuario_aprovacao}}
                                                     <br>
                                                     <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
@@ -79,6 +71,7 @@
                     {% endfor %}
             </div>
             <div class="col-md-4">
+                <div class = "text-center"><h4><b><font color="orange"><i class="fa fa-gavel"></i></font> Vagas aguardando aprovação</b></h4></div>
                     {% for vaga in vagas %}
                         {% if vaga.situacao == 1 or vaga.situacao == 2  %}
                             <div class = "panel-group">
@@ -92,6 +85,11 @@
                                             <br>
                                             <div class = "text-center">
                                                 <small class="text-muted">
+                                                    {% if vaga.alunos_inscritos.count == 1 %}
+                                                    <div class="text-center"><b>{{vaga.alunos_inscritos.count}} aluno inscrito</b></div>
+                                                    {% else %}
+                                                        <div class="text-center"><b>{{vaga.alunos_inscritos.count}} alunos inscritos</b></div>
+                                                    {% endif %}
                                                     <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                     &nbsp;
                                                     <b>Última alteração em</b> {{vaga.data_alteracao|date:"d-m-Y H:i"}}
@@ -117,6 +115,7 @@
             </div>
 
             <div class="col-md-4">
+                <div class = "text-center"><h4><b><font color="red"><i class="fa fa-times"></i></font> Vagas reprovadas ou inativas</b></h4></div>
                 {% for vaga in vagas %}
                     {% if vaga.situacao == 4 or vaga.situacao == 5  %}
                         <div class = "panel-group">
@@ -137,6 +136,11 @@
                                         <br>
                                         <div class = "text-center">
                                             <small class="text-muted">
+                                                {% if vaga.alunos_inscritos.count == 1 %}
+                                                    <div class="text-center"><b>{{vaga.alunos_inscritos.count}} aluno inscrito</b></div>
+                                                {% else %}
+                                                    <div class="text-center"><b>{{vaga.alunos_inscritos.count}} alunos inscritos</b></div>
+                                                {% endif %}
                                                 <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                 &nbsp;
                                                 <b>Última alteração em</b> {{vaga.data_alteracao|date:"d-m-Y H:i"}}

@@ -24,13 +24,11 @@ from .forms import *
 
 
 def is_admin(user):
-    ADMINISTRADOR = Group.objects.get_or_create(name='Administrador')
-    SETOR_ESTAGIOS = Group.objects.get_or_create(name='Setor de Estágios')
     if user.is_superuser:
         return True
-    if ADMINISTRADOR in user.groups.all():
+    if user.groups.filter(name='Administrador').exists():
         return True
-    if SETOR_ESTAGIOS in user.groups.all():
+    if user.groups.filter(name='Setor de Estágios').exists():
         return True
     return False
 
@@ -225,6 +223,48 @@ def editar_vaga(request, pkvaga):
         return redirect(gerenciar_vaga)
 
 
+
+@login_required
+@user_passes_test(is_admin)
+def gerenciar_vaga_pendente(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        vagas = Vaga.objects.filter(data_aprovacao__isnull=True, situacao__gte=1, situacao__lte=2, titulo__icontains=request.POST['filtro']).order_by('-data_alteracao','-data_submissao')
+    else:
+        vagas = Vaga.objects.filter(data_aprovacao__isnull=True, situacao__gte=1, situacao__lte=2,).order_by('-data_alteracao','-data_submissao')
+    context = {
+        'titulo_lista': 'Vagas com aprovação pendente',
+        'liberar_cadastro': True,
+        'vagas': vagas,
+    }
+    return render(request, 'sva/vaga/ListarVagasPendentes.html', context)
+
+@transaction.atomic
+@login_required
+@require_POST
+@user_passes_test(is_admin)
+def aprovar_vaga(request, pkvaga):
+
+    vaga = get_object_or_404(Vaga, id=pkvaga)
+    if vaga is not None and request.POST['aprovado'] == 'true':
+        vaga.situacao = 3
+        vaga.data_aprovacao = datetime.datetime.now()
+        vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
+        vaga.save()
+        mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
+                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+        send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+    else:
+        vaga.situacao = 5
+        vaga.save()
+        mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
+                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+        send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+
+    return redirect(visualizar_vaga, pkvaga)
+
 ###############################################################################
 #                               CADASTRO                                      #
 ###############################################################################
@@ -254,7 +294,7 @@ def cadastrar_empresa(request):
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
-        empresa.data_aprovacao = datetime.now()
+        #empresa.data_aprovacao = datetime.datetime.now()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
@@ -363,6 +403,7 @@ def exibir_empresa(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_empresa(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
@@ -377,6 +418,7 @@ def listar_empresa(request):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def liberar_cadastro_empresas_lista(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
@@ -401,7 +443,7 @@ def aprovar_cadastro_empresa(request, pk):
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
-        empresa.data_aprovacao = datetime.now()
+        empresa.data_aprovacao = datetime.datetime.now()
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
@@ -623,6 +665,7 @@ def exibir_professor(request, pk):
 # TODO: https://github.com/shymonk/django-datatable
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_professor(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         professores = Professor.objects.filter(data_aprovacao__isnull=False, user__first_name__icontains=request.POST['filtro'])
@@ -638,6 +681,7 @@ def listar_professor(request):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def liberar_cadastro_professores_lista(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         professores = Professor.objects.filter(data_aprovacao__isnull=True,
