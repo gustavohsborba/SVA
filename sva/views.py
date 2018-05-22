@@ -482,15 +482,12 @@ def editar_aluno(request, pk):
     aluno = get_object_or_404(Aluno,user_id=pk)
     Parte= aluno.endereco.split(",")
     Nome = aluno.user.first_name+' '+aluno.user.last_name
-    if len(Nome) ==4 :
-        initial = {'Rua': Parte[0],
-               'Numero': Parte[1] if len(Parte) >= 2 else '',
-               'Cidade': Parte[2] if len(Parte) >= 3 else '',
-               'Estado': Parte[3] if len(Parte) >= 4 else '',
-               'Complemento': Parte[4] if len(Parte) >= 5 else '',
-               'Nome_Completo': Nome}
-    else:
-        initial = {'Nome_Completo': Nome}
+    initial = {'Rua': Parte[0],
+           'Numero': Parte[1] if len(Parte) >= 2 else '',
+           'Complemento': Parte[2] if len(Parte) >= 3 else '',
+           'Cidade': Parte[3] if len(Parte) >= 4 else '',
+           'Estado': Parte[4] if len(Parte) >= 5 else '',
+           'Nome_Completo': Nome}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
         if form.is_valid():

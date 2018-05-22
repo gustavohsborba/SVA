@@ -77,6 +77,7 @@ class FormularioCadastroAluno(forms.ModelForm):
 
 
 class FormularioEditarAluno(forms.ModelForm):
+
     Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
@@ -86,7 +87,10 @@ class FormularioEditarAluno(forms.ModelForm):
     matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
     telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
     curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
-    habilidades = forms.ModelChoiceField(queryset=Habilidade.objects.all(),widget=forms.SelectMultiple(attrs={"class":"form-control"}))
+
+    def __init__(self, *args, **kwargs):
+        super(FormularioEditarAluno, self).__init__(*args, **kwargs)
+        self.fields['habilidades'].widget.attrs['class'] = 'form-control'
     class Meta:
         model = Aluno
         fields = ['curso', 'matricula', 'telefone' ,'habilidades']
