@@ -104,7 +104,7 @@ class FormularioEditarEmpresa(forms.ModelForm):
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
     Email = forms.CharField(max_length=100, validators=[validate_email])
-    Site = forms.CharField(max_length=200)
+    Site = forms.CharField(max_length=200, required=False)
 
     class Meta:
         model = Empresa

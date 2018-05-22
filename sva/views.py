@@ -355,16 +355,18 @@ def cadastrar_professor(request):
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_empresa(request, pk):
+
     if pk != str(request.user.id):
         return HttpResponseRedirect('/home/')
+
     empresa = get_object_or_404(Empresa, user_id=pk)
     Nome = empresa.user.first_name + ' ' + empresa.user.last_name
     parte = empresa.endereco.split(",")
     initial = {
         'Nome_Completo': Nome,
-        'Telefone' : empresa.telefone,
-        'Email':empresa.user.email,
-        'Site' : empresa.website,
+        'Telefone': empresa.telefone,
+        'Email': empresa.user.email,
+        'Site': empresa.website,
         'Bairro': parte[0],
         'Rua': parte[1] if len(parte) >= 2 else '',
         'Numero': parte[2] if len(parte) >= 3 else '',
@@ -372,14 +374,21 @@ def editar_empresa(request, pk):
         'Cidade': parte[4] if len(parte) >= 5 else '',
         'Estado': parte[5] if len(parte) >= 6 else '',
     }
+
+    if request.method == 'GET':
+        form = FormularioEditarEmpresa(instance=empresa, initial=initial)
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
-            empresa.website = form.cleaned_data['Site']
-            empresa.telefone = form.cleaned_data['telefone']
+            if form.cleaned_data['Site'] is None:
+                empresa.website = ""
+            else:
+                empresa.website = form.cleaned_data['Site']
+            if form.cleaned_data['telefone'] is None:
+                empresa.telefone = ""
+            else:
+                empresa.telefone = form.cleaned_data['telefone']
             empresa.nome = form.cleaned_data['nome']
-            empresa.user.first_name = Nome
-            empresa.user.email = form.cleaned_data['Email']
             empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
                                form.cleaned_data['Rua'] + ',' + \
                                form.cleaned_data['Numero'] + ',' + \
@@ -387,10 +396,16 @@ def editar_empresa(request, pk):
                                form.cleaned_data['Cidade'] + ',' + \
                                form.cleaned_data['Estado']
             empresa.save()
+            empresa.user.first_name = form.cleaned_data['nome']
+            empresa.user.last_name = ""
+            empresa.user.email = form.cleaned_data['Email']
             empresa.user.save()
             messages.success(request, 'Editado com sucesso')
-    else:
-        form = FormularioEditarEmpresa(instance=empresa, initial=initial)
+            return redirect(exibir_empresa, empresa.user_id)
+        else:
+            messages.error(request, 'Falha ao editar')
+            return redirect(exibir_empresa, empresa.user_id)
+
     return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
 
 
