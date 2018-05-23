@@ -1,5 +1,6 @@
 {% extends 'sva/vaga/vaga.html' %}
 {% load svatags %}
+{% load ratings %}
 
 .divider{
     width:5px;
@@ -147,6 +148,11 @@
                         {{vaga.beneficios}}
                     {% endif %}
                 </p>
+
+
+                {% ratings vaga %}
+
+
                 <div class="form-group col-lg-8 col-md-8 col-s-8 col-xs-12">
                     <label class="ratingLabel">Avaliação da vaga:</label>
                     <div class="rating">
