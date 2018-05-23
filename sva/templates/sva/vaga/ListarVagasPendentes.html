@@ -1,22 +1,23 @@
 {% extends 'sva/base_listagem.html' %}
 {% load svatags %}
+{% load table_tags %}
 
 
 {% block titulo_listagem %}
     {% if liberar_cadastro %}
-        Empresas com Cadastro Pendente
+        Vagas com aprovação pendente
     {% else %}
-        Empresas Ativas no Sistema
+        Vagas ativas no sistema
     {% endif %}
 {% endblock %}
 
 {% block filtros_tabela %}
-    <form method="post" action="{% if liberar_cadastro %}{% url 'Gerenciar_Empresas' %}{% else %}{% url 'Listar_Empresa' %}{% endif %}">
+    <form method="post" action="{% url 'vaga_gerenciar_pendentes' %}">
         {% csrf_token %}
         <div class="form-group col-sm-6">
-          <label class="control-label" for="inputError">Filtrar por nome:</label>
+          <label class="control-label" for="filtro">Filtrar por nome:</label>
           <input type="text" id="filtro" name="filtro" class="form-control form-inline"
-                 placeholder="Nome da empresa" value="{{ request.POST.filtro }}"/>
+                 placeholder="Nome da vaga" value="{{ request.POST.filtro }}"/>
             <button type="submit" class="btn btn-primary">
                 <b>Filtrar</b>
             </button>
@@ -25,27 +26,24 @@
 {% endblock %}
 
 {% block cabecalho_tabela %}
-    <th>CNPJ</th>
-    <th>Nome</th>
-    <th>Website</th>
+    <th>Título</th>
+    <th>Criada por</th>
     <th>Data de Cadastro</th>
-    <th>Data de Aprovação</th>
+    <th>Última alteração</th>
     <th>Consultar</th>
 {% endblock %}
 
-
 {% block corpo_tabela %}
-    {% for empresa in empresas %}
+    {% for vaga in vagas %}
 
         <tr role="row"
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
-          <td>{{ empresa.cnpj }}</td>
-          <td>{{ empresa.nome }}</td>
-          <td>{{ empresa.website }}</td>
-          <td>{{ empresa.user.date_joined }}</td>
-          <td>{{ empresa.data_aprovacao }}</td>
+          <td>{{ vaga.titulo }}</td>
+          <td>{{ vaga.gerente_vaga.user.first_name }} {{ vaga.gerente_vaga.user.last_name }}</td>
+          <td>{{ vaga.data_submissao|date:"d-m-Y H:i" }}</td>
+          <td>{{ vaga.data_alteracao|date:"d-m-Y H:i" }}</td>
           <td>
-              <a href="{% url 'Exibir_Empresa' pk=empresa.user.pk %}">
+              <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}">
                 <i class="fa fa-search"></i><span>Consultar</span>
             </a>
           </td>
@@ -55,6 +53,5 @@
 
 
 {% block paginacao_label %}
-    Mostrando {{ empresas|length }} {% if empresas|length_is:'1' %}registro{% else %}registros{% endif %}
+    Mostrando {{ vagas|length }} entradas
 {% endblock %}
-

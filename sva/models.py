@@ -139,6 +139,8 @@ class Empresa(GerenteVaga):
     endereco = models.CharField(max_length=100, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True, validators=[validate_integer])
 
+    # TODO: FAZER UMA MÁQUINA DE ESTADOS: DEFERIDO, INDEFERIDO, AGUARDANDO_APROVACAO, AGUARDANDO_EDICAO
+
     def save(self, *args, **kwargs):
         self.user.first_name = self.nome
         self.user.username = self.cnpj
@@ -221,6 +223,8 @@ class Vaga(models.Model):
 
     @property
     def vencida(self):
+        if self.data_validade is None:
+            return False
         return datetime.now() > self.data_validade
 
     def __str__(self):
