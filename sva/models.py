@@ -221,6 +221,8 @@ class Vaga(models.Model):
 
     @property
     def vencida(self):
+        if self.data_validade is None:
+            return False
         return datetime.now() > self.data_validade
 
     def __str__(self):

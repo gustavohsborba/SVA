@@ -50,8 +50,8 @@
                     {% endfor %}
                 </p>
                 {% if request.user|has_group:"Aluno" %}
+                    {% if vaga.situacao == 3 and not vaga.vencida %}
                     <hr>
-                    {% if vaga.situacao == 3 and vaga.data_validade is None or not vaga.vencida %}
                         <form action="" method="post">
                             {% csrf_token %}
                             <div class="text-center">

@@ -53,6 +53,14 @@
                                              {%endif%}
                                          {%endwith%}
                                     {%endifnotequal%}
+                                 {%else%}
+                                     {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                         {%if teste <= 3 %}
+                                             <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                         {%else%}
+                                             <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                         {%endif%}
+                                     {%endwith%}
                                  {%endifnotequal%}
                              {%endwith%}
                          {% else %}
