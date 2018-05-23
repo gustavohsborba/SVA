@@ -12,6 +12,21 @@
 {% endblock %}
 
 
+{% block filtros_tabela %}
+    <form method="post" action="{% if liberar_cadastro %}{% url 'Gerenciar_Professor' %}{% else %}{% url 'Listar_Professor' %}{% endif %}">
+        {% csrf_token %}
+        <div class="form-group col-sm-6">
+          <label class="control-label" for="inputError">Filtrar por nome:</label>
+          <input type="text" id="filtro" name="filtro" class="form-control form-inline"
+                 placeholder="Nome da empresa" value="{{ request.POST.filtro }}"/>
+            <button type="submit" class="btn btn-primary">
+                <b>Filtrar</b>
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+
 {% block cabecalho_tabela %}
     <th>CPF</th>
     <th>SIAPE</th>
@@ -30,8 +45,8 @@
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
           <td>{{ professor.cpf }}</td>
           <td>{{ professor.siape }}</td>
-          <td>{{ professor.user.first_name}} {{ professor.user.last_name }}</td>
-          <td>{{ professor.curso }}</td>
+          <td>{{ professor.user.first_name}} {{ professor.user.last_name|default_if_none:"" }}</td>
+          <td>{{ professor.curso|default_if_none:"" }}</td>
           <td>{{ professor.user.date_joined }}</td>
           <td>{{ professor.data_aprovacao }}</td>
           <td>

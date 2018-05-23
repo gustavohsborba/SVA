@@ -15,6 +15,22 @@ from .validators import *
 
 class FormularioVaga(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(FormularioVaga, self).__init__(*args, **kwargs)
+        self.fields['cursos'].widget.attrs['class'] = 'form-control'
+        self.fields['areas_atuacao'].widget.attrs['class'] = 'form-control'
+        self.fields['descricao'].widget.attrs['class'] = 'form-control'
+        self.fields['descricao'].widget.attrs['rows'] = '3'
+        self.fields['descricao'].widget.attrs['placeholder'] = 'Descrição básica'
+        self.fields['valor_bolsa'].widget.attrs['min'] = '0'
+        self.fields['valor_bolsa'].widget.attrs['class'] = 'form-control'
+        self.fields['valor_bolsa'].widget.attrs['placeholder'] = '000,00'
+        self.fields['carga_horaria_semanal'].widget.attrs['class'] = 'form-control'
+        self.fields['carga_horaria_semanal'].widget.attrs['placeholder'] = '0'
+        self.fields['beneficios'].widget.attrs['class'] = 'form-control'
+        self.fields['beneficios'].widget.attrs['rows'] = '5'
+        self.fields['beneficios'].widget.attrs['placeholder'] = 'Benefícios concedidos (opcional)'
+
     def clean(self):
         cleaned_data = super(FormularioVaga, self).clean()
         if not cleaned_data['data_validade']:
@@ -61,6 +77,7 @@ class FormularioCadastroAluno(forms.ModelForm):
 
 
 class FormularioEditarAluno(forms.ModelForm):
+
     Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
@@ -70,7 +87,10 @@ class FormularioEditarAluno(forms.ModelForm):
     matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
     telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
     curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
-    habilidades = forms.ModelChoiceField(queryset=Habilidade.objects.all(),widget=forms.SelectMultiple(attrs={"class":"form-control"}))
+
+    def __init__(self, *args, **kwargs):
+        super(FormularioEditarAluno, self).__init__(*args, **kwargs)
+        self.fields['habilidades'].widget.attrs['class'] = 'form-control'
     class Meta:
         model = Aluno
         fields = ['curso', 'matricula', 'telefone' ,'habilidades']
@@ -84,7 +104,7 @@ class FormularioEditarEmpresa(forms.ModelForm):
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
     Email = forms.CharField(max_length=100, validators=[validate_email])
-    Site = forms.CharField(max_length=200)
+    Site = forms.CharField(max_length=200, required=False)
 
     class Meta:
         model = Empresa
@@ -117,12 +137,13 @@ class FormularioCadastroEmpresa(forms.ModelForm):
 class FormularioCadastroProfessor(forms.ModelForm):
     tipo_formulario = "CADASTRO_PROFESSOR"
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
+    nome = forms.CharField(max_length=60, label="Nome")
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Professor
-        fields = ['cpf', 'email', 'siape', 'password', 'confirm_password']
+        fields = ['cpf', 'nome', 'email', 'siape', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroProfessor, self).clean()
