@@ -321,6 +321,7 @@ def cadastrar_empresa(request):
         empresa.user = usuario
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.nome = form.cleaned_data['nome']
+        empresa.user.email = form.cleaned_data['email']
         empresa.user.set_password(form.cleaned_data['password'])
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
@@ -362,11 +363,11 @@ def cadastrar_professor(request):
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['cpf']
         usuario = User.objects.create_user(username)
+        professor.curso = form.cleaned_data['curso']
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
-        #professor.user.first_name = form.cleaned_data['first_name']
-        #professor.user.last_name = ''
+        professor.user.first_name = form.cleaned_data['nome']
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()

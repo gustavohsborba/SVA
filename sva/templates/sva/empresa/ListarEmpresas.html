@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block filtros_tabela %}
-    <form method="post" action="{% url 'Listar_Empresa' %}">
+    <form method="post" action="{% if liberar_cadastro %}{% url 'Gerenciar_Empresas' %}{% else %}{% url 'Listar_Empresa' %}{% endif %}">
         {% csrf_token %}
         <div class="form-group col-sm-6">
           <label class="control-label" for="inputError">Filtrar por nome:</label>

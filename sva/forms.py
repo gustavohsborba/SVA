@@ -137,12 +137,13 @@ class FormularioCadastroEmpresa(forms.ModelForm):
 class FormularioCadastroProfessor(forms.ModelForm):
     tipo_formulario = "CADASTRO_PROFESSOR"
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
+    nome = forms.CharField(max_length=60, label="Nome")
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Professor
-        fields = ['cpf', 'email', 'siape', 'password', 'confirm_password']
+        fields = ['cpf', 'nome', 'email', 'siape', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroProfessor, self).clean()
