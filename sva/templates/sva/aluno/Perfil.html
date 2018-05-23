@@ -5,9 +5,10 @@
          <div class="box-body box-profile">
              <p><h3 class="profile-username text-center">Perfil de {{ aluno.user.first_name }} {{ aluno.user.last_name }}</h3></p>
              <hr>
-             <p><span class="fa fa-graduation-cap"><b>Curso: </b>{{ aluno.curso.nome }} ({{ aluno.curso.sigla }})</span> </p>
-             <p><span class="fa fa-envelope"> <b>Email: </b>{{ aluno.user.email }}</span> </p>
-             <p><span class="fa fa-phone" >  <b>Telefone: </b>{{ aluno.telefone }}</span></p>
+             <p><span class="fa fa-graduation-cap"></span><b>Curso: </b>{{ aluno.curso.nome }} ({{ aluno.curso.sigla }}) </p>
+             <p><span class="fa fa-envelope"></span><b>Email: </b>{{ aluno.user.email }}</p>
+             <p><span class="fa fa-phone" ></span><b>Telefone: </b>{{ aluno.telefone }}</p>
+             <hr>
              <strong><i class="fa  fa-book margin-r-5"></i>Habilidades </strong>
              <p>
                 {% for hab in aluno.habilidades.all %}

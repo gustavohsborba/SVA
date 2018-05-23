@@ -10,6 +10,14 @@
 </a>
 {% endblock %}
 
+{% block nav_bar_center %}
+    <form action="{% url 'vaga_pesquisar' %}" class="navbar-form navbar-left" role="search" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <input type="text" class="form-control" id="navbar-search-input" name="buscar_keyword" placeholder="Pesquisa rápida">
+        </div>
+    </form>
+{% endblock %}
 
 {% block header_dropdowns %}
     <li class="dropdown notifications-menu">

@@ -51,6 +51,36 @@ def formulario_contato(request):
 ###############################################################################
 
 @login_required
+def pesquisar_vaga(request):
+    form =  FormularioPesquisaVagasAluno(request.POST)
+    context = {}
+    context['form']=form
+    if form.is_valid():
+            if form.cleaned_data['Area_Atuacao']=="":
+                context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
+                context['busca'] = form.cleaned_data['Vaga_Cadastrada']
+            elif form.cleaned_data['Vaga_Cadastrada']=="":
+                areas=AreaAtuacao.objects.filter(nome__icontains= form.cleaned_data['Area_Atuacao'])
+                context['busca'] = form.cleaned_data['Area_Atuacao']
+                for area in areas:
+                    context['vagas'] = Vaga.objects.filter(areas_atuacao=area.id)
+            else:
+                areas = AreaAtuacao.objects.filter(nome__icontains=form.cleaned_data['Area_Atuacao'])
+                context['busca'] = form.cleaned_data['Vaga_Cadastrada']+", "+form.cleaned_data['Area_Atuacao']
+                for area in areas:
+                    context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
+    else:
+        context['vagas'] = Vaga.objects.filter()
+        context['busca'] = ""
+
+    if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
+        busca_rapida = request.POST.get('buscar_keyword')
+        context['vagas'] = Vaga.objects.filter(titulo__icontains=busca_rapida)
+        context['busca'] = request.POST.get('buscar_keyword')
+    context['now']= timezone.now()
+    return render(request, 'sva/vaga/pesquisarVagas.html', context)
+
+@login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def principal_vaga(request):
     return render(request, 'sva/vaga/vaga.html')
@@ -425,6 +455,17 @@ def excluir_empresa(request, pk):
 def exibir_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user_id=pk)
     context = {'empresa': empresa}
+    if(empresa.endereco is not None):
+        parte = empresa.endereco.split(",")
+        endereco = {
+            'Bairro': parte[0],
+            'Rua': parte[1] if len(parte) >= 2 else '',
+            'Numero': parte[2] if len(parte) >= 3 else '',
+            'Complemento': parte[3] if len(parte) >= 4 else '',
+            'Cidade': parte[4] if len(parte) >= 5 else '',
+            'Estado': parte[5] if len(parte) >= 6 else '',
+        }
+        context['endereco'] = endereco
     return render(request, 'sva/empresa/Perfil.html', context)
 
 
