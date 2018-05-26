@@ -16,6 +16,7 @@ from random import choice
 from datetime import datetime, timedelta
 from django.utils import timezone
 
+
 from django.views.decorators.http import require_POST
 
 from sva import mensagens

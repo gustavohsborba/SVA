@@ -194,3 +194,4 @@ class ProfessorTable(Table):
     Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
     class Meta:
         model = Professor
+
