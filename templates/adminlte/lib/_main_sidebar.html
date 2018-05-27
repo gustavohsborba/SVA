@@ -78,6 +78,9 @@
                 <li><a href="{% url 'vaga_pesquisar' %}"><i class="glyphicon glyphicon-search"></i><span>Pesquisar vagas</span></a></li>
             </ul>
         </li>
+        <li class="treeview active">
+            <li><a href="{% url 'upload_curriculo' pk=request.user.pk  %}"><i class="glyphicon glyphicon-search"></i><span>Upload Curriculo</span></a></li>
+        </li>
     {% endif %}
 
 

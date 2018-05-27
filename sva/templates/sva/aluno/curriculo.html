@@ -1,8 +1,59 @@
 {% extends 'sva/base.html' %}
 {% block content %}
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Submit" />
-    </form>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/upload.css' %}">
+    {%if curriculo != None%}
+        <p>Atualmente existe um curriculo cadastrado:</p>
+        <p> <a class="" href="javascript:func()" onclick="confirmacao()"><span class="fa fa-trash-o"></span> </a></p>
+    {%endif%}
+
+<form class="form-inline" action="" method="post" enctype="multipart/form-data">
+  <div class="form-group">
+     <div class="form-group">
+        <div class="input-file-container">
+              {% csrf_token %}
+            {{ form.curriculo }}
+            <label tabindex="0" for="my-file" class="input-file-trigger">Selecione um arquivo...</label>
+            <button type="submit" class="btn btn-primary" onClick="return validate()" name="upload">Submit</button>
+        </div>
+        <p class="file-return"></p>
+    </div>
+  </div>
+</form>
+<script language="JavaScript">
+    document.querySelector("html").classList.add('js');
+
+    var fileInput  = document.querySelector( ".input-file" ),
+    button     = document.querySelector( ".input-file-trigger" ),
+    the_return = document.querySelector(".file-return");
+
+    button.addEventListener( "keydown", function( event ) {
+        if ( event.keyCode == 13 || event.keyCode == 32 ) {
+            fileInput.focus();
+        }
+    });
+    button.addEventListener( "click", function( event ) {
+       fileInput.focus();
+       return false;
+    });
+    fileInput.addEventListener( "change", function( event ) {
+        the_return.innerHTML = this.value;
+    });
+
+    function confirmacao() {
+                     var resposta = confirm("Deseja excluir o curriculo?");
+
+                     if (resposta == true) {
+                          window.location.href = "{{ 'excluir/' }}{{ request.user.pk }}";
+                     }
+    }
+    function validate(){
+        var size=3145728;
+        var file_size=document.getElementById('my-file').files[0].size;
+        if(file_size>=size){
+            alert('Arquivo muito grande, tamanho maximo é 3MB');
+            return false;
+        }
+    }
+</script>
 {% endblock content %}

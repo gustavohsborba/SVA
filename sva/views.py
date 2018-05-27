@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
@@ -595,6 +595,62 @@ def exibir_aluno(request, pk):
     context = {'aluno': aluno}
     return render(request, 'sva/aluno/Perfil.html', context)
 
+def upload_curriculo(request,pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    if request.method == 'POST':
+        form = UploadCurriculo(request.FILES)
+        if form.is_valid():
+            try:
+                try:
+                    os.remove(aluno.curriculo.path)
+                    aluno.curriculo = request.FILES['curriculo']
+                except:
+                    aluno.curriculo = request.FILES['curriculo']
+                try:
+                    validate_file_extension(request.FILES['curriculo'])
+                    aluno.curriculo.name = 'Curriculo'+str(pk)+'.pdf'
+                    aluno.save()
+                    messages.success(request, "Upload com sucesso", mensagens.MSG_SUCCESS)
+                    return HttpResponseRedirect('/aluno/curriculo/' + str(pk))
+                except:
+                    messages.error(request, 'Formato não aceito')
+            except:
+                messages.error(request,'Campo de envio não preenchido')
+    else:
+        form = UploadCurriculo()
+    spl = aluno.curriculo.name.split("/")
+    curriculo = None
+    if len(spl) == 2:
+        curriculo = spl[1]
+    return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo})
+
+@login_required(login_url='/accounts/login/')
+def excluir_curriculo(request, pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    if aluno is not None:
+        if os.path.isfile(aluno.curriculo.path):
+            os.remove(aluno.curriculo.path)
+        aluno.curriculo.name = ""
+        aluno.save()
+        messages.success(request,"Excluido com sucesso", mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/aluno/curriculo/'+str(pk))
+
+def download_curriculo(request,pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    gerente = GerenteVaga.objects.get(user=request.user)
+    if gerente is None:
+        return redirect("login")
+    filename = aluno.curriculo.name.split('/')[-1]
+    response = HttpResponse(aluno.curriculo, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+    return response
 
 ###############################################################################
 #                                 ACESSO                                      #
