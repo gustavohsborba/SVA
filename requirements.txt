@@ -9,3 +9,4 @@ django-crispy-forms
 django-cruds-adminlte
 django-widget-tweaks
 django-datatable
+django-star-ratings
