@@ -208,3 +208,15 @@ class ProfessorTable(Table):
     Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
     class Meta:
         model = Professor
+
+class UploadCurriculo(forms.ModelForm):
+    class Meta:
+        model = Aluno
+        fields = ['curriculo']
+
+    def __init__(self, *args, **kwargs):
+        super(UploadCurriculo, self).__init__(*args, **kwargs)
+        self.fields['curriculo'].widget.attrs['accept'] = '.pdf'
+        self.fields['curriculo'].widget.attrs['id'] = 'my-file'
+        self.fields['curriculo'].widget.attrs['class'] = 'input-file'
+        self.fields['curriculo'].widget.attrs['data-max-size'] = '32154'

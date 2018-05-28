@@ -55,6 +55,9 @@ urlpatterns = [
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
     url(r'^aluno/perfil/(?P<pk>\d+)', exibir_aluno, name='Exibir_Aluno'),
     url(r'^aluno/vagas/(?P<pk>\d+)$', Listar_Vagas_Aluno, name='Listar_Vagas_Aluno'),
+    url(r'^aluno/curriculo/(?P<pk>\d+)$', upload_curriculo, name='upload_curriculo'),
+    url(r'^aluno/curriculo/excluir/(?P<pk>\d+)$', excluir_curriculo, name='excluir_curriculo'),
+    url(r'^aluno/curriculo/download/(?P<pk>\d+)$', download_curriculo, name='download_curriculo'),
 
     url(r'^professor/listar/$', listar_professor, name='Listar_Professor'),
     url(r'^professor/gerenciar/$', liberar_cadastro_professores_lista, name='Gerenciar_Professor'),

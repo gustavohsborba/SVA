@@ -17,59 +17,93 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="list-group ">
-            {% for vaga in vagas_inscritas %}
-                <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-                   <div class="d-flex w-100 justify-content-between">
-                       <small class="text-muted pull-right" >Inscrito</small>
-                       <h4 class="mb-1">{{vaga.titulo}}</h4>
+    <div class="col-md-5 col-md-offset-1 ">
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">Inscritos</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="list-group ">
+                    {% for vaga in vagas_inscritas %}
+                        <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                           <div class="d-flex w-100 justify-content-between">
+                               <small class="text-muted pull-right" >Inscrito</small>
+                               <h4 class="mb-1">{{vaga.titulo}}</h4>
 
-                   </div>
-                    <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
-                    <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
-                </a>
-            {% endfor %}
-        </div>
-        <div class="list-group ">
-            {% for vaga in vagas_interesse %}
-                     <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-                       <div class="d-flex w-100 justify-content-between">
-                           <small class="text-muted pull-right" >Interesse</small>
-                           <h4 class="mb-1">{{vaga.titulo}}</h4>
-                       </div>
-                        <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
-                        {% if vaga.data_validade.date is not None %}
-                             {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
-                                 {%ifnotequal data "dias"%}
-                                     {%ifnotequal data "dia"%}
-                                        <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                                     {%else%}
-                                         {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
-                                             {%if teste <= 3 %}
-                                                 <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                           </div>
+                            <p>Nota: {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
+                            <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                        </a>
+                    {% endfor %}
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+    </div>
+    <div class="col-md-5">
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">Interesse</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="box-body ">
+                <div class="list-group ">
+                    {% for vaga in vagas_interesse %}
+                         {%with valido=now|timesince:vaga.data_validade|slice:":1"%}
+                            {%ifnotequal valido "0"%}
+                                 <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                                   <div class="d-flex w-100 justify-content-between">
+                                       <small class="text-muted pull-right" >Interesse</small>
+                                       <h4 class="mb-1">{{vaga.titulo}}</h4>
+                                   </div>
+                                    <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
+                                    {% if vaga.data_validade.date is not None %}
+                                         {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
+                                             {%ifnotequal data "dias"%}
+                                                 {%ifnotequal data "dia"%}
+                                                     {%ifequal data "minutos"%}
+                                                            <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                                     {%else%}
+                                                            <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                                     {%endifequal%}
+                                                 {%else%}
+                                                     {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                                         {%if teste <= 3 %}
+                                                             <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                                         {%else%}
+                                                             <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                                         {%endif%}
+                                                     {%endwith%}
+                                                {%endifnotequal%}
                                              {%else%}
-                                                 <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                                             {%endif%}
+                                                 {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                                     {%if teste <= 3 %}
+                                                         <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                                     {%else%}
+                                                         <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                                     {%endif%}
+                                                 {%endwith%}
+                                             {%endifnotequal%}
                                          {%endwith%}
-                                    {%endifnotequal%}
-                                 {%else%}
-                                     {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
-                                         {%if teste <= 3 %}
-                                             <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
-                                         {%else%}
-                                             <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                                         {%endif%}
-                                     {%endwith%}
-                                 {%endifnotequal%}
-                             {%endwith%}
-                         {% else %}
-                            <p  class ="pull-right" >Inscrições abertas</p>
-                         {% endif %}
-                         <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
-                     </a>
-            {% endfor %}
-        </div>
+                                     {% else %}
+                                        <p  class ="pull-right" >Inscrições abertas</p>
+                                     {% endif %}
+                                     <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                                 </a>
+                            {%endifnotequal%}
+                         {%endwith%}
+                    {% endfor %}
+                </div>
+            </div>
+          </div>
     </div>
 </div>
 

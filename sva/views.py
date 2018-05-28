@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import Dict, Any, Union
 
 from django.contrib import messages
-from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import date, datetime
@@ -10,7 +8,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
-from django.db.models import Q, QuerySet, Value
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 import string
@@ -21,8 +19,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from sva import mensagens
-from sva.forms import FormularioPesquisaProfessor
-from sva.models import Vaga
 from .models import *
 from .forms import *
 
@@ -323,6 +319,7 @@ def cadastrar_empresa(request):
         username = form.cleaned_data['cnpj']
         usuario = User.objects.create_user(username)
         empresa.user = usuario
+        empresa.user.email = form.cleaned_data['email']
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.nome = form.cleaned_data['nome']
         empresa.user.email = form.cleaned_data['email']
@@ -448,7 +445,7 @@ def editar_empresa(request, pk):
             messages.error(request, 'Falha ao editar')
             return redirect(exibir_empresa, empresa.user_id)
 
-    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form, 'empresa': empresa})
+    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
 
 
 @login_required(login_url='/accounts/login/')
@@ -457,13 +454,11 @@ def excluir_empresa(request, pk):
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    empresa.user.is_active = False
-    empresa.situacao = Empresa.EXCLUIDO
-    empresa.save()
-    empresa.user.save()
-    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
-    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-    return HttpResponseRedirect('/home/')
+    if empresa is not None:
+        empresa.user.is_active = False
+        empresa.user.save()
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')
 
 
 def exibir_empresa(request, pk):
@@ -484,19 +479,16 @@ def exibir_empresa(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_empresa(request):
-    form = FormularioPesquisaEmpresa(request.POST)
-    empresas = Empresa.objects.filter(situacao=Empresa.DEFERIDO)
-    if form.is_valid():
-        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
-            valor = form.cleaned_data['nome']
-            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
-            empresas = query.filter(Q(situacao=Empresa.DEFERIDO) & Q(nome__icontains=valor))
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
+    else:
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=False)
     context = {
         'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': False,
-        'form': form,
-        'empresas': empresas
+        'empresas': empresas,
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -504,18 +496,15 @@ def listar_empresa(request):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_admin)
 def liberar_cadastro_empresas_lista(request):
-    form = FormularioPesquisaEmpresa(request.POST)
-    empresas = Empresa.objects.filter(situacao=Empresa.AGUARDANDO_APROVACAO)
-    if form.is_valid():
-        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
-            valor = form.cleaned_data['nome']
-            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
-            empresas = query.filter(Q(situacao=Empresa.AGUARDANDO_APROVACAO) & Q(nome__icontains=valor))
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
+                                          nome__icontains=request.POST['filtro'])
+    else:
+        empresas = Empresa.objects.filter(data_aprovacao__isnull=True)
     context = {
-        'titulo_lista': 'Empresas Cadastradas',
+        'titulo_lista': 'Empresas com Cadastro Pendente',
         'liberar_cadastro': True,
-        'form': form,
-        'empresas': empresas
+        'empresas': empresas,
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -531,7 +520,6 @@ def aprovar_cadastro_empresa(request, pk):
         empresa.user.is_staff = True
         empresa.user.save()
         empresa.data_aprovacao = datetime.datetime.now()
-        empresa.situacao = Empresa.DEFERIDO
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
@@ -539,8 +527,6 @@ def aprovar_cadastro_empresa(request, pk):
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
                   mensagem, 'from@example.com', [empresa.user.email])
     else:
-        empresa.situacao = Empresa.INDEFERIDO
-        empresa.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
@@ -609,6 +595,68 @@ def exibir_aluno(request, pk):
     context = {'aluno': aluno}
     return render(request, 'sva/aluno/Perfil.html', context)
 
+def upload_curriculo(request,pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    if request.method == 'POST':
+        form = UploadCurriculo(request.FILES)
+        if form.is_valid():
+            try:
+                try:
+                    os.remove(aluno.curriculo.path)
+                    aluno.curriculo = request.FILES['curriculo']
+                except:
+                    aluno.curriculo = request.FILES['curriculo']
+                try:
+                    validate_file_extension(request.FILES['curriculo'])
+                    aluno.curriculo.name = 'Curriculo'+str(pk)+'.pdf'
+                    aluno.data_upload_curriculo = timezone.now()
+                    aluno.save()
+                    messages.success(request, "Upload com sucesso", mensagens.MSG_SUCCESS)
+                    return HttpResponseRedirect('/aluno/curriculo/' + str(pk))
+                except:
+                    messages.error(request, 'Formato não aceito')
+            except:
+                messages.error(request,'Campo de envio não preenchido')
+    else:
+        form = UploadCurriculo()
+    curriculo = None
+    if aluno.curriculo.name != None:
+        spl = aluno.curriculo.name.split("/")
+
+        if len(spl) == 2:
+            curriculo = spl[1]
+    return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo,'data':aluno.data_upload_curriculo})
+
+@login_required(login_url='/accounts/login/')
+def excluir_curriculo(request, pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+    if aluno is not None:
+        if os.path.isfile(aluno.curriculo.path):
+            os.remove(aluno.curriculo.path)
+        aluno.curriculo.name = ""
+        aluno.save()
+        messages.success(request,"Excluido com sucesso", mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/aluno/curriculo/'+str(pk))
+
+def download_curriculo(request,pk):
+    aluno = get_object_or_404(Aluno, user_id=pk)
+    if pk != str(request.user.id):
+        gerente = GerenteVaga.objects.get(user=request.user)
+        if gerente is None:
+            return redirect("login")
+            messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+            return HttpResponseRedirect('/home/')
+    filename = aluno.curriculo.name.split('/')[-1]
+    response = HttpResponse(aluno.curriculo, content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+    return response
 
 ###############################################################################
 #                                 ACESSO                                      #
@@ -791,7 +839,7 @@ def liberar_cadastro_professores_lista(request):
                     Q(curso__nome__icontains=valor) |
                     Q(curso__campus__nome__icontains=valor)))
     context = {
-        'titulo_lista': 'Professores Cadastrados',
+        'titulo_lista': 'Professores com Cadastro Pendente',
         'liberar_cadastro': True,
         'form': form,
         'professores': professores,

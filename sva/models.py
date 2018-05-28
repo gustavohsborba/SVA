@@ -93,6 +93,8 @@ class Aluno(models.Model):
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
     data_cadastro = models.DateTimeField(verbose_name='Data de Cadastro', auto_now_add=True, blank=False)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
+    curriculo = models.FileField(upload_to="curriculo/", blank=True, null=True)
+    data_upload_curriculo = models.DateTimeField(verbose_name='Data de upload', null=True)
 
     def save(self, *args, **kwargs):
         self.user.username = self.cpf

@@ -23,6 +23,9 @@
                         <tr>
                             <td><a href="{% url 'Exibir_Aluno' pk=aluno.user_id %}"><em>{{aluno.user.first_name}} {{aluno.user.last_name}}</em></a></td>
                             <td>{{aluno.user.email}}</td>
+                            {% if aluno.curriculo.name != ""%}
+                                <td> <a class="pull-right" href="{% url 'download_curriculo' pk=aluno.user_id %}">Baixar curriculo<span class="fa fa-cloud-download"></span> </a></td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                   </tbody></table>
