@@ -320,6 +320,7 @@ def cadastrar_empresa(request):
         username = form.cleaned_data['cnpj']
         usuario = User.objects.create_user(username)
         empresa.user = usuario
+        empresa.user.email = form.cleaned_data['email']
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.nome = form.cleaned_data['nome']
         empresa.user.email = form.cleaned_data['email']
