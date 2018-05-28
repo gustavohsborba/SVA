@@ -108,8 +108,8 @@ def gerenciar_vaga(request):
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def criar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
-    if gerente is None:
-        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+    if gerente is None or gerente.situacao != "DEFERIDO":
+        messages.error(request, mensagens.ERRO_GERENTE_INATIVO, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
 
     if request.method == 'POST':

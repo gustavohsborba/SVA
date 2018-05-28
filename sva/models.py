@@ -87,7 +87,7 @@ class Aluno(models.Model):
     curso = models.ForeignKey(to=Curso, null=False, blank=False, on_delete=models.PROTECT)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos', blank=True)
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos', blank=True)
-    endereco = models.CharField(max_length=100, null=True)
+    endereco = models.CharField(max_length=255, null=True)
     matricula = models.CharField(max_length=12, null=True, validators=[validate_integer])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
@@ -151,7 +151,7 @@ class Empresa(GerenteVaga):
     cnpj = models.CharField(unique=True, max_length=14, validators=[validate_CNPJ])
     nome = models.CharField(max_length=60, null=False, blank=False, db_index=True)
     website = models.CharField(max_length=255, null=True, blank=True, validators=[URLValidator])
-    endereco = models.CharField(max_length=100, null=True, blank=True)
+    endereco = models.CharField(max_length=255, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True, validators=[validate_integer])
 
     def save(self, *args, **kwargs):

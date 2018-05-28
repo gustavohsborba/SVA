@@ -56,19 +56,19 @@
                     </div>
                     <div class="form-group">
                         <label for="id_Rua">Logradouro <font size="2" color="red">*</font></label>
-                        <input type="text" class="form-control" id="id_Rua" name="Rua" maxlength="40" placeholder="Rua/Avenida" required="true" value="{{form.Rua.value|default_if_none:''}}">
+                        <input type="text" class="form-control" id="id_Rua" name="Rua" maxlength="40"  pattern="[A-Za-zÀ-ž ]+" title="Somente caracteres alfabéticos" placeholder="Rua/Avenida" required="true" value="{{form.Rua.value|default_if_none:''}}">
                     </div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="id_Numero">Número <font size="2" color="red">*</font></label>
-                                <input type="text" class="form-control" id="id_Numero" name="Numero" placeholder="Numero" maxlength="4" required="true" value="{{form.Numero.value|default_if_none:''}}">
+                                <input type="text" class="form-control" id="id_Numero" name="Numero" placeholder="Numero" pattern="[0-9 ]+" title="Somente caracteres númericos" maxlength="6" required="true" value="{{form.Numero.value|default_if_none:''}}">
                             </div>
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
                                 <label for="id_Complemento">Complemento </label>
-                                <input type="text" class="form-control" id="id_Complemento" name="Complemento" maxlength="10" placeholder="Complemento ao endereço (se houver)" value="{{form.Complemento.value|default_if_none:''}}">
+                                <input type="text" class="form-control" id="id_Complemento" pattern="[^,\x22]+" title="Caractere ',' inválido"  name="Complemento" maxlength="50" placeholder="Complemento ao endereço (se houver)" value="{{form.Complemento.value|default_if_none:''}}">
                             </div>
                         </div>
                     </div>
@@ -76,19 +76,19 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="id_Bairro">Bairro <font size="2" color="red">*</font></label>
-                                <input type="text" class="form-control" id="id_Bairro" name="Bairro" maxlength="40" placeholder="Bairro" required="true" value="{{form.Bairro.value|default_if_none:''}}">
+                                <input type="text" class="form-control" id="id_Bairro" name="Bairro" maxlength="30" pattern="[A-Za-zÀ-ž ]+" title="Somente caracteres alfabéticos" placeholder="Bairro" required="true" value="{{form.Bairro.value|default_if_none:''}}">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="id_Cidade">Cidade <font size="2" color="red">*</font></label>
-                                <input type="text" class="form-control" id="id_Cidade" name="Cidade" maxlength="20" placeholder="Cidade" required="true" value="{{form.Cidade.value|default_if_none:''}}">
+                                <input type="text" class="form-control" id="id_Cidade" name="Cidade" maxlength="30" pattern="[A-Za-zÀ-ž ]+" title="Somente caracteres alfabéticos" placeholder="Cidade" required="true" value="{{form.Cidade.value|default_if_none:''}}">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="id_Estado">Estado <font size="2" color="red">*</font></label>
-                                <input type="text" class="form-control" id="id_Estado" name="Estado" maxlength="20" placeholder="Estado" required="true" value="{{form.Estado.value|default_if_none:''}}">
+                                <input type="text" class="form-control" id="id_Estado" name="Estado" maxlength="25" pattern="[A-Za-zÀ-ž ]+" title="Somente caracteres alfabéticos" placeholder="Estado" required="true" value="{{form.Estado.value|default_if_none:''}}">
                             </div>
                         </div>
                     </div>

@@ -80,10 +80,10 @@ class FormularioEditarAluno(forms.ModelForm):
 
     Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Complemento = forms.CharField(max_length=10,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Numero = forms.CharField(max_length=6,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Complemento = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Cidade = forms.CharField(max_length=30,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Estado = forms.CharField(max_length=25,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de matrícula"}))
     telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de contato"}))
     curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
@@ -98,12 +98,12 @@ class FormularioEditarAluno(forms.ModelForm):
 
 
 class FormularioEditarEmpresa(forms.ModelForm):
-    Bairro = forms.CharField(max_length=40)
+    Bairro = forms.CharField(max_length=30)
     Rua = forms.CharField(max_length=40)
-    Numero = forms.CharField(max_length=4)
-    Complemento = forms.CharField(max_length=10, required=False)
-    Cidade = forms.CharField(max_length=20)
-    Estado = forms.CharField(max_length=20)
+    Numero = forms.CharField(max_length=6)
+    Complemento = forms.CharField(max_length=50, required=False)
+    Cidade = forms.CharField(max_length=30)
+    Estado = forms.CharField(max_length=25)
     Email = forms.CharField(max_length=100, validators=[validate_email])
     Site = forms.CharField(max_length=200, required=False)
 
