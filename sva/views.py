@@ -622,10 +622,12 @@ def upload_curriculo(request,pk):
                 messages.error(request,'Campo de envio não preenchido')
     else:
         form = UploadCurriculo()
-    spl = aluno.curriculo.name.split("/")
     curriculo = None
-    if len(spl) == 2:
-        curriculo = spl[1]
+    if aluno.curriculo.name != None:
+        spl = aluno.curriculo.name.split("/")
+
+        if len(spl) == 2:
+            curriculo = spl[1]
     return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo})
 
 @login_required(login_url='/accounts/login/')
