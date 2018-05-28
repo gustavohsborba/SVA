@@ -24,13 +24,11 @@ from .forms import *
 
 
 def is_admin(user):
-    ADMINISTRADOR = Group.objects.get_or_create(name='Administrador')
-    SETOR_ESTAGIOS = Group.objects.get_or_create(name='Setor de Estágios')
     if user.is_superuser:
         return True
-    if ADMINISTRADOR in user.groups.all():
+    if user.groups.filter(name='Administrador').exists():
         return True
-    if SETOR_ESTAGIOS in user.groups.all():
+    if user.groups.filter(name='Setor de Estágios').exists():
         return True
     return False
 
@@ -51,6 +49,36 @@ def formulario_contato(request):
 ###############################################################################
 #                                  VAGAS                                      #
 ###############################################################################
+
+@login_required
+def pesquisar_vaga(request):
+    form =  FormularioPesquisaVagasAluno(request.POST)
+    context = {}
+    context['form']=form
+    if form.is_valid():
+            if form.cleaned_data['Area_Atuacao']=="":
+                context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
+                context['busca'] = form.cleaned_data['Vaga_Cadastrada']
+            elif form.cleaned_data['Vaga_Cadastrada']=="":
+                areas=AreaAtuacao.objects.filter(nome__icontains= form.cleaned_data['Area_Atuacao'])
+                context['busca'] = form.cleaned_data['Area_Atuacao']
+                for area in areas:
+                    context['vagas'] = Vaga.objects.filter(areas_atuacao=area.id)
+            else:
+                areas = AreaAtuacao.objects.filter(nome__icontains=form.cleaned_data['Area_Atuacao'])
+                context['busca'] = form.cleaned_data['Vaga_Cadastrada']+", "+form.cleaned_data['Area_Atuacao']
+                for area in areas:
+                    context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
+    else:
+        context['vagas'] = Vaga.objects.filter()
+        context['busca'] = ""
+
+    if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
+        busca_rapida = request.POST.get('buscar_keyword')
+        context['vagas'] = Vaga.objects.filter(titulo__icontains=busca_rapida)
+        context['busca'] = request.POST.get('buscar_keyword')
+    context['now']= timezone.now()
+    return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 @login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
@@ -114,6 +142,7 @@ def lista_alunos_vaga(request, pkvaga):
     if vaga.gerente_vaga_id == gerente.id:
         context = {}
         context['alunos'] = Aluno.objects.filter(vagas_inscritas=vaga)
+        context['qtd_alunos'] = Aluno.objects.filter(vagas_inscritas=vaga).count()
         context['vaga'] = vaga
         return render(request, 'sva/vaga/ListarAlunosVaga.html', context)
 
@@ -218,11 +247,54 @@ def editar_vaga(request, pkvaga):
         vaga.local = form.cleaned_data['local']
         vaga.valor_bolsa = form.cleaned_data['valor_bolsa']
         vaga.beneficios = form.cleaned_data['beneficios']
+        vaga.data_aprovacao = None
         vaga.situacao = 2
         vaga.save()
         messages.success(request, 'Editado com sucesso')
         return redirect(gerenciar_vaga)
 
+
+
+@login_required
+@user_passes_test(is_admin)
+def gerenciar_vaga_pendente(request):
+    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
+        vagas = Vaga.objects.filter(data_aprovacao__isnull=True, situacao__gte=1, situacao__lte=2, titulo__icontains=request.POST['filtro']).order_by('-data_alteracao','-data_submissao')
+    else:
+        vagas = Vaga.objects.filter(data_aprovacao__isnull=True, situacao__gte=1, situacao__lte=2,).order_by('-data_alteracao','-data_submissao')
+    context = {
+        'titulo_lista': 'Vagas com aprovação pendente',
+        'liberar_cadastro': True,
+        'vagas': vagas,
+    }
+    return render(request, 'sva/vaga/ListarVagasPendentes.html', context)
+
+@transaction.atomic
+@login_required
+@require_POST
+@user_passes_test(is_admin)
+def aprovar_vaga(request, pkvaga):
+
+    vaga = get_object_or_404(Vaga, id=pkvaga)
+    if vaga is not None and request.POST['aprovado'] == 'true':
+        vaga.situacao = 3
+        vaga.data_aprovacao = datetime.datetime.now()
+        vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
+        vaga.save()
+        mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
+                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+        send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+    else:
+        vaga.situacao = 5
+        vaga.save()
+        mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
+                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+        send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
+                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+
+    return redirect(visualizar_vaga, pkvaga)
 
 ###############################################################################
 #                               CADASTRO                                      #
@@ -249,11 +321,12 @@ def cadastrar_empresa(request):
         empresa.user = usuario
         empresa.cnpj = form.cleaned_data['cnpj']
         empresa.nome = form.cleaned_data['nome']
+        empresa.user.email = form.cleaned_data['email']
         empresa.user.set_password(form.cleaned_data['password'])
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
-        empresa.data_aprovacao = datetime.now()
+        #empresa.data_aprovacao = datetime.datetime.now()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
@@ -290,11 +363,11 @@ def cadastrar_professor(request):
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['cpf']
         usuario = User.objects.create_user(username)
+        professor.curso = form.cleaned_data['curso']
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
-        #professor.user.first_name = form.cleaned_data['first_name']
-        #professor.user.last_name = ''
+        professor.user.first_name = form.cleaned_data['nome']
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
@@ -314,20 +387,46 @@ def cadastrar_professor(request):
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_empresa(request, pk):
+
     if pk != str(request.user.id):
         return HttpResponseRedirect('/home/')
+
     empresa = get_object_or_404(Empresa, user_id=pk)
     Nome = empresa.user.first_name + ' ' + empresa.user.last_name
-    initial = {
-        'Nome_Completo': Nome}
+    if empresa.endereco is not None:
+        parte = empresa.endereco.split(",")
+        initial = {
+            'Nome_Completo': Nome,
+            'Telefone': empresa.telefone,
+            'Email': empresa.user.email,
+            'Site': empresa.website,
+            'Bairro': parte[0],
+            'Rua': parte[1] if len(parte) >= 2 else '',
+            'Numero': parte[2] if len(parte) >= 3 else '',
+            'Complemento': parte[3] if len(parte) >= 4 else '',
+            'Cidade': parte[4] if len(parte) >= 5 else '',
+            'Estado': parte[5] if len(parte) >= 6 else '',
+        }
+    else:
+        initial = {'Nome_Completo': Nome,
+            'Telefone': empresa.telefone,
+            'Email': empresa.user.email,
+            'Site': empresa.website}
+
+    if request.method == 'GET':
+        form = FormularioEditarEmpresa(instance=empresa, initial=initial)
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
-            empresa.website = form.cleaned_data['Site']
-            empresa.telefone = form.cleaned_data['telefone']
+            if form.cleaned_data['Site'] is None:
+                empresa.website = ""
+            else:
+                empresa.website = form.cleaned_data['Site']
+            if form.cleaned_data['telefone'] is None:
+                empresa.telefone = ""
+            else:
+                empresa.telefone = form.cleaned_data['telefone']
             empresa.nome = form.cleaned_data['nome']
-            empresa.user.first_name = Nome
-            empresa.user.email = form.cleaned_data['Email']
             empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
                                form.cleaned_data['Rua'] + ',' + \
                                form.cleaned_data['Numero'] + ',' + \
@@ -335,10 +434,16 @@ def editar_empresa(request, pk):
                                form.cleaned_data['Cidade'] + ',' + \
                                form.cleaned_data['Estado']
             empresa.save()
+            empresa.user.first_name = form.cleaned_data['nome']
+            empresa.user.last_name = ""
+            empresa.user.email = form.cleaned_data['Email']
             empresa.user.save()
             messages.success(request, 'Editado com sucesso')
-    else:
-        form = FormularioEditarEmpresa(instance=empresa, initial=initial)
+            return redirect(exibir_empresa, empresa.user_id)
+        else:
+            messages.error(request, 'Falha ao editar')
+            return redirect(exibir_empresa, empresa.user_id)
+
     return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
 
 
@@ -358,10 +463,22 @@ def excluir_empresa(request, pk):
 def exibir_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user_id=pk)
     context = {'empresa': empresa}
+    if(empresa.endereco is not None):
+        parte = empresa.endereco.split(",")
+        endereco = {
+            'Bairro': parte[0],
+            'Rua': parte[1] if len(parte) >= 2 else '',
+            'Numero': parte[2] if len(parte) >= 3 else '',
+            'Complemento': parte[3] if len(parte) >= 4 else '',
+            'Cidade': parte[4] if len(parte) >= 5 else '',
+            'Estado': parte[5] if len(parte) >= 6 else '',
+        }
+        context['endereco'] = endereco
     return render(request, 'sva/empresa/Perfil.html', context)
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_empresa(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
@@ -376,6 +493,7 @@ def listar_empresa(request):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def liberar_cadastro_empresas_lista(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
@@ -400,7 +518,7 @@ def aprovar_cadastro_empresa(request, pk):
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
-        empresa.data_aprovacao = datetime.now()
+        empresa.data_aprovacao = datetime.datetime.now()
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
@@ -428,15 +546,12 @@ def editar_aluno(request, pk):
     aluno = get_object_or_404(Aluno,user_id=pk)
     Parte= aluno.endereco.split(",")
     Nome = aluno.user.first_name+' '+aluno.user.last_name
-    if len(Nome) ==4 :
-        initial = {'Rua': Parte[0],
-               'Numero': Parte[1] if len(Parte) >= 2 else '',
-               'Cidade': Parte[2] if len(Parte) >= 3 else '',
-               'Estado': Parte[3] if len(Parte) >= 4 else '',
-               'Complemento': Parte[4] if len(Parte) >= 5 else '',
-               'Nome_Completo': Nome}
-    else:
-        initial = {'Nome_Completo': Nome}
+    initial = {'Rua': Parte[0],
+           'Numero': Parte[1] if len(Parte) >= 2 else '',
+           'Complemento': Parte[2] if len(Parte) >= 3 else '',
+           'Cidade': Parte[3] if len(Parte) >= 4 else '',
+           'Estado': Parte[4] if len(Parte) >= 5 else '',
+           'Nome_Completo': Nome}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
         if form.is_valid():
@@ -622,6 +737,7 @@ def exibir_professor(request, pk):
 # TODO: https://github.com/shymonk/django-datatable
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_professor(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         professores = Professor.objects.filter(data_aprovacao__isnull=False, user__first_name__icontains=request.POST['filtro'])
@@ -637,6 +753,7 @@ def listar_professor(request):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def liberar_cadastro_professores_lista(request):
     if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
         professores = Professor.objects.filter(data_aprovacao__isnull=True,

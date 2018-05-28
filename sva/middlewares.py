@@ -65,7 +65,7 @@ class NotificacaoMiddleware(MiddlewareMixin):
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_PROFESSOR
                 notificacao.vaga = None
                 notificacao.usuario = usuario
-                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR % instance.user.nome
+                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_PROFESSOR % instance.user.first_name
                 notificacao.link = reverse("Exibir_Professor", args={instance.user.pk})
                 notificacao.save()
 

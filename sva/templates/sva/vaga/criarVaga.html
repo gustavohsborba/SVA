@@ -4,44 +4,73 @@
 
 
 {% block content %}
-    <h1>Cadastro de nova vaga</h1>
-    <br>
-    <form method="post" class="form-horizontal">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Título: <font size="2" color="red">*</font></label><div class="col-sm-10"> {{ form.titulo }}</div>
+    <div class="container-fluid">
+        <form method="post" class="form-horizontal">
+            {% csrf_token %}
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                  <div class = "text-center">
+                        <h2 class="box-title">Cadastro de nova vaga</h2>
+                  </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Ofertada aos cursos: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.cursos}}</div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Áreas de atuação: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.areas_atuacao}}</div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Descrição: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.descricao}}</div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Inscrições até: </label>
-                    <div class="col-sm-10">
-                       <input type="datetime-local" id="data_validade" name="data_validade" value="{{form.data_validade|date:'d/m/YTH:i'}}">
+                <div class="box-body">
+                    <div class="col-md-5">
+                        <div class = "text-center">
+                            <h4>Informações cadastrais</h4>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_titulo">Título <font size="2" color="red">*</font></label>
+                            <input type="text" class="form-control" id="id_titulo" name="titulo" placeholder="Nome da vaga" required="true" >
+                        </div>
+                        <div class="form-group">
+                            <label for="id_data_validade">Inscrições até </label>
+                            <input type="datetime-local" class="form-control" id="id_data_validade" name="data_validade" value="{{form.data_validade|date:'d/m/YTH:i'}}">
+                        </div>
+                        <div class="form-group">
+                            <label>Ofertada aos cursos </label>
+                            <div>{{form.cursos}}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Áreas de atuação <font size="2" color="red">*</font></label>
+                            <div>{{form.areas_atuacao}}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-md-offset-1">
+                        <div class = "text-center">
+                            <h4>Informações básicas</h4>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_descricao">Descrição <font size="2" color="red">*</font></label>
+                            {{form.descricao}}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Carga horária semanal <font size="2" color="red">*</font></label>
+                                    {{form.carga_horaria_semanal}}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Valor da bolsa <font size="2" color="red">*</font></label>
+                                    {{form.valor_bolsa}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_local">Local <font size="2" color="red">*</font></label>
+                            <input type="text" class="form-control" id="id_local" name="local" required="true" placeholder="Localidade ou endereço">
+                        </div>
+                        <div class="form-group">
+                            <label>Benefícios </label>
+                            {{form.beneficios}}
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Carga horária semanal: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.carga_horaria_semanal}}</div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Submeter nova vaga</button>
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Local: <font size="2" color="red">*</font></label><div class="col-sm-10">{{form.local}}</div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Valor da bolsa: <font size="2" color="red">*</font></label><div class="col-sm-10">R${{form.valor_bolsa}}</div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2">Benefícios concedidos: </label><div class="col-sm-10">{{form.beneficios}}</div>
-                </div>
-                <div class="col-sm-10"><b><font size="2" color="red">*</font> - Dados obrigatórios</b></div>
-                <br>
-                <br>
-                <input type="submit" class="save btn btn-default" value="Criar vaga" />
-        </div>
-    </form>
+            </div>
+        </form>
+    </div>
 {% endblock %}
