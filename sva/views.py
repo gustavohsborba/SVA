@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from typing import Dict, Any, Union
-from datetime import datetime
 
 from django.contrib import messages
 from django.db.models.functions import Concat
@@ -20,6 +19,7 @@ from django.views.decorators.http import require_POST
 from sva import mensagens
 from .models import *
 from .forms import *
+from datetime import datetime
 
 
 def is_admin(user):

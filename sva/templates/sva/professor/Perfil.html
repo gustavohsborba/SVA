@@ -29,6 +29,8 @@
                                 Deferir Cadastro
                             </button>
                         </div>
+                    {% elif professor.situacao == 'INDEFERIDO' %}
+                        <div class="text-center"><h3 class="profile-username text-center">CADASTRO INDEFERIDO</h3></div>
                     {% endif %}
 
                     <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px;">
