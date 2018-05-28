@@ -459,8 +459,9 @@ def excluir_empresa(request, pk):
         return HttpResponseRedirect('/home/')
     empresa.user.is_active = False
     empresa.situacao = Empresa.EXCLUIDO
-    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
+    empresa.save()
     empresa.user.save()
+    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return HttpResponseRedirect('/home/')
 
@@ -713,6 +714,7 @@ def excluir_professor(request, pk):
     professor.situacao = Professor.EXCLUIDO
     Vaga.objects.filter(gerente_vaga=professor).update(situacao=4)  # inativa as vagas
     professor.user.save()
+    professor.save()
     messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return HttpResponseRedirect('/home/')
 
