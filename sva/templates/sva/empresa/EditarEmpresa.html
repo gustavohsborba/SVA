@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load static %}
+{% load svatags %}
 <div class="container-fluid">
     <form action="" method="POST">
         {% csrf_token %}
@@ -95,23 +96,20 @@
             </div>
             <div class="box-footer">
                 <button class="btn btn-primary" type="submit">Editar cadastro</button>
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                <div class="text-muted pull-right" ><a href="javascript:func()" onclick="confirmacao()"> Desativar conta </a></div>
+
+                {% if empresa.user.pk == request.user.pk or request.user.is_superuser %}
+                <div class="text-muted pull-right" >
+                    <a class="pull-right btn btn-danger" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a></div>
                 <script language="Javascript">
                 function confirmacao() {
                      var resposta = confirm("Deseja desativar essa conta?");
 
                      if (resposta == true) {
-                          window.location.href = "{{ 'desativar/' }}{{ request.user.pk }}";
+                          window.location.href = "{% url 'Excluir_Empresa' empresa.user.pk %}";
                      }
                 }
                 </script>
+                {% endif %}
             </div>
         </div>
     </form>

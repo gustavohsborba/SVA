@@ -1,29 +1,31 @@
 {% extends 'sva/base.html' %}
+{% load crispy_forms_tags %}
+{% load svatags %}
 
 {% block content %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+    <div class="row col-sm-12 col-md-10 col-md-offset-1 col-lg-offset-2 col-lg-8">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
+
         <form action="" method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Editar</button>
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <button type="submit" class="btn btn-primary">Editar</button>
+
+            {% if professor.user.pk == request.user.pk or request.user.is_superuser %}
+                <a class="pull-right btn btn-danger" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
+                <script language="Javascript">
+                function confirmacao() {
+                     var resposta = confirm("Deseja desativar essa conta?");
+
+                     if (resposta == true) {
+                          window.location.href = "{% url 'Excluir_Professor' professor.user.pk %}";
+                     }
+                }
+                </script>
+
+            {% endif %}
         </form>
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        <a href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
-        <script language="Javascript">
-        function confirmacao() {
-             var resposta = confirm("Deseja desativar essa conta?");
-
-             if (resposta == true) {
-                  window.location.href = "{{ 'excluirprofessor' }}";
-             }
-        }
-        </script>
-
+</div>
 {% endblock content %}

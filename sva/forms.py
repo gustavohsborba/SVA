@@ -158,7 +158,7 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
 class FormularioEditarProfessor(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
-    Telefone = forms.CharField(max_length=12)
+    Telefone = forms.CharField(max_length=12, min_length=9, validators=[validate_integer], help_text='apenas números')
 
     class Meta:
         model = Professor
@@ -180,9 +180,23 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+
 class FormularioPesquisaVagasAluno(forms.Form):
     Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga','class':'form-control'}))
     Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
+
+
+class FormularioPesquisaProfessor(forms.Form):
+    curso_campus_nome = forms.CharField(max_length=50, required=False, widget=forms.TextInput(
+        attrs={'placeholder': 'Pesquisar por curso, campus ou Nome',
+               'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
+
+
+class FormularioPesquisaEmpresa(forms.Form):
+    nome = forms.CharField(max_length=50, required=False, widget=forms.TextInput(
+        attrs={'placeholder': 'Filtrar por nome da empresa',
+               'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
+
 
 # TODO: https://github.com/shymonk/django-datatable
 class ProfessorTable(Table):

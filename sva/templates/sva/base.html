@@ -15,7 +15,10 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-    Conteúdo aqui.
+
+{% block content_block_wrap %}
+    <div class="row box-body center-block box-pane">
+         {% block content %}{% endblock %}
+    </div>
 {% endblock %}
 

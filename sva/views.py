@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from typing import Dict, Any, Union
 
 from django.contrib import messages
+from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import date, datetime
@@ -8,7 +10,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, QuerySet, Value
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 import string
@@ -19,6 +21,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from sva import mensagens
+from sva.forms import FormularioPesquisaProfessor
+from sva.models import Vaga
 from .models import *
 from .forms import *
 
@@ -444,7 +448,7 @@ def editar_empresa(request, pk):
             messages.error(request, 'Falha ao editar')
             return redirect(exibir_empresa, empresa.user_id)
 
-    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
+    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form, 'empresa': empresa})
 
 
 @login_required(login_url='/accounts/login/')
@@ -453,11 +457,12 @@ def excluir_empresa(request, pk):
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    if empresa is not None:
-        empresa.user.is_active = False
-        empresa.user.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return HttpResponseRedirect('/home/')
+    empresa.user.is_active = False
+    empresa.situacao = Empresa.EXCLUIDO
+    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
+    empresa.user.save()
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return HttpResponseRedirect('/home/')
 
 
 def exibir_empresa(request, pk):
@@ -478,16 +483,19 @@ def exibir_empresa(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(is_admin)
 def listar_empresa(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
-    else:
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=False)
+    form = FormularioPesquisaEmpresa(request.POST)
+    empresas = Empresa.objects.filter(situacao=Empresa.DEFERIDO)
+    if form.is_valid():
+        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
+            valor = form.cleaned_data['nome']
+            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            empresas = query.filter(Q(situacao=Empresa.DEFERIDO) & Q(nome__icontains=valor))
     context = {
         'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': False,
-        'empresas': empresas,
+        'form': form,
+        'empresas': empresas
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -495,15 +503,18 @@ def listar_empresa(request):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_admin)
 def liberar_cadastro_empresas_lista(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
-                                          nome__icontains=request.POST['filtro'])
-    else:
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=True)
+    form = FormularioPesquisaEmpresa(request.POST)
+    empresas = Empresa.objects.filter(situacao=Empresa.AGUARDANDO_APROVACAO)
+    if form.is_valid():
+        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
+            valor = form.cleaned_data['nome']
+            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            empresas = query.filter(Q(situacao=Empresa.AGUARDANDO_APROVACAO) & Q(nome__icontains=valor))
     context = {
-        'titulo_lista': 'Empresas com Cadastro Pendente',
+        'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': True,
-        'empresas': empresas,
+        'form': form,
+        'empresas': empresas
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -519,6 +530,7 @@ def aprovar_cadastro_empresa(request, pk):
         empresa.user.is_staff = True
         empresa.user.save()
         empresa.data_aprovacao = datetime.datetime.now()
+        empresa.situacao = Empresa.DEFERIDO
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
@@ -526,6 +538,8 @@ def aprovar_cadastro_empresa(request, pk):
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
                   mensagem, 'from@example.com', [empresa.user.email])
     else:
+        empresa.situacao = Empresa.INDEFERIDO
+        empresa.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
@@ -660,7 +674,7 @@ def alterar_senha(request):
 @transaction.atomic
 @login_required(login_url='/accounts/login/')
 def editar_professor(request, pk):
-    professor = get_object_or_404(Professor, pk=pk)
+    professor = get_object_or_404(Professor, user__pk=pk)
     Nome = professor.user.first_name + ' ' + professor.user.last_name
     Telefone = professor.telefone
     Curso = professor.curso
@@ -672,7 +686,6 @@ def editar_professor(request, pk):
     if request.method == 'POST':
         form = FormularioEditarProfessor(request.POST, instance=professor, initial=initial)
         if form.is_valid():
-            Nome = professor.user.first_name + ' ' + professor.user.last_name
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
             professor.curso = form.cleaned_data['curso']
@@ -682,20 +695,26 @@ def editar_professor(request, pk):
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
             professor.user.last_name = Nome[1] if len(Nome) > 1 else ''
             professor.user.save()
-            messages.success(request, 'Editado com sucesso.')
+            messages.success(request, 'Editado com sucesso!')
+            return redirect(exibir_professor, professor.user.id)
     else:
         form = FormularioEditarProfessor(instance=professor, initial=initial)
-    return render(request, 'sva/professor/EditarProfessor.html', {'form': form})
+    return render(request, 'sva/professor/EditarProfessor.html', {'form': form, 'professor': professor})
 
 
+@transaction.atomic
 @login_required(login_url='/accounts/login/')
 def excluir_professor(request, pk):
-    professor = get_object_or_404(Professor, pk=pk)
-    if professor is not None:
-        professor.user.is_active = False
-        professor.user.save()
-        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    professor = get_object_or_404(Professor, user__pk=pk)
+    if pk != str(request.user.id):
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
+    professor.user.is_active = False
+    professor.situacao = Professor.EXCLUIDO
+    Vaga.objects.filter(gerente_vaga=professor).update(situacao=4)  # inativa as vagas
+    professor.user.save()
+    messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return HttpResponseRedirect('/home/')
 
 
 @login_required(login_url="/home/")
@@ -704,7 +723,7 @@ def Listar_Vagas_Aluno(request, pk):
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    form =  FormularioPesquisaVagasAluno(request.POST)
+    form = FormularioPesquisaVagasAluno(request.POST)
     context = {}
     context['form']=form
     if form.is_valid():
@@ -734,18 +753,22 @@ def exibir_professor(request, pk):
     return render(request, 'sva/professor/Perfil.html', context)
 
 
-# TODO: https://github.com/shymonk/django-datatable
-
 @login_required(login_url='/accounts/login/')
-@user_passes_test(is_admin)
 def listar_professor(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        professores = Professor.objects.filter(data_aprovacao__isnull=False, user__first_name__icontains=request.POST['filtro'])
-    else:
-        professores = Professor.objects.filter(data_aprovacao__isnull=False)
+    form = FormularioPesquisaProfessor(request.POST)
+    professores = professores = Professor.objects.filter(situacao=Professor.DEFERIDO)
+    if form.is_valid():
+        if form.cleaned_data['curso_campus_nome'] is not None and form.cleaned_data['curso_campus_nome'] != "":
+            valor = form.cleaned_data['curso_campus_nome']
+            query = Professor.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            professores = query.filter(Q(situacao=Professor.DEFERIDO) & (
+                                           Q(search_name__icontains=valor) |
+                                           Q(curso__nome__icontains=valor) |
+                                           Q(curso__campus__nome__icontains=valor)))
     context = {
         'titulo_lista': 'Professores Cadastrados',
         'liberar_cadastro': False,
+        'form': form,
         'professores': professores,
         'people': ProfessorTable(),
     }
@@ -755,14 +778,20 @@ def listar_professor(request):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_admin)
 def liberar_cadastro_professores_lista(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        professores = Professor.objects.filter(data_aprovacao__isnull=True,
-                                               user__first_name__icontains=request.POST['filtro'])
-    else:
-        professores = Professor.objects.filter(data_aprovacao__isnull=True)
+    form = FormularioPesquisaProfessor(request.POST)
+    professores = Professor.objects.filter(situacao=Professor.AGUARDANDO_APROVACAO)
+    if form.is_valid():
+        if form.cleaned_data['curso_campus_nome'] is not None and form.cleaned_data['curso_campus_nome'] != "":
+            valor = form.cleaned_data['curso_campus_nome']
+            query = Professor.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            professores = query.filter(Q(situacao=Professor.AGUARDANDO_APROVACAO) & (
+                    Q(search_name__icontains=valor) |
+                    Q(curso__nome__icontains=valor) |
+                    Q(curso__campus__nome__icontains=valor)))
     context = {
-        'titulo_lista': 'Professores com Cadastro Pendente',
+        'titulo_lista': 'Professores Cadastrados',
         'liberar_cadastro': True,
+        'form': form,
         'professores': professores,
         'people': ProfessorTable(),
     }
@@ -779,7 +808,8 @@ def aprovar_cadastro_professor(request, pk):
         professor.user.is_active = True
         professor.user.is_staff = True
         professor.user.save()
-        professor.data_aprovacao = datetime.now()
+        professor.data_aprovacao = datetime.datetime.now()
+        professor.situacao = Professor.DEFERIDO
         professor.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
@@ -787,6 +817,8 @@ def aprovar_cadastro_professor(request, pk):
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
                   mensagem, 'from@example.com', [professor.user.email])
     else:
+        professor.situacao = Professor.INDEFERIDO
+        professor.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',

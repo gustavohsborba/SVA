@@ -115,10 +115,23 @@ class GerenteVaga(models.Model):
         permissions = (('can_request_gerente_vaga', 'Pode solicitar criação de gerente'),
                        ('can_release_gerente_vaga', 'Pode liberar criação de gerente'))
 
+    DEFERIDO = 'DEFERIDO'
+    INDEFERIDO = 'INDEFERIDO'
+    AGUARDANDO_APROVACAO = 'AGUARDANDO_APROVACAO'
+    EXCLUIDO = 'EXCLUIDO'
+
+    SITUACAO_GERENTE_VAGA_CHOICES = {
+        (DEFERIDO, 'Deferido'),
+        (INDEFERIDO, 'Indeferido'),
+        (AGUARDANDO_APROVACAO, 'Aguardando Aprovação'),
+        (EXCLUIDO, 'Excluído'),
+    }
+
     user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='gerentes_vaga')
     nota_media = models.FloatField(null=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', null=True, blank=True)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
+    situacao = models.CharField(verbose_name='Situação', max_length=30, choices=SITUACAO_GERENTE_VAGA_CHOICES, blank=False, null=False, default='AGUARDANDO_APROVACAO')
 
     @property
     def ativo(self):
@@ -138,8 +151,6 @@ class Empresa(GerenteVaga):
     website = models.CharField(max_length=255, null=True, blank=True, validators=[URLValidator])
     endereco = models.CharField(max_length=100, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True, validators=[validate_integer])
-
-    # TODO: FAZER UMA MÁQUINA DE ESTADOS: DEFERIDO, INDEFERIDO, AGUARDANDO_APROVACAO, AGUARDANDO_EDICAO
 
     def save(self, *args, **kwargs):
         self.user.first_name = self.nome
@@ -181,6 +192,7 @@ class Professor(GerenteVaga):
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
+
 
 class Vaga(models.Model):
 
@@ -236,6 +248,7 @@ class Avaliacao(models.Model):
     vaga_avaliada = models.ForeignKey(Vaga, blank=False, null=False)
 
     nota = models.IntegerField(verbose_name='Nota atribuída', null=False, blank=False)
+
 
 class Notificacao(models.Model):
     class Meta:
