@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from star_ratings.models import Rating
 
 from .models import *
 
@@ -96,3 +97,13 @@ class NotificacaoMiddleware(MiddlewareMixin):
             #    notificacao.usuario = usuario
             #    notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
             #    notificacao.save()
+
+
+@receiver(post_save, sender=Rating)
+def avaliacao_counter(sender, instance, created, **kwargs):
+    if instance.content_type_id == 14:  # vaga
+        vaga = Vaga.objects.get(pk=instance.object_id)
+        vaga.nota_media = instance.average
+        vaga.save()
+    # TODO: Criar avaliação para outras coisas além de vagas.
+    # Verificar na tabela do banco django_ratings_rating outros IDs dos objetos que têm avaliação.

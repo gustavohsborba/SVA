@@ -169,3 +169,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'sistemadevagasacademicas@gmail.com'
 EMAIL_HOST_PASSWORD = 'sva_dev_password'
 EMAIL_PORT = 587
+
+STAR_RATINGS_STAR_SPRITE = '/static/img/stars.png'
