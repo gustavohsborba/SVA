@@ -4,25 +4,20 @@ from typing import Dict, Any, Union
 from django.contrib import messages
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from datetime import date, datetime
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
-from django.db.models import Q, QuerySet, Value
+from django.db.models import Q, Value
+from datetime import datetime
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
-from datetime import datetime, timedelta
-from django.utils import timezone
 
 from django.views.decorators.http import require_POST
 
 from sva import mensagens
-from sva.forms import FormularioPesquisaProfessor
-from sva.models import Vaga
 from .models import *
 from .forms import *
 
@@ -169,7 +164,7 @@ def encerrar_inscricao_vaga(request, pkvaga):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
     else:
-        vaga.data_validade = datetime.datetime.now()
+        vaga.data_validade = datetime.now()
         vaga.situacao = 4
         vaga.save()
         messages.success(request, 'Inscrições encerradas')
@@ -214,6 +209,7 @@ def visualizar_vaga(request, pkvaga):
         elif 'uninterested' in request.POST:
             vaga.alunos_interessados.remove(aluno)
             return redirect(visualizar_vaga, vaga.id)
+    context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
 
@@ -273,16 +269,20 @@ def gerenciar_vaga_pendente(request):
     }
     return render(request, 'sva/vaga/ListarVagasPendentes.html', context)
 
+
 @transaction.atomic
 @login_required
 @require_POST
 @user_passes_test(is_admin)
 def aprovar_vaga(request, pkvaga):
 
+    # TODO: Fazer isso aqui utilizar o FormularioAprovacao, como as views de aprovar_professor e aprovar_empresa
+    # context['formulario_aprovacao'] = FormularioAprovacao()
+
     vaga = get_object_or_404(Vaga, id=pkvaga)
     if vaga is not None and request.POST['aprovado'] == 'true':
         vaga.situacao = 3
-        vaga.data_aprovacao = datetime.datetime.now()
+        vaga.data_aprovacao = datetime.now()
         vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
@@ -297,7 +297,6 @@ def aprovar_vaga(request, pkvaga):
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
                   mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-
     return redirect(visualizar_vaga, pkvaga)
 
 ###############################################################################
@@ -330,7 +329,7 @@ def cadastrar_empresa(request):
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
-        #empresa.data_aprovacao = datetime.datetime.now()
+        #empresa.data_aprovacao = datetime.now()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
@@ -468,8 +467,7 @@ def excluir_empresa(request, pk):
 
 def exibir_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user_id=pk)
-    context = {'empresa': empresa}
-    if(empresa.endereco is not None):
+    if empresa.endereco is not None:
         parte = empresa.endereco.split(",")
         endereco = {
             'Bairro': parte[0],
@@ -479,7 +477,11 @@ def exibir_empresa(request, pk):
             'Cidade': parte[4] if len(parte) >= 5 else '',
             'Estado': parte[5] if len(parte) >= 6 else '',
         }
-        context['endereco'] = endereco
+    else:
+        endereco = {'Bairro': '', 'Rua': '', 'Numero': '', 'Complemento': '', 'Cidade': '', 'Estado': ''}
+    context = {'empresa': empresa,
+               'endereco': endereco,
+               'form_aprovacao': FormularioAprovacao()}
     return render(request, 'sva/empresa/Perfil.html', context)
 
 
@@ -512,7 +514,7 @@ def liberar_cadastro_empresas_lista(request):
             query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
             empresas = query.filter(Q(situacao=Empresa.AGUARDANDO_APROVACAO) & Q(nome__icontains=valor))
     context = {
-        'titulo_lista': 'Empresas Cadastradas',
+        'titulo_lista': 'Empresas com Cadastro Pendente',
         'liberar_cadastro': True,
         'form': form,
         'empresas': empresas
@@ -530,7 +532,7 @@ def aprovar_cadastro_empresa(request, pk):
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
-        empresa.data_aprovacao = datetime.datetime.now()
+        empresa.data_aprovacao = datetime.now()
         empresa.situacao = Empresa.DEFERIDO
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
@@ -751,7 +753,8 @@ def Listar_Vagas_Aluno(request, pk):
 @login_required(login_url='/accounts/login/')
 def exibir_professor(request, pk):
     professor = get_object_or_404(Professor, user_id=pk)
-    context = {'professor': professor}
+    context = {'empresa': professor,
+               'form_aprovacao': FormularioAprovacao()}
     return render(request, 'sva/professor/Perfil.html', context)
 
 
@@ -791,7 +794,7 @@ def liberar_cadastro_professores_lista(request):
                     Q(curso__nome__icontains=valor) |
                     Q(curso__campus__nome__icontains=valor)))
     context = {
-        'titulo_lista': 'Professores Cadastrados',
+        'titulo_lista': 'Professores com Cadastro Pendente',
         'liberar_cadastro': True,
         'form': form,
         'professores': professores,
@@ -810,7 +813,7 @@ def aprovar_cadastro_professor(request, pk):
         professor.user.is_active = True
         professor.user.is_staff = True
         professor.user.save()
-        professor.data_aprovacao = datetime.datetime.now()
+        professor.data_aprovacao = datetime.now()
         professor.situacao = Professor.DEFERIDO
         professor.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \

@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*- 
 
 from django import forms
-from django.contrib import admin
-from django.contrib.admin.widgets import AdminDateWidget
-from django.contrib.auth.admin import UserAdmin
-from django.core.validators import validate_email
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
-import datetime
 from table import Table
 from table.columns import Column
 
@@ -85,15 +80,15 @@ class FormularioEditarAluno(forms.ModelForm):
     Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
-    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
-    curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
+    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}), validators=[validate_integer])
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class": "form-control form-control-lg"}))
 
     def __init__(self, *args, **kwargs):
         super(FormularioEditarAluno, self).__init__(*args, **kwargs)
         self.fields['habilidades'].widget.attrs['class'] = 'form-control'
     class Meta:
         model = Aluno
-        fields = ['curso', 'matricula', 'telefone' ,'habilidades']
+        fields = ['curso', 'matricula', 'telefone', 'habilidades']
 
 
 class FormularioEditarEmpresa(forms.ModelForm):
@@ -104,6 +99,7 @@ class FormularioEditarEmpresa(forms.ModelForm):
     Cidade = forms.CharField(max_length=20)
     Estado = forms.CharField(max_length=20)
     Email = forms.CharField(max_length=100, validators=[validate_email])
+    Telefone = forms.CharField(max_length=12, min_length=9, validators=[validate_integer], help_text='apenas números')
     Site = forms.CharField(max_length=200, required=False)
 
     class Meta:
@@ -196,6 +192,12 @@ class FormularioPesquisaEmpresa(forms.Form):
     nome = forms.CharField(max_length=50, required=False, widget=forms.TextInput(
         attrs={'placeholder': 'Filtrar por nome da empresa',
                'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
+
+
+class FormularioAprovacao(forms.Form):
+    aprovado = forms.CharField(max_length=15, required=True, widget=forms.HiddenInput(attrs={"class": "form-control"}), validators=[validate_boolean])
+    justificativa = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": 'Insira uma justificativa'}),
+                                    required=True, help_text='Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário ')
 
 
 # TODO: https://github.com/shymonk/django-datatable
