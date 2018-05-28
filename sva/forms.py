@@ -84,9 +84,10 @@ class FormularioEditarAluno(forms.ModelForm):
     Complemento = forms.CharField(max_length=10,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
-    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de matrícula"}))
+    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de contato"}))
     curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
+    Email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
 
     def __init__(self, *args, **kwargs):
         super(FormularioEditarAluno, self).__init__(*args, **kwargs)

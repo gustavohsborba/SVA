@@ -6,63 +6,114 @@
         <form method="POST" class="form-horizontal" action="">
             {% csrf_token %}
             <div class="box box-primary">
+                <div class="box-header with-border">
+                    <div class = "text-center">
+                        <h2 class="box-title">Editar perfil de {{ form.Nome_Completo.value }}</h2>
+                    </div>
+                </div>
                  <div class="box-body">
                     <div class="col-md-5">
-                        <div class="form-group ">
-                            <label class=" col-form-label">Curso</label>
-                            {{form.curso}}
+                        <div class = "text-center">
+                            <h4>Dados pessoais</h4>
                         </div>
                         <div class="form-group ">
-                            <label class=" col-form-label">Matricula</label>
-                            {{form.matricula}}
-                        </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Telefone</label>
-                            {{form.telefone}}
-                        </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Habilidades</label>
-                            {{form.habilidades}}
-                        </div>
-                         <div class="form-group ">
-                            <label class=" col-form-label">Nome Completo</label>
+                            <label class=" col-form-label">Nome completo <font size="2" color="red">*</font></label>
                             {{form.Nome_Completo}}
                         </div>
+                        <div class="form-group">
+                            <label for="id_Email">Email <font size="2" color="red">*</font></label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="id_Email" name="Email" maxlength="100" placeholder="Email de contato" required="true" value="{{form.Email.value|default_if_none:''}}">
+                            </div>
+                        </div>
+                        <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="id_telefone">Telefone </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-phone"></i></span>
+                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20" placeholder="Contato" value="{{form.telefone.value|default_if_none:''}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-md-offset-1">
+                            <div class="form-group ">
+                                <label class=" col-form-label">Matrícula</label>
+                                {{form.matricula}}
+                            </div>
+                        </div>
                     </div>
-                     <div class="col-md-6 col-md-offset-1">
-                        <div class="form-group ">
-                            <label class=" col-form-label">Rua</label>
-                            {{form.Rua}}
+                    </div>
+                    <div class="col-md-6 col-md-offset-1">
+                        <div class = "text-center">
+                            <h4>Endereço</h4>
                         </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Numero</label>
-                            {{form.Numero}}
+                        <div class="form-group">
+                            <label for="id_Rua">Logradouro <font size="2" color="red">*</font></label>
+                            <input type="text" class="form-control" id="id_Rua" name="Rua" maxlength="40" placeholder="Rua/Avenida" required="true" value="{{form.Rua.value|default_if_none:''}}">
                         </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Complemento</label>
-                            {{form.Complemento}}
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="id_Numero">Número <font size="2" color="red">*</font></label>
+                                    <input type="text" class="form-control" id="id_Numero" name="Numero" placeholder="Numero" maxlength="4" required="true" value="{{form.Numero.value|default_if_none:''}}">
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <label for="id_Complemento">Complemento </label>
+                                    <input type="text" class="form-control" id="id_Complemento" name="Complemento" maxlength="10" placeholder="Complemento ao endereço (se houver)" value="{{form.Complemento.value|default_if_none:''}}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Cidade</label>
-                            {{form.Cidade}}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_Cidade">Cidade <font size="2" color="red">*</font></label>
+                                    <input type="text" class="form-control" id="id_Cidade" name="Cidade" maxlength="20" placeholder="Cidade" required="true" value="{{form.Cidade.value|default_if_none:''}}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_Estado">Estado <font size="2" color="red">*</font></label>
+                                    <input type="text" class="form-control" id="id_Estado" name="Estado" maxlength="20" placeholder="Estado" required="true" value="{{form.Estado.value|default_if_none:''}}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group ">
-                            <label class=" col-form-label">Estado</label>
-                            {{form.Estado}}
+                    </div>
+                    <div class="col-md-12">
+                     <hr>
+                        <div class = "text-center">
+                             <h4>Informações técnicas</h4>
                         </div>
-                     </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group ">
+                                    <label class=" col-form-label">Curso <font size="2" color="red">*</font></label>
+                                    {{form.curso}}
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-md-offset-1">
+                                <div class="form-group ">
+                                    <label class=" col-form-label">Habilidades</label>
+                                    {{form.habilidades}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                  </div>
-                    <div class="box-footer">
-                        <button class="btn btn-primary " type="submit"><i class="fa fa-pencil"></i> Editar</button>
-                        {% if messages %}
-                        <ul class="messages">
-                            {% for message in messages %}
-                            <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        <a class="pull-right" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
-                    </div>
+                <div class="box-footer">
+                    <button class="btn btn-primary " type="submit"><i class="fa fa-pencil"></i> Editar</button>
+                    {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li>{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <a class="pull-right" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
+                </div>
                 <script language="Javascript">
                 function confirmacao() {
                      var resposta = confirm("Deseja desativar essa conta?");

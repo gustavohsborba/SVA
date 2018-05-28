@@ -552,12 +552,14 @@ def editar_aluno(request, pk):
            'Complemento': Parte[2] if len(Parte) >= 3 else '',
            'Cidade': Parte[3] if len(Parte) >= 4 else '',
            'Estado': Parte[4] if len(Parte) >= 5 else '',
-           'Nome_Completo': Nome}
+           'Nome_Completo': Nome,
+            'Email': aluno.user.email}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
         if form.is_valid():
             aluno.curso = form.cleaned_data['curso']
             aluno.telefone = form.cleaned_data['telefone']
+            aluno.user.email = form.cleaned_data['Email']
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
             aluno.endereco = form.cleaned_data['Rua'] + ',' + \
@@ -572,6 +574,7 @@ def editar_aluno(request, pk):
             aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
+            return redirect(exibir_aluno, pk)
     else:
         form = FormularioEditarAluno(instance=aluno, initial=initial)
     return render(request, 'sva/aluno/EditarAluno.html', {'form': form})
