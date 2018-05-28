@@ -131,6 +131,14 @@ def validate_cpf_or_cnpj(value):
     else:
         raise ValidationError('Entre com um CPF ou CNPJ')
 
+
+def validate_boolean(value):
+    if value == 'true' or value == 'false':
+        return True
+    else:
+        raise ValidationError('Valor Booleano inválido')
+
+
 def validate_file_extension(value):
     import os
     from django.core.exceptions import ValidationError
