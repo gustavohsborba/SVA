@@ -279,7 +279,7 @@ def aprovar_vaga(request, pkvaga):
     if vaga is not None and request.POST['aprovado'] == 'true':
         vaga.situacao = 3
         vaga.data_aprovacao = datetime.datetime.now()
-        vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
+        vaga.usuario_aprovacao = request.user
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
                    % (vaga.titulo, request.user.first_name, request.POST['justificativa'])

@@ -24,9 +24,47 @@
                         <div class = "text-center">
                             <h4>Informações cadastrais</h4>
                         </div>
-                        <div class="form-group">
-                            <label for="id_titulo">Título <font size="2" color="red">*</font></label>
-                            <input type="text" class="form-control" id="id_titulo" name="titulo" placeholder="Nome da vaga" required="true" value="{{form.titulo.value}}" >
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="id_titulo">Título <font size="2" color="red">*</font></label>
+                                    <input type="text" class="form-control" id="id_titulo" name="titulo" placeholder="Nome da vaga" required="true" value="{{form.titulo.value}}" >
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Tipo de vaga <font size="2" color="red">*</font></label>
+                                    <div>
+                                        <select class="form-control" id="id_tipo_vaga" name="tipo_vaga" required="true">
+                                            {% if request.user|has_group:"Professor" %}
+                                                {% if form.tipo_vaga.value == 3 %}
+                                                    <option value="3" selected="selected">Iniciação Científica</option>
+                                                    <option value="2">Monitoria</option>
+                                                    <option value="4">Outro</option>
+                                                {% elif form.tipo_vaga.value == 2 %}
+                                                    <option value="3">Iniciação Científica</option>
+                                                    <option value="2" selected="selected">Monitoria</option>
+                                                    <option value="4">Outro</option>
+                                                {% elif form.tipo_vaga.value == 4 %}
+                                                    <option value="3">Iniciação Científica</option>
+                                                    <option value="2">Monitoria</option>
+                                                    <option value="4" selected="selected">Outro</option>
+                                                {% endif %}
+                                            {% endif %}
+                                            {% if request.user|has_group:"Empresa" %}
+                                                {% if form.tipo_vaga.value == 1 %}
+                                                    <option value="1" selected="selected">Estágio</option>
+                                                    <option value="4">Outro</option>
+                                                {% elif form.tipo_vaga.value == 4 %}
+                                                    <option value="1">Estágio</option>
+                                                    <option value="4" selected="selected">Outro</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="id_data_validade">Inscrições até </label>
