@@ -3,8 +3,9 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/upload.css' %}">
     {%if curriculo != None%}
-        <p>Atualmente existe um curriculo cadastrado:</p>
-        <p> <a class="" href="javascript:func()" onclick="confirmacao()"><span class="fa fa-trash-o"></span> </a></p>
+        <p>Atualmente existe um curriculo cadastrado no dia {{data}}
+        <a href="{% url 'download_curriculo' pk=request.user.id%}">Baixar curriculo <span class="fa fa-cloud-download"></span> </a></p>
+        <p> <a class="" href="javascript:func()" onclick="confirmacao()">Excluir curriculo <span class="fa fa-trash-o"></span> </a></p>
     {%endif%}
 
 <form class="form-inline" action="" method="post" enctype="multipart/form-data">

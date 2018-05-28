@@ -613,6 +613,7 @@ def upload_curriculo(request,pk):
                 try:
                     validate_file_extension(request.FILES['curriculo'])
                     aluno.curriculo.name = 'Curriculo'+str(pk)+'.pdf'
+                    aluno.data_upload_curriculo = timezone.now()
                     aluno.save()
                     messages.success(request, "Upload com sucesso", mensagens.MSG_SUCCESS)
                     return HttpResponseRedirect('/aluno/curriculo/' + str(pk))
@@ -628,7 +629,7 @@ def upload_curriculo(request,pk):
 
         if len(spl) == 2:
             curriculo = spl[1]
-    return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo})
+    return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo,'data':aluno.data_upload_curriculo})
 
 @login_required(login_url='/accounts/login/')
 def excluir_curriculo(request, pk):
@@ -646,9 +647,12 @@ def excluir_curriculo(request, pk):
 
 def download_curriculo(request,pk):
     aluno = get_object_or_404(Aluno, user_id=pk)
-    gerente = GerenteVaga.objects.get(user=request.user)
-    if gerente is None:
-        return redirect("login")
+    if pk != str(request.user.id):
+        gerente = GerenteVaga.objects.get(user=request.user)
+        if gerente is None:
+            return redirect("login")
+            messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+            return HttpResponseRedirect('/home/')
     filename = aluno.curriculo.name.split('/')[-1]
     response = HttpResponse(aluno.curriculo, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
