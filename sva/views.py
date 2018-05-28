@@ -528,7 +528,8 @@ def liberar_cadastro_empresas_lista(request):
 @user_passes_test(is_admin)
 def aprovar_cadastro_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user__pk=pk)
-    if empresa is not None and request.POST['aprovado'] == 'true':
+    form = FormularioAprovacao(request.POST)
+    if empresa is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
@@ -539,14 +540,15 @@ def aprovar_cadastro_empresa(request, pk):
                    'Você agora pode acessar o sistema\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [empresa.user.email])
+                  mensagem, 'sva@cefetmg.br', [empresa.user.email])
     else:
         empresa.situacao = Empresa.INDEFERIDO
+        empresa.data_aprovacao = None
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [empresa.user.email])
+                  mensagem, 'sva@cefetmg.br', [empresa.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/empresa/Perfil.html', {'empresa': empresa})
 
@@ -753,7 +755,7 @@ def Listar_Vagas_Aluno(request, pk):
 @login_required(login_url='/accounts/login/')
 def exibir_professor(request, pk):
     professor = get_object_or_404(Professor, user_id=pk)
-    context = {'empresa': professor,
+    context = {'professor': professor,
                'form_aprovacao': FormularioAprovacao()}
     return render(request, 'sva/professor/Perfil.html', context)
 
@@ -809,7 +811,8 @@ def liberar_cadastro_professores_lista(request):
 @user_passes_test(is_admin)
 def aprovar_cadastro_professor(request, pk):
     professor = get_object_or_404(Professor, user__pk=pk)
-    if professor is not None and request.POST['aprovado'] == 'true':
+    form = FormularioAprovacao(request.POST)
+    if professor is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
         professor.user.is_active = True
         professor.user.is_staff = True
         professor.user.save()
@@ -818,16 +821,17 @@ def aprovar_cadastro_professor(request, pk):
         professor.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
-                   % (request.user.first_name, request.POST['justificativa'])
+                   % (request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [professor.user.email])
+                  mensagem, 'sva@cefetmg.br', [professor.user.email])
     else:
         professor.situacao = Professor.INDEFERIDO
+        professor.data_aprovacao = None
         professor.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
-                   % (request.user.first_name, request.POST['justificativa'])
-        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [professor.user.email])
+                   % (request.user.first_name, form.cleaned_data['justificativa'])
+        send_mail('Recusa de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'sva@cefetmg.br', [professor.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/professor/Perfil.html', {'professor': professor})
 
