@@ -126,7 +126,10 @@ def criar_vaga(request):
             return redirect(gerenciar_vaga)
     else:
         form = FormularioVaga()
-    return render(request, 'sva/vaga/criarVaga.html', {'form': form})
+    context = {}
+    context['form'] = form
+    context['gerente'] = gerente
+    return render(request, 'sva/vaga/criarVaga.html', context)
 
 
 @login_required

@@ -1,7 +1,7 @@
 {% extends 'sva/vaga/vaga.html' %}
+{% load svatags %}
 
 {% block title %} Cadastro de Vaga{% endblock %}
-
 
 {% block content %}
     <div class="container-fluid">
@@ -30,12 +30,12 @@
                                     <label>Tipo de vaga <font size="2" color="red">*</font></label>
                                     <div>
                                         <select class="form-control" id="id_tipo_vaga" name="tipo_vaga" required="true">
-                                            {% if request.user|has_group:"Professor" %}
+                                            {% if gerente.user|has_group:"Professor" %}
                                                 <option value="3">Iniciação Científica</option>
                                                 <option value="2">Monitoria</option>
                                                 <option value="4">Outro</option>
                                             {% endif %}
-                                            {% if request.user|has_group:"Empresa" %}
+                                            {% if gerente.user|has_group:"Empresa" %}
                                                 <option value="1">Estágio</option>
                                                 <option value="4">Outro</option>
                                             {% endif %}
