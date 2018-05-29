@@ -6,17 +6,14 @@
 
 <div class="container"> <br />
     <div class="row">
-            {%if curriculo != None%}
-                <div class="col-md-6">
-            {%else%}
-                <div class="col-md-6 col-md-offset-3">
-            {%endif%}
+                <div class="col-md-9 col-md-offset-1">
+
             <form class="form-inline" action="" method="post" enctype="multipart/form-data">
                 <div class="panel panel-default">
                     <div class="panel-heading"><strong>Upload curriculo</strong> <small> </small></div>
-                    <div class="panel-body">
+                    <div class="panel-body text-center">
                                 <div class="input-group">
-                                    <input size="55" type="text" id="fake-file-input-name" disabled="disabled" placeholder="Arquivo selecionado" class="form-control"> <!-- don't give a name === doesn't send on POST/GET -->
+                                    <input size="100" type="text" id="fake-file-input-name" disabled="disabled" placeholder="Arquivo selecionado" class="form-control"> <!-- don't give a name === doesn't send on POST/GET -->
                                     <span class="input-group-btn">
 
                                             <button id="fake-file-button-browse" type="button" class="btn btn-default">
@@ -36,24 +33,25 @@
                 </div>
             </form>
 		</div>
- {%if curriculo != None%}
-    	<div class="col-md-5">
-    		<div class="panel panel-default">
-         		<div class="panel-heading"><strong>Gerenciar curriculo</strong> <small> </small></div>
-   			<div class="panel-body">
-                <p>Atualmente existe um curriculo cadastrado no dia</p>
-                <p> {{data}}</p>
-				<button href="javascript:func()"  onclick="confirmacao2()"type="button" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-download"></i> </span>Download curriculo</button>
-				<button href="javascript:func()" onclick="confirmacao1()"type="button" class="btn btn-labeled btn-danger"> <span class="btn-label"><i class="fa  fa-trash-o"></i> </span>Excluir curriculo</button>
-				<br />
-    		</div>
-    		</div>
-		</div>
- {%endif%}
-
-
-
 	</div>
+        <div class="row">
+         {%if curriculo != None%}
+            <div class="col-md-9 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Gerenciar curriculo</strong> <small> </small></div>
+                <div class="panel-body">
+                    <div class="text-center">
+                        <p>Ultimo upload no dia {{data}}</p>
+                    <button href="javascript:func()"  onclick="show()"type="button" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="fa fa-file-pdf-o"></i> </span>Visualizar curriculo</button>
+                    <button href="javascript:func()"  onclick="confirmacao2()"type="button" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-download"></i> </span>Download curriculo</button>
+                    <button href="javascript:func()" onclick="confirmacao1()"type="button" class="btn btn-labeled btn-danger"> <span class="btn-label"><i class="fa  fa-trash-o"></i> </span>Excluir curriculo</button>
+                    <br /></div>
+                </div>
+                </div>
+            </div>
+         {%endif%}
+    </div>
+
 </div>
 
 <script language="JavaScript">
@@ -66,6 +64,9 @@
     }
     function confirmacao2() {
                           window.location.href = "{% url 'download_curriculo' pk=request.user.id%}";
+    }
+    function show() {
+                          window.open("{{visualizar.url}}", '_blank')
     }
     function validate(){
         var size=3145728;
