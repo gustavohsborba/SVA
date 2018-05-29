@@ -68,6 +68,7 @@
             <ul class="treeview-menu" role="menu">
                 <li><a href="{% url 'Exibir_Aluno' pk=request.user.pk  %}"><i class="fa fa-street-view"></i><span>Visualizar</span></a></li>
                 <li><a href="{% url 'Editar_Aluno' pk=request.user.pk  %}"><i class="fa fa-pencil"></i><span>Editar</span></a></li>
+                <li><a href="{% url 'upload_curriculo' pk=request.user.pk  %}"><i class="fa fa-file-excel-o"></i><span>Curriculo</span></a></li>
             </ul>
         </li>
         <li class="treeview ">
@@ -76,9 +77,6 @@
                 <li><a href="{% url 'Listar_Vagas_Aluno' pk=request.user.pk  %}"><i class="fa fa-inbox"></i><span>Minhas vagas</span></a></li>
                 <li><a href="{% url 'vaga_pesquisar' %}"><i class="glyphicon glyphicon-search"></i><span>Pesquisar vagas</span></a></li>
             </ul>
-        </li>
-        <li class="treeview active">
-            <li><a href="{% url 'upload_curriculo' pk=request.user.pk  %}"><i class="glyphicon glyphicon-search"></i><span>Upload Curriculo</span></a></li>
         </li>
     {% endif %}
 
@@ -109,7 +107,7 @@
         </li>
     {% endif %}
 
-    {# COISAS QUE TODOS PODEM ACESSAR #}]
+    {# COISAS QUE TODOS PODEM ACESSAR #}
 
 
 {% endblock nav_links %}

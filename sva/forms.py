@@ -160,7 +160,9 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
 class FormularioEditarProfessor(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
-    Telefone = forms.CharField(max_length=12, min_length=9, validators=[validate_integer], help_text='apenas números')
+    telefone = forms.CharField(min_length=9, required=False)
+    Email = forms.CharField(max_length=100, validators=[validate_email])
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg"}))
 
     class Meta:
         model = Professor

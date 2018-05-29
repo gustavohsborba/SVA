@@ -34,7 +34,7 @@
                                 <label for="id_telefone">Telefone </label>
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-phone"></i></span>
-                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20" placeholder="Telefone de contato" value="{{form.telefone.value|default_if_none:''}}">
+                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20" pattern="[0-9 ]+" title="Somente caracteres númericos" placeholder="Telefone de contato" value="{{form.telefone.value|default_if_none:''}}">
                                 </div>
                             </div>
                         </div>
@@ -95,7 +95,7 @@
                 </div>
             </div>
             <div class="box-footer">
-                <button class="btn btn-primary" type="submit">Editar cadastro</button>
+                <button class="btn btn-primary" type="submit">Editar</button>
 
                 {% if empresa.user.pk == request.user.pk or request.user.is_superuser %}
                 <div class="text-muted pull-right" >

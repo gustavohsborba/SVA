@@ -33,7 +33,7 @@
                                 <label for="id_telefone">Telefone </label>
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-phone"></i></span>
-                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20" placeholder="Contato" value="{{form.telefone.value|default_if_none:''}}">
+                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20"  pattern="[0-9 ]+" title="Somente caracteres númericos" placeholder="Contato" value="{{form.telefone.value|default_if_none:''}}">
                                 </div>
                             </div>
                         </div>
