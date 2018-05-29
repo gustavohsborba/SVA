@@ -276,26 +276,24 @@ def gerenciar_vaga_pendente(request):
 @user_passes_test(is_admin)
 def aprovar_vaga(request, pkvaga):
 
-    # TODO: Fazer isso aqui utilizar o FormularioAprovacao, como as views de aprovar_professor e aprovar_empresa
-    # context['formulario_aprovacao'] = FormularioAprovacao()
-
     vaga = get_object_or_404(Vaga, id=pkvaga)
-    if vaga is not None and request.POST['aprovado'] == 'true':
-        vaga.situacao = 3
+    form = FormularioAprovacao(request.POST)
+    if vaga is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
+        vaga.situacao = Vaga.ATIVA
         vaga.data_aprovacao = datetime.now()
         vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
-                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+                   % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+                  mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     else:
-        vaga.situacao = 5
+        vaga.situacao = Vaga.REPROVADA
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
-                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+                   % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+                  mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
 
     return redirect(visualizar_vaga, pkvaga)
