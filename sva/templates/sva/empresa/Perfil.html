@@ -1,5 +1,6 @@
 {% extends 'sva/base.html' %}
 {% load svatags %}
+{% load ratings %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -54,6 +55,15 @@
                        }
                     </script>
 
+                {% endif %}
+
+                {% if request.user|has_group:"Aluno" %}
+                    <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da empresa:</strong>
+                    <div>
+                        {# https://github.com/wildfish/django-star-ratings #}
+                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                        {% ratings empresa %}
+                    </div>
                 {% endif %}
                 {% if empresa.endereco is not None %}
                 <hr>

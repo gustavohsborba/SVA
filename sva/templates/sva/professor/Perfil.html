@@ -1,5 +1,6 @@
 {% extends 'sva/base.html' %}
 {% load svatags %}
+{% load ratings %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -82,13 +83,13 @@
 
 
 
-                {% if professor.user.pk != request.user.pk and professor.data_aprovacao %}
-                    <hr>
-                    <h3 class="text-muted box-title text-left">Avaliação</h3>
-                    <strong><i class="fa fa-envelope"></i> Avaliação Média: </strong>
-                    <p>
-                        {{ professor.nota_media|default_if_none:" -- " }}
-                    </p>
+                {% if request.user|has_group:"Aluno" %}
+                    <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação do professor:</strong>
+                    <div>
+                        {# https://github.com/wildfish/django-star-ratings #}
+                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                        {% ratings professor %}
+                    </div>
                 {% endif %}
 
 

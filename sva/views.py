@@ -51,33 +51,25 @@ def formulario_contato(request):
 
 @login_required
 def pesquisar_vaga(request):
-    form =  FormularioPesquisaVagasAluno(request.POST)
-    context = {}
-    context['form']=form
+    form = FormularioPesquisaVagasAluno(request.POST)
+    vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+    busca = []
+    # TODO: É possível fazer o formulário de pesquisas por vagas do aluno ter um campo de texto apenas, onde se pesquisa por todos esses campos aí.
     if form.is_valid():
-            if form.cleaned_data['Area_Atuacao']=="":
-                context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
-                context['busca'] = form.cleaned_data['Vaga_Cadastrada']
-            elif form.cleaned_data['Vaga_Cadastrada']=="":
-                areas=AreaAtuacao.objects.filter(nome__icontains= form.cleaned_data['Area_Atuacao'])
-                context['busca'] = form.cleaned_data['Area_Atuacao']
-                for area in areas:
-                    context['vagas'] = Vaga.objects.filter(areas_atuacao=area.id)
-            else:
-                areas = AreaAtuacao.objects.filter(nome__icontains=form.cleaned_data['Area_Atuacao'])
-                context['busca'] = form.cleaned_data['Vaga_Cadastrada']+", "+form.cleaned_data['Area_Atuacao']
-                for area in areas:
-                    context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
-    else:
-        context['vagas'] = Vaga.objects.filter()
-        context['busca'] = ""
-
+        if form.cleaned_data.get('Vaga_Cadastrada'):
+            vagas = vagas.filter(titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
+            busca.append(form.cleaned_data['Vaga_Cadastrada'])
+        if form.cleaned_data.get('Area_Atuacao'):
+            vagas = vagas.filter(areas_atuacao__nome__icontains=form.cleaned_data['Area_Atuacao'])
+            busca.append(form.cleaned_data['Area_Atuacao'])
     if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
         busca_rapida = request.POST.get('buscar_keyword')
-        context['vagas'] = Vaga.objects.filter(titulo__icontains=busca_rapida)
-        context['busca'] = request.POST.get('buscar_keyword')
-    context['now']= timezone.now()
+        vagas = vagas.filter(titulo__icontains=busca_rapida)
+        busca.append(request.POST.get('buscar_keyword'))
+    busca = ','.join(busca)
+    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
+
 
 @login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
@@ -125,9 +117,7 @@ def criar_vaga(request):
             return redirect(gerenciar_vaga)
     else:
         form = FormularioVaga()
-    context = {}
-    context['form'] = form
-    context['gerente'] = gerente
+    context = {'form': form, 'gerente': gerente}
     return render(request, 'sva/vaga/criarVaga.html', context)
 
 
