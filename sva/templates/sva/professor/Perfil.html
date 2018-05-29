@@ -1,5 +1,6 @@
 {% extends 'sva/base.html' %}
 {% load svatags %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -18,7 +19,7 @@
 
                 {# SEÇÃO DO ADMINISTRADOR -- APROVAÇÃO CASO EXISTA #}
                 {% if request.user.is_superuser or request.user|has_groups:"Administrador,Setor de Estágios" %}
-                    {% if not professor.data_aprovacao %}
+                    {% if professor.situacao == 'AGUARDANDO_APROVACAO' %}
                         <hr>
                         <div class="text-center">
                             <button type="button" class="btn btn-danger" onClick="setar_valor_aprovado('false')" data-toggle="modal" data-target="#modal-default">
@@ -28,6 +29,8 @@
                                 Deferir Cadastro
                             </button>
                         </div>
+                    {% elif professor.situacao == 'INDEFERIDO' %}
+                        <div class="text-center"><h3 class="profile-username text-center">CADASTRO INDEFERIDO</h3></div>
                     {% endif %}
 
                     <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px;">
@@ -43,15 +46,7 @@
                               {% csrf_token %}
                               <div class="modal-body">
                                 {% block conteudo_modal %}
-                                    <input type="hidden" name="aprovado" id="aprovado"/>
-                                    <div class="form-group">
-                                      <label class="control-label" for="inputError">Justificativa</label>
-                                      <textarea id="justificativa" name="justificativa" class="form-control"
-                                                rows="3" placeholder="Insira uma Justificativa"></textarea>
-                                      <span class="help-block"></span>
-                                    </div>
-                                    <span>Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário </span>
-                                    {# TODO: DEVEM SER CAMPOS OBRIGATÓRIOS!!! #}
+                                    {{ form_aprovacao|crispy }}
                                 {% endblock %}
                               </div>
                               <div class="modal-footer">
@@ -65,7 +60,7 @@
                     </div>
                     <script>
                        function setar_valor_aprovado(valor) {
-                           document.getElementById("aprovado").value = valor;
+                           document.getElementById("id_aprovado").value = valor;
                        }
                     </script>
 

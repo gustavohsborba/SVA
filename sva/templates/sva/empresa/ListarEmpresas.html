@@ -43,11 +43,11 @@
 
         <tr role="row"
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
-          <td>{{ empresa.cnpj }}</td>
-          <td>{{ empresa.nome }}</td>
-          <td>{{ empresa.website }}</td>
-          <td>{{ empresa.user.date_joined }}</td>
-          <td>{{ empresa.data_aprovacao }}</td>
+          <td>{{ empresa.cnpj|default_if_none:"" }}</td>
+          <td>{{ empresa.nome|default_if_none:"" }}</td>
+          <td>{{ empresa.website|default_if_none:"" }}</td>
+          <td>{{ empresa.user.date_joined|default_if_none:"" }}</td>
+          <td>{{ empresa.data_aprovacao|default_if_none:"Aguardando Aprovação"  }}</td>
           <td>
               <a href="{% url 'Exibir_Empresa' pk=empresa.user.pk %}">
                 <i class="fa fa-search"></i><span>Consultar</span>

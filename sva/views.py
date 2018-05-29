@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
+from typing import Dict, Any, Union
 
 from django.contrib import messages
+from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from datetime import date, datetime
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Value
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
-from datetime import datetime, timedelta
-from django.utils import timezone
 
 from django.views.decorators.http import require_POST
 
 from sva import mensagens
 from .models import *
 from .forms import *
+from datetime import datetime
 
 
 def is_admin(user):
@@ -168,7 +167,7 @@ def encerrar_inscricao_vaga(request, pkvaga):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
     else:
-        vaga.data_validade = datetime.datetime.now()
+        vaga.data_validade = datetime.now()
         vaga.situacao = 4
         vaga.save()
         messages.success(request, 'Inscrições encerradas')
@@ -213,6 +212,7 @@ def visualizar_vaga(request, pkvaga):
         elif 'uninterested' in request.POST:
             vaga.alunos_interessados.remove(aluno)
             return redirect(visualizar_vaga, vaga.id)
+    context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
 
@@ -272,6 +272,7 @@ def gerenciar_vaga_pendente(request):
     }
     return render(request, 'sva/vaga/ListarVagasPendentes.html', context)
 
+
 @transaction.atomic
 @login_required
 @require_POST
@@ -279,22 +280,23 @@ def gerenciar_vaga_pendente(request):
 def aprovar_vaga(request, pkvaga):
 
     vaga = get_object_or_404(Vaga, id=pkvaga)
-    if vaga is not None and request.POST['aprovado'] == 'true':
-        vaga.situacao = 3
-        vaga.data_aprovacao = datetime.datetime.now()
+    form = FormularioAprovacao(request.POST)
+    if vaga is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
+        vaga.situacao = Vaga.ATIVA
+        vaga.data_aprovacao = datetime.now()
         vaga.usuario_aprovacao = request.user
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
-                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+                   % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+                  mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     else:
-        vaga.situacao = 5
+        vaga.situacao = Vaga.REPROVADA
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
-                   % (vaga.titulo, request.user.first_name, request.POST['justificativa'])
+                   % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [vaga.gerente_vaga.user.email])
+                  mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
 
     return redirect(visualizar_vaga, pkvaga)
@@ -330,7 +332,7 @@ def cadastrar_empresa(request):
         empresa.user.groups = Group.objects.filter(Q(name='Empresa') | Q(name='Gerente Vagas'))
         empresa.user.save()
         empresa.save()
-        #empresa.data_aprovacao = datetime.datetime.now()
+        #empresa.data_aprovacao = datetime.now()
         messages.info(request, mensagens.SUCESSO_AGUARDE_APROVACAO, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     return render(request, 'sva/empresa/CadastroEmpresa.html', {'form': form})
@@ -448,7 +450,7 @@ def editar_empresa(request, pk):
             messages.error(request, 'Falha ao editar')
             return redirect(exibir_empresa, empresa.user_id)
 
-    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form})
+    return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form, 'empresa': empresa})
 
 
 @login_required(login_url='/accounts/login/')
@@ -457,17 +459,18 @@ def excluir_empresa(request, pk):
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    if empresa is not None:
-        empresa.user.is_active = False
-        empresa.user.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return HttpResponseRedirect('/home/')
+    empresa.user.is_active = False
+    empresa.situacao = Empresa.EXCLUIDO
+    empresa.save()
+    empresa.user.save()
+    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return HttpResponseRedirect('/home/')
 
 
 def exibir_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user_id=pk)
-    context = {'empresa': empresa}
-    if(empresa.endereco is not None):
+    if empresa.endereco is not None:
         parte = empresa.endereco.split(",")
         endereco = {
             'Bairro': parte[0],
@@ -477,21 +480,29 @@ def exibir_empresa(request, pk):
             'Cidade': parte[4] if len(parte) >= 5 else '',
             'Estado': parte[5] if len(parte) >= 6 else '',
         }
-        context['endereco'] = endereco
+    else:
+        endereco = {'Bairro': '', 'Rua': '', 'Numero': '', 'Complemento': '', 'Cidade': '', 'Estado': ''}
+    context = {'empresa': empresa,
+               'endereco': endereco,
+               'form_aprovacao': FormularioAprovacao()}
     return render(request, 'sva/empresa/Perfil.html', context)
 
 
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_admin)
 def listar_empresa(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=False, nome__icontains=request.POST['filtro'])
-    else:
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=False)
+    form = FormularioPesquisaEmpresa(request.POST)
+    empresas = Empresa.objects.filter(situacao=Empresa.DEFERIDO)
+    if form.is_valid():
+        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
+            valor = form.cleaned_data['nome']
+            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            empresas = query.filter(Q(situacao=Empresa.DEFERIDO) & Q(nome__icontains=valor))
     context = {
         'titulo_lista': 'Empresas Cadastradas',
         'liberar_cadastro': False,
-        'empresas': empresas,
+        'form': form,
+        'empresas': empresas
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -499,15 +510,18 @@ def listar_empresa(request):
 @login_required(login_url='/accounts/login/')
 @user_passes_test(is_admin)
 def liberar_cadastro_empresas_lista(request):
-    if 'filtro' in request.POST and request.POST['filtro'] is not None and request.POST['filtro'] != '':
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=True,
-                                          nome__icontains=request.POST['filtro'])
-    else:
-        empresas = Empresa.objects.filter(data_aprovacao__isnull=True)
+    form = FormularioPesquisaEmpresa(request.POST)
+    empresas = Empresa.objects.filter(situacao=Empresa.AGUARDANDO_APROVACAO)
+    if form.is_valid():
+        if form.cleaned_data['nome'] is not None and form.cleaned_data['nome'] != "":
+            valor = form.cleaned_data['nome']
+            query = Empresa.objects.annotate(search_name=Concat('user__first_name', Value(' '), 'user__last_name'))
+            empresas = query.filter(Q(situacao=Empresa.AGUARDANDO_APROVACAO) & Q(nome__icontains=valor))
     context = {
         'titulo_lista': 'Empresas com Cadastro Pendente',
         'liberar_cadastro': True,
-        'empresas': empresas,
+        'form': form,
+        'empresas': empresas
     }
     return render(request, 'sva/empresa/ListarEmpresas.html', context)
 
@@ -518,22 +532,27 @@ def liberar_cadastro_empresas_lista(request):
 @user_passes_test(is_admin)
 def aprovar_cadastro_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user__pk=pk)
-    if empresa is not None and request.POST['aprovado'] == 'true':
+    form = FormularioAprovacao(request.POST)
+    if empresa is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
         empresa.user.is_active = True
         empresa.user.is_staff = True
         empresa.user.save()
-        empresa.data_aprovacao = datetime.datetime.now()
+        empresa.data_aprovacao = datetime.now()
+        empresa.situacao = Empresa.DEFERIDO
         empresa.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [empresa.user.email])
+                  mensagem, 'sva@cefetmg.br', [empresa.user.email])
     else:
+        empresa.situacao = Empresa.INDEFERIDO
+        empresa.data_aprovacao = None
+        empresa.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (request.user.first_name, request.POST['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [empresa.user.email])
+                  mensagem, 'sva@cefetmg.br', [empresa.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/empresa/Perfil.html', {'empresa': empresa})
 
@@ -805,7 +824,8 @@ def Listar_Vagas_Aluno(request, pk):
 @login_required(login_url='/accounts/login/')
 def exibir_professor(request, pk):
     professor = get_object_or_404(Professor, user_id=pk)
-    context = {'professor': professor}
+    context = {'professor': professor,
+               'form_aprovacao': FormularioAprovacao()}
     return render(request, 'sva/professor/Perfil.html', context)
 
 
@@ -860,25 +880,27 @@ def liberar_cadastro_professores_lista(request):
 @user_passes_test(is_admin)
 def aprovar_cadastro_professor(request, pk):
     professor = get_object_or_404(Professor, user__pk=pk)
-    if professor is not None and request.POST['aprovado'] == 'true':
+    form = FormularioAprovacao(request.POST)
+    if professor is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
         professor.user.is_active = True
         professor.user.is_staff = True
         professor.user.save()
-        professor.data_aprovacao = datetime.datetime.now()
+        professor.data_aprovacao = datetime.now()
         professor.situacao = Professor.DEFERIDO
         professor.save()
         mensagem = 'Seu cadastro no SVA foi aprovado por %s. Segue mensagem:\n\n %s' \
                    'Você agora pode acessar o sistema\n\nSVA' \
-                   % (request.user.first_name, request.POST['justificativa'])
+                   % (request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [professor.user.email])
+                  mensagem, 'sva@cefetmg.br', [professor.user.email])
     else:
         professor.situacao = Professor.INDEFERIDO
+        professor.data_aprovacao = None
         professor.save()
         mensagem = 'Seu cadastro no SVA foi recusado por %s. Segue mensagem:\n\n%s\n\nSVA' \
-                   % (request.user.first_name, request.POST['justificativa'])
-        send_mail('Aprovação de Cadastro - Sistema de Vagas Acadêmicas',
-                  mensagem, 'from@example.com', [professor.user.email])
+                   % (request.user.first_name, form.cleaned_data['justificativa'])
+        send_mail('Recusa de Cadastro - Sistema de Vagas Acadêmicas',
+                  mensagem, 'sva@cefetmg.br', [professor.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/professor/Perfil.html', {'professor': professor})
 

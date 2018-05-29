@@ -206,12 +206,18 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
+    CADASTRADA = 1
+    EDITADA = 2
+    ATIVA = 3
+    INATIVA = 4
+    REPROVADA = 5
+
     SITUACAO_VAGA_CHOICES = {
-        (1, 'Cadastrada'),
-        (2, 'Editada'),
-        (3, 'Ativa'),
-        (4, 'Expirada'),
-        (5, 'Reprovada')
+        (CADASTRADA, 'Cadastrada'),
+        (EDITADA, 'Editada'),
+        (ATIVA, 'Ativa'),
+        (INATIVA, 'Inativa'),
+        (REPROVADA, 'Reprovada')
     }
 
     TIPO_VAGA_CHOICES = {

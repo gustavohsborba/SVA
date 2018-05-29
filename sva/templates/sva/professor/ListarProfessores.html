@@ -47,12 +47,12 @@
 
         <tr role="row"
             {% if forloop.counter|divisibleby:'2' %}class="even"{% else %} class="odd"{% endif %}>
-          <td>{{ professor.cpf }}</td>
-          <td>{{ professor.siape }}</td>
-          <td>{{ professor.user.first_name}} {{ professor.user.last_name|default_if_none:"" }}</td>
+          <td>{{ professor.cpf|default_if_none:"" }}</td>
+          <td>{{ professor.siape|default_if_none:"" }}</td>
+          <td>{{ professor.user.first_name|default_if_none:""}} {{ professor.user.last_name|default_if_none:"" }}</td>
           <td>{{ professor.curso|default_if_none:"" }}</td>
-          <td>{{ professor.user.date_joined }}</td>
-          <td>{{ professor.data_aprovacao }}</td>
+          <td>{{ professor.user.date_joined|default_if_none:"Aguardando Aprovação" }}</td>
+          <td>{{ professor.data_aprovacao|default_if_none:"" }}</td>
           <td>
               <a href="{% url 'Exibir_Professor' pk=professor.user.pk %}">
                 <i class="fa fa-search"></i><span>Consultar</span>

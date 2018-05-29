@@ -94,7 +94,7 @@ class FormularioEditarAluno(forms.ModelForm):
         self.fields['habilidades'].widget.attrs['class'] = 'form-control'
     class Meta:
         model = Aluno
-        fields = ['curso', 'matricula', 'telefone' ,'habilidades']
+        fields = ['curso', 'matricula', 'telefone', 'habilidades']
 
 
 class FormularioEditarEmpresa(forms.ModelForm):
@@ -105,6 +105,7 @@ class FormularioEditarEmpresa(forms.ModelForm):
     Cidade = forms.CharField(max_length=30)
     Estado = forms.CharField(max_length=25)
     Email = forms.CharField(max_length=100, validators=[validate_email])
+    telefone = forms.CharField(max_length=12, min_length=9, validators=[validate_integer], help_text='apenas números')
     Site = forms.CharField(max_length=200, required=False)
 
     class Meta:
@@ -199,6 +200,12 @@ class FormularioPesquisaEmpresa(forms.Form):
                'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
 
 
+class FormularioAprovacao(forms.Form):
+    aprovado = forms.CharField(max_length=15, required=True, widget=forms.HiddenInput(attrs={"class": "form-control"}), validators=[validate_boolean])
+    justificativa = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": 'Insira uma justificativa'}),
+                                    required=True, help_text='Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário ')
+
+
 # TODO: https://github.com/shymonk/django-datatable
 class ProfessorTable(Table):
     CPF = Column(field='cpf', searchable=True, sortable=True)
@@ -209,6 +216,7 @@ class ProfessorTable(Table):
     Data_Aprovacao = Column(field='data_aprovacao', searchable=False, sortable=False)
     class Meta:
         model = Professor
+
 
 class UploadCurriculo(forms.ModelForm):
     class Meta:
