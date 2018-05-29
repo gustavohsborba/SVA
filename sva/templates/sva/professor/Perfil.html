@@ -12,10 +12,8 @@
                 <p class="text-muted text-center">SIAPE: {{ professor.siape }}</p>
 
 
-                <strong><i class="fa fa-envelope"></i> Curso: </strong>
-                <p>
-                    {{ professor.curso }}
-                </p>
+                <strong><span class="fa fa-graduation-cap"></span><b> Curso </b></strong>
+                <p>{{ professor.curso.nome }} ({{ professor.curso.sigla }})</p>
 
 
                 {# SEÇÃO DO ADMINISTRADOR -- APROVAÇÃO CASO EXISTA #}
@@ -73,7 +71,7 @@
                 <h3 class="text-muted box-title text-left">Contato</h3>
                 <strong><i class="fa fa-phone"></i> Telefone </strong>
                 <p>
-                    {{ professor.telefone }}
+                    {{ professor.telefone|default_if_none:'' }}
                 </p>
                 <strong><i class="fa fa-envelope"></i> Email </strong>
                 <p>

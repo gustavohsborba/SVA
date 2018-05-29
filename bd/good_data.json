@@ -1,0 +1,1309 @@
+[
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "Administrador",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 2,
+  "fields": {
+    "name": "Setor de Est\u00e1gios",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 3,
+  "fields": {
+    "name": "Professor",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 4,
+  "fields": {
+    "name": "Empresa",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 5,
+  "fields": {
+    "name": "Aluno",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 6,
+  "fields": {
+    "name": "Gerente Vagas",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$AcKqtFzmyQRk$azV+n8p5VQRbxcecpw1uHN3Vx55N9QS1+3CSdOPREC8=",
+    "last_login": "2018-05-28T19:11:30.539",
+    "is_superuser": true,
+    "username": "sva_dev",
+    "first_name": "",
+    "last_name": "",
+    "email": "sva@sva.cefetmg.br",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-28T15:45:16.102",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$W8VoIjXuUJPT$IGMpNag3nZgHGHggwyFB6+tja6UEAfXZQzoeFurdrjw=",
+    "last_login": "2018-05-29T17:36:57.998",
+    "is_superuser": false,
+    "username": "13160996603",
+    "first_name": "Setor de Est\u00e1gios",
+    "last_name": "",
+    "email": "sistemadevagasacademicas@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-28T17:07:00",
+    "groups": [
+      2
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$KKP7LvfZwT8T$KH/1epqK+V8dD1oDUbJglPL7TlmxWKaAoQoCYEdKUkk=",
+    "last_login": "2018-05-29T18:15:53.600",
+    "is_superuser": false,
+    "username": "10468521674",
+    "first_name": "Eduardo",
+    "last_name": "Silva de Freitas",
+    "email": "cyber.eduardo@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-05-28T17:23:27.754",
+    "groups": [
+      5
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$Yvzusd8attHE$5a5ce2YD5uZH+9JUxN8dcVIpSgoI5Vd6J7YvMCyVgmQ=",
+    "last_login": "2018-05-29T18:25:44.975",
+    "is_superuser": false,
+    "username": "06990590000123",
+    "first_name": "Google Brasil Internet LTDA",
+    "last_name": "",
+    "email": "google@svacefet.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-28T18:25:46.988",
+    "groups": [
+      4,
+      6
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$6oTb2sRBSdQ4$zJNevxMYNcNK9DSkuXoDCiuAViDUubncACh4X5Zg3mo=",
+    "last_login": "2018-05-29T17:35:14.347",
+    "is_superuser": false,
+    "username": "19417324020",
+    "first_name": "Carvalho",
+    "last_name": "",
+    "email": "carvalho@svacefet.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-29T17:01:27.336",
+    "groups": [
+      3,
+      6
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$KSXT3ic8ZoUN$GgEvxQj7pEUZ5mz+Y7OR15jwBtYzxK90SZJX3nq9Xfk=",
+    "last_login": "2018-05-29T17:36:47.550",
+    "is_superuser": false,
+    "username": "33372251012839",
+    "first_name": "IBM Brasil",
+    "last_name": "",
+    "email": "ibm@svacefetmg.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-29T17:36:39.800",
+    "groups": [
+      4,
+      6
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$msD9B600rf7i$eBJlg3I7XhkTOuzGMctMSErZTLAhcfVvURiYPbCjuUs=",
+    "last_login": "2018-05-29T17:59:20.479",
+    "is_superuser": false,
+    "username": "53468374003",
+    "first_name": "Utonio",
+    "last_name": "",
+    "email": "utonio@svacefetmg.br",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2018-05-29T17:59:00.789",
+    "groups": [
+      3,
+      6
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$YScwFzg6RCYW$luiL0ok1c6iLlvFPODCVvlHxnV+o1f+ZksD0YxiHWJQ=",
+    "last_login": "2018-05-29T18:23:04.083",
+    "is_superuser": false,
+    "username": "08004952682",
+    "first_name": "Gustavo",
+    "last_name": "Borba",
+    "email": "gustavo@svacefetmg.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-05-29T18:22:45.918",
+    "groups": [
+      5
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 1,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 3
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 2,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 4
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 3,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 1
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 4,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 2
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 5,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 9
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 6,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 8
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 7,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 5
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 8,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 6
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 9,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 7
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 10,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 11
+  }
+},
+{
+  "model": "star_ratings.rating",
+  "pk": 11,
+  "fields": {
+    "count": 0,
+    "total": 0,
+    "average": "0.000",
+    "content_type": 18,
+    "object_id": 10
+  }
+},
+{
+  "model": "sva.campus",
+  "pk": 1,
+  "fields": {
+    "nome": "Campus II",
+    "cidade": "BELO HORIZONTE",
+    "sigla": "C2"
+  }
+},
+{
+  "model": "sva.campus",
+  "pk": 2,
+  "fields": {
+    "nome": "Campus I",
+    "cidade": "BELO HORIZONTE",
+    "sigla": "C1"
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 1,
+  "fields": {
+    "nome": "Engenharia de Computa\u00e7\u00e3o",
+    "sigla": "ECOMP",
+    "nivel_ensino": 2,
+    "campus": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 2,
+  "fields": {
+    "nome": "Engenharia de Materiais",
+    "sigla": "EMAT",
+    "nivel_ensino": 2,
+    "campus": [
+      2
+    ]
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 3,
+  "fields": {
+    "nome": "Engenharia El\u00e9trica",
+    "sigla": "ELET",
+    "nivel_ensino": 2,
+    "campus": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 4,
+  "fields": {
+    "nome": "Inform\u00e1tica",
+    "sigla": "INF",
+    "nivel_ensino": 1,
+    "campus": [
+      2
+    ]
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 5,
+  "fields": {
+    "nome": "Administra\u00e7\u00e3o",
+    "sigla": "ADM",
+    "nivel_ensino": 2,
+    "campus": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.curso",
+  "pk": 6,
+  "fields": {
+    "nome": "Matem\u00e1tica Computacional",
+    "sigla": "MATCO",
+    "nivel_ensino": 3,
+    "campus": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 1,
+  "fields": {
+    "nome": "Programa\u00e7\u00e3o Web"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 2,
+  "fields": {
+    "nome": "Excel"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 3,
+  "fields": {
+    "nome": "Engenharia de Software"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 4,
+  "fields": {
+    "nome": "Trabalho em Equipe"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 5,
+  "fields": {
+    "nome": "Edi\u00e7\u00e3o de imagens"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 6,
+  "fields": {
+    "nome": "Manuten\u00e7\u00e3o de equipamentos"
+  }
+},
+{
+  "model": "sva.habilidade",
+  "pk": 7,
+  "fields": {
+    "nome": "TI"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 1,
+  "fields": {
+    "area_mae": null,
+    "nome": "Matem\u00e1tica"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 2,
+  "fields": {
+    "area_mae": null,
+    "nome": "Pesquisa"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 3,
+  "fields": {
+    "area_mae": null,
+    "nome": "Engenharia"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 4,
+  "fields": {
+    "area_mae": null,
+    "nome": "Desenvolvimento"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 5,
+  "fields": {
+    "area_mae": null,
+    "nome": "Seguran\u00e7a da informa\u00e7\u00e3o"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 6,
+  "fields": {
+    "area_mae": null,
+    "nome": "Tecnologia da Informa\u00e7\u00e3o"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 7,
+  "fields": {
+    "area_mae": null,
+    "nome": "Comunica\u00e7\u00e3o"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 8,
+  "fields": {
+    "area_mae": null,
+    "nome": "Marketing"
+  }
+},
+{
+  "model": "sva.areaatuacao",
+  "pk": 9,
+  "fields": {
+    "area_mae": null,
+    "nome": "Ger\u00eancia de TI"
+  }
+},
+{
+  "model": "sva.aluno",
+  "pk": 1,
+  "fields": {
+    "user": 3,
+    "curso": 1,
+    "endereco": "Rua Tal,100,Apto. 301,Belo Horizonte,Minas Gerais",
+    "matricula": "201512040215",
+    "cpf": "10468521674",
+    "telefone": "993321842",
+    "data_cadastro": "2018-05-28T17:23:27.805",
+    "data_fim": null,
+    "curriculo": "",
+    "data_upload_curriculo": null,
+    "habilidades": [
+      1,
+      2,
+      3,
+      4,
+      7
+    ],
+    "areas_atuacao": []
+  }
+},
+{
+  "model": "sva.aluno",
+  "pk": 2,
+  "fields": {
+    "user": 9,
+    "curso": 1,
+    "endereco": "Rua dos Computadores,100,,Belo Horizonte,Minas Gerais",
+    "matricula": "201412040000",
+    "cpf": "08004952682",
+    "telefone": "910101010",
+    "data_cadastro": "2018-05-29T18:22:45.971",
+    "data_fim": null,
+    "curriculo": "",
+    "data_upload_curriculo": null,
+    "habilidades": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7
+    ],
+    "areas_atuacao": []
+  }
+},
+{
+  "model": "sva.gerentevaga",
+  "pk": 1,
+  "fields": {
+    "user": 4,
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-28T19:05:33.762",
+    "data_fim": null,
+    "situacao": "DEFERIDO"
+  }
+},
+{
+  "model": "sva.gerentevaga",
+  "pk": 2,
+  "fields": {
+    "user": 5,
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T17:30:53.472",
+    "data_fim": null,
+    "situacao": "DEFERIDO"
+  }
+},
+{
+  "model": "sva.gerentevaga",
+  "pk": 3,
+  "fields": {
+    "user": 6,
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T17:37:15.240",
+    "data_fim": null,
+    "situacao": "DEFERIDO"
+  }
+},
+{
+  "model": "sva.gerentevaga",
+  "pk": 4,
+  "fields": {
+    "user": 7,
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T17:59:14.737",
+    "data_fim": null,
+    "situacao": "DEFERIDO"
+  }
+},
+{
+  "model": "sva.empresa",
+  "pk": 1,
+  "fields": {
+    "cnpj": "06990590000123",
+    "nome": "Google Brasil Internet LTDA",
+    "website": "google.com",
+    "endereco": "Santa Efig\u00eania,Avenida dos Andradas,3000,Boulevard Corporate Tower Andares 14-17,Belo Horizonte,Minas Gerais",
+    "telefone": "993321842"
+  }
+},
+{
+  "model": "sva.empresa",
+  "pk": 3,
+  "fields": {
+    "cnpj": "33372251012839",
+    "nome": "IBM Brasil",
+    "website": "ibm.com",
+    "endereco": "Santa Lucia,Rua Maria Luiza Santiago,200,,Belo Horizonte,Minas Gerais",
+    "telefone": "08007014262"
+  }
+},
+{
+  "model": "sva.professor",
+  "pk": 2,
+  "fields": {
+    "curso": 1,
+    "telefone": "933339999",
+    "siape": "12345",
+    "cpf": "19417324020"
+  }
+},
+{
+  "model": "sva.professor",
+  "pk": 4,
+  "fields": {
+    "curso": 6,
+    "telefone": "",
+    "siape": "66342",
+    "cpf": "53468374003"
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 1,
+  "fields": {
+    "gerente_vaga": 3,
+    "usuario_aprovacao": 2,
+    "titulo": "Pesquisador IA",
+    "descricao": "Criar a SkyNet",
+    "data_submissao": "2018-05-29T17:46:02.922",
+    "data_alteracao": "2018-05-29T17:56:16.842",
+    "data_validade": "2018-08-29T02:00:00",
+    "carga_horaria_semanal": 40,
+    "local": "Sede",
+    "valor_bolsa": 3000.0,
+    "beneficios": "VR + Robo ajudante",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T17:56:16.842",
+    "situacao": 3,
+    "tipo_vaga": 4,
+    "areas_atuacao": [
+      2,
+      3,
+      6
+    ],
+    "cursos": [
+      1,
+      6
+    ],
+    "alunos_inscritos": [
+      1,
+      2
+    ],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 2,
+  "fields": {
+    "gerente_vaga": 3,
+    "usuario_aprovacao": 2,
+    "titulo": "T\u00e9cnico de Inform\u00e1tica",
+    "descricao": "Consertar PC da galera",
+    "data_submissao": "2018-05-29T17:47:39.686",
+    "data_alteracao": "2018-05-29T17:56:35.140",
+    "data_validade": "2018-07-29T12:00:00",
+    "carga_horaria_semanal": 30,
+    "local": "Sede",
+    "valor_bolsa": 1000.0,
+    "beneficios": "",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T17:56:35.140",
+    "situacao": 3,
+    "tipo_vaga": 1,
+    "areas_atuacao": [
+      3,
+      6
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 3,
+  "fields": {
+    "gerente_vaga": 3,
+    "usuario_aprovacao": null,
+    "titulo": "Cobaia de Testes",
+    "descricao": "Achar a saida do labirinto",
+    "data_submissao": "2018-05-29T17:49:00.446",
+    "data_alteracao": "2018-05-29T17:56:47.605",
+    "data_validade": "2018-08-29T00:00:00",
+    "carga_horaria_semanal": 80,
+    "local": "Secreto",
+    "valor_bolsa": 1000.0,
+    "beneficios": "Um bolo",
+    "nota_media": 0.0,
+    "data_aprovacao": null,
+    "situacao": 5,
+    "tipo_vaga": 4,
+    "areas_atuacao": [
+      2
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 4,
+  "fields": {
+    "gerente_vaga": 3,
+    "usuario_aprovacao": null,
+    "titulo": "Recursos Humanos",
+    "descricao": "Receba curriculo, jogue uma moeda. Se der cara, rejeite o candidato; se der coroa, jogue um dado. Se der par; rejeite-o. Se der impar, for um dia chuvoso e o nome do candidato tiver as letras Z, L ou M, aceite-o imediamente. Se nao tiver essas letras, mas for um dia chuvoso e o resultado do dado for impar, repita o processo ate que ele mude de nome.",
+    "data_submissao": "2018-05-29T17:54:20.721",
+    "data_alteracao": "2018-05-29T17:54:20.722",
+    "data_validade": "2018-06-05T13:00:00",
+    "carga_horaria_semanal": 35,
+    "local": "Sede",
+    "valor_bolsa": 1200.7,
+    "beneficios": "VR + VA + VT",
+    "nota_media": 0.0,
+    "data_aprovacao": null,
+    "situacao": 1,
+    "tipo_vaga": 1,
+    "areas_atuacao": [
+      7
+    ],
+    "cursos": [
+      5
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 5,
+  "fields": {
+    "gerente_vaga": 4,
+    "usuario_aprovacao": null,
+    "titulo": "Pesquisa Matem\u00e1tica",
+    "descricao": "Descobrir mais coisas para criar a disciplina de Calculo V",
+    "data_submissao": "2018-05-29T18:02:41.788",
+    "data_alteracao": "2018-05-29T18:02:41.788",
+    "data_validade": "2018-05-29T21:00:00",
+    "carga_horaria_semanal": 20,
+    "local": "C2",
+    "valor_bolsa": 500.0,
+    "beneficios": "Horas complementares + Calculadora Cientifica",
+    "nota_media": 0.0,
+    "data_aprovacao": null,
+    "situacao": 1,
+    "tipo_vaga": 3,
+    "areas_atuacao": [
+      1,
+      2
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      6
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 6,
+  "fields": {
+    "gerente_vaga": 4,
+    "usuario_aprovacao": 2,
+    "titulo": "C\u00e1lculo I",
+    "descricao": "Tirar duvidas",
+    "data_submissao": "2018-05-29T18:04:14.667",
+    "data_alteracao": "2018-05-29T18:08:01.658",
+    "data_validade": "2018-07-29T00:00:00",
+    "carga_horaria_semanal": 30,
+    "local": "C2 e C1",
+    "valor_bolsa": 650.0,
+    "beneficios": "Horas complementares",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T18:08:01.657",
+    "situacao": 3,
+    "tipo_vaga": 2,
+    "areas_atuacao": [
+      1
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "alunos_inscritos": [
+      2
+    ],
+    "alunos_interessados": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 7,
+  "fields": {
+    "gerente_vaga": 4,
+    "usuario_aprovacao": 2,
+    "titulo": "GAAV",
+    "descricao": "Tirar duvidas relacionadas a disciplina de GAAV",
+    "data_submissao": "2018-05-29T18:05:10.219",
+    "data_alteracao": "2018-05-29T18:08:17.220",
+    "data_validade": "2018-07-29T00:00:00",
+    "carga_horaria_semanal": 20,
+    "local": "C2",
+    "valor_bolsa": 400.0,
+    "beneficios": "Horas complementares",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T18:08:17.220",
+    "situacao": 3,
+    "tipo_vaga": 2,
+    "areas_atuacao": [
+      1
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "alunos_inscritos": [
+      2
+    ],
+    "alunos_interessados": [
+      1
+    ]
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 8,
+  "fields": {
+    "gerente_vaga": 4,
+    "usuario_aprovacao": 2,
+    "titulo": "Auxiliar de Pesquisa",
+    "descricao": "Carregar tubos de ensaio",
+    "data_submissao": "2018-05-29T18:06:12.232",
+    "data_alteracao": "2018-05-29T18:07:36.884",
+    "data_validade": "2018-08-24T03:00:00",
+    "carga_horaria_semanal": 35,
+    "local": "Laborat\u00f3rios",
+    "valor_bolsa": 3000.0,
+    "beneficios": "VR+VA",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T18:07:36.883",
+    "situacao": 3,
+    "tipo_vaga": 4,
+    "areas_atuacao": [
+      2
+    ],
+    "cursos": [
+      6
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 9,
+  "fields": {
+    "gerente_vaga": 4,
+    "usuario_aprovacao": null,
+    "titulo": "Auxiliar em sala de aula",
+    "descricao": "Dar aula no meu lugar",
+    "data_submissao": "2018-05-29T18:07:10.235",
+    "data_alteracao": "2018-05-29T18:08:30.879",
+    "data_validade": "2018-07-29T00:00:00",
+    "carga_horaria_semanal": 30,
+    "local": "C2",
+    "valor_bolsa": 0.0,
+    "beneficios": "",
+    "nota_media": 0.0,
+    "data_aprovacao": null,
+    "situacao": 5,
+    "tipo_vaga": 4,
+    "areas_atuacao": [
+      1
+    ],
+    "cursos": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "alunos_inscritos": [],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 10,
+  "fields": {
+    "gerente_vaga": 1,
+    "usuario_aprovacao": 2,
+    "titulo": "Desenvolvedor Web",
+    "descricao": "Fazer sites",
+    "data_submissao": "2018-05-29T18:09:58.317",
+    "data_alteracao": "2018-05-29T18:11:58.044",
+    "data_validade": "2018-06-01T00:00:00",
+    "carga_horaria_semanal": 30,
+    "local": "Sede",
+    "valor_bolsa": 1001.0,
+    "beneficios": "VR+VT",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T18:11:58.044",
+    "situacao": 3,
+    "tipo_vaga": 1,
+    "areas_atuacao": [
+      4,
+      6
+    ],
+    "cursos": [
+      1
+    ],
+    "alunos_inscritos": [
+      1
+    ],
+    "alunos_interessados": [
+      2
+    ]
+  }
+},
+{
+  "model": "sva.vaga",
+  "pk": 11,
+  "fields": {
+    "gerente_vaga": 1,
+    "usuario_aprovacao": 2,
+    "titulo": "Pesquisador",
+    "descricao": "Descobrir a resposta fundamental para a vida, o universo, e tudo mais.",
+    "data_submissao": "2018-05-29T18:11:34.743",
+    "data_alteracao": "2018-05-29T18:11:47.628",
+    "data_validade": "2018-07-29T00:00:00",
+    "carga_horaria_semanal": 40,
+    "local": "Centro de Pesquisas",
+    "valor_bolsa": 8000.0,
+    "beneficios": "Sabedoria",
+    "nota_media": 0.0,
+    "data_aprovacao": "2018-05-29T18:11:47.628",
+    "situacao": 3,
+    "tipo_vaga": 4,
+    "areas_atuacao": [
+      2
+    ],
+    "cursos": [
+      6
+    ],
+    "alunos_inscritos": [
+      2
+    ],
+    "alunos_interessados": []
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 1,
+  "fields": {
+    "vaga": null,
+    "usuario": 1,
+    "tipo": 3,
+    "data_cadastro": "2018-05-28T18:25:47.052",
+    "mensagem": "A empresa Google Brasil Internet LTDA deseja acessar o SVA. Clique aqui para liberar ou negar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/empresa/perfil/4"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 2,
+  "fields": {
+    "vaga": null,
+    "usuario": 2,
+    "tipo": 3,
+    "data_cadastro": "2018-05-28T18:25:47.056",
+    "mensagem": "A empresa Google Brasil Internet LTDA deseja acessar o SVA. Clique aqui para liberar ou negar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/empresa/perfil/4"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 3,
+  "fields": {
+    "vaga": null,
+    "usuario": 1,
+    "tipo": 2,
+    "data_cadastro": "2018-05-29T17:01:27.413",
+    "mensagem": "O professor Carvalho se cadastrou no sistema. Clique aqui para moderar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/professor/perfil/5"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 4,
+  "fields": {
+    "vaga": null,
+    "usuario": 2,
+    "tipo": 2,
+    "data_cadastro": "2018-05-29T17:01:27.420",
+    "mensagem": "O professor Carvalho se cadastrou no sistema. Clique aqui para moderar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/professor/perfil/5"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 5,
+  "fields": {
+    "vaga": null,
+    "usuario": 1,
+    "tipo": 3,
+    "data_cadastro": "2018-05-29T17:36:39.862",
+    "mensagem": "A empresa IBM Brasil deseja acessar o SVA. Clique aqui para liberar ou negar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/empresa/perfil/6"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 6,
+  "fields": {
+    "vaga": null,
+    "usuario": 2,
+    "tipo": 3,
+    "data_cadastro": "2018-05-29T17:36:39.863",
+    "mensagem": "A empresa IBM Brasil deseja acessar o SVA. Clique aqui para liberar ou negar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/empresa/perfil/6"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 7,
+  "fields": {
+    "vaga": 1,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T17:46:02.928",
+    "mensagem": "IBM Brasil cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 8,
+  "fields": {
+    "vaga": 2,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T17:47:39.693",
+    "mensagem": "IBM Brasil cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 9,
+  "fields": {
+    "vaga": 3,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T17:49:00.453",
+    "mensagem": "IBM Brasil cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 10,
+  "fields": {
+    "vaga": 4,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T17:54:20.729",
+    "mensagem": "IBM Brasil cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 11,
+  "fields": {
+    "vaga": null,
+    "usuario": 1,
+    "tipo": 2,
+    "data_cadastro": "2018-05-29T17:59:00.851",
+    "mensagem": "O professor Utonio se cadastrou no sistema. Clique aqui para moderar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/professor/perfil/7"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 12,
+  "fields": {
+    "vaga": null,
+    "usuario": 2,
+    "tipo": 2,
+    "data_cadastro": "2018-05-29T17:59:00.852",
+    "mensagem": "O professor Utonio se cadastrou no sistema. Clique aqui para moderar o acesso",
+    "lida": false,
+    "data_leitura": null,
+    "link": "/professor/perfil/7"
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 13,
+  "fields": {
+    "vaga": 5,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:02:41.796",
+    "mensagem": "Utonio cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 14,
+  "fields": {
+    "vaga": 6,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:04:14.674",
+    "mensagem": "Utonio cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 15,
+  "fields": {
+    "vaga": 7,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:05:10.224",
+    "mensagem": "Utonio cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 16,
+  "fields": {
+    "vaga": 8,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:06:12.240",
+    "mensagem": "Utonio cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 17,
+  "fields": {
+    "vaga": 9,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:07:10.242",
+    "mensagem": "Utonio cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 18,
+  "fields": {
+    "vaga": 10,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:09:58.322",
+    "mensagem": "Google Brasil Internet LTDA cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+},
+{
+  "model": "sva.notificacao",
+  "pk": 19,
+  "fields": {
+    "vaga": 11,
+    "usuario": 2,
+    "tipo": 4,
+    "data_cadastro": "2018-05-29T18:11:34.752",
+    "mensagem": "Google Brasil Internet LTDA cadastrou uma nova vaga. Clique para visualizar",
+    "lida": false,
+    "data_leitura": null,
+    "link": null
+  }
+}
+]

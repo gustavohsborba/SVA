@@ -741,19 +741,22 @@ def editar_professor(request, pk):
     Nome = professor.user.first_name + ' ' + professor.user.last_name
     Telefone = professor.telefone
     Curso = professor.curso
+    Email = professor.user.email
     initial = {
         'Nome_Completo': Nome,
-        'Telefone': Telefone,
-        'Curso': Curso}
+        'telefone': Telefone,
+        'Curso': Curso,
+        'Email': Email}
 
     if request.method == 'POST':
         form = FormularioEditarProfessor(request.POST, instance=professor, initial=initial)
         if form.is_valid():
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
+            professor.user.email = form.cleaned_data['Email']
             professor.curso = form.cleaned_data['curso']
             professor.siape = form.cleaned_data['siape']
-            professor.telefone = form.cleaned_data['Telefone']
+            professor.telefone = form.cleaned_data['telefone']
             professor.save()
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
             professor.user.last_name = Nome[1] if len(Nome) > 1 else ''

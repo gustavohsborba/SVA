@@ -94,6 +94,15 @@
                         </p>
                     </div>
                 {% endif %}
+
+                {% if empresa.user.pk != request.user.pk and empresa.data_aprovacao %}
+                    <hr>
+                    <strong><i class="fa fa-star"></i> Avaliação média: </strong>
+                    <p>
+                        {{ empresa.nota_media|default_if_none:" -- " }}
+                    </p>
+                {% endif %}
+
                 {% if empresa.user.pk == request.user.pk or request.user.is_superuser %}
                     <div class="box-footer">
                         <div class="pull-right" >
