@@ -43,8 +43,8 @@
    			<div class="panel-body">
                 <p>Atualmente existe um curriculo cadastrado no dia</p>
                 <p> {{data}}</p>
-				<button href="{% url 'download_curriculo' pk=request.user.id%}" type="button" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-download"></i> </span>Download curriculo</button>
-				<button href="javascript:func()" onclick="confirmacao()"type="button" class="btn btn-labeled btn-danger"> <span class="btn-label"><i class="fa  fa-trash-o"></i> </span>Excluir curriculo</button>
+				<button href="javascript:func()"  onclick="confirmacao2()"type="button" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-download"></i> </span>Download curriculo</button>
+				<button href="javascript:func()" onclick="confirmacao1()"type="button" class="btn btn-labeled btn-danger"> <span class="btn-label"><i class="fa  fa-trash-o"></i> </span>Excluir curriculo</button>
 				<br />
     		</div>
     		</div>
@@ -57,12 +57,15 @@
 </div>
 
 <script language="JavaScript">
-    function confirmacao() {
+    function confirmacao1() {
                      var resposta = confirm("Deseja excluir o curriculo?");
 
                      if (resposta == true) {
                           window.location.href = "{{ 'excluir/' }}{{ request.user.pk }}";
                      }
+    }
+    function confirmacao2() {
+                          window.location.href = "{% url 'download_curriculo' pk=request.user.id%}";
     }
     function validate(){
         var size=3145728;
