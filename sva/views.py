@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q, Value
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
@@ -674,7 +674,6 @@ def download_curriculo(request,pk):
     if pk != str(request.user.id):
         gerente = GerenteVaga.objects.get(user=request.user)
         if gerente is None:
-            return redirect("login")
             messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
             return HttpResponseRedirect('/home/')
     filename = aluno.curriculo.name.split('/')[-1]
