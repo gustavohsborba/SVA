@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^empresa/editar/(?P<pk>\d+)/excluir$', excluir_empresa, name='Excluir_Empresa'),
     url(r'^empresa/perfil/(?P<pk>\d+)$', exibir_empresa, name='Exibir_Empresa'),
     url(r'^empresa/perfil/(?P<pk>\d+)/aprovar_cadastro$', aprovar_cadastro_empresa, name='Aprovar_Empresa'),
+    url(r'^ratings/', include('star_ratings.urls', namespace='ratings', app_name='ratings')),
 
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 

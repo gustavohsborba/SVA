@@ -1,5 +1,7 @@
 {% extends 'sva/vaga/vaga.html' %}
 {% load svatags %}
+{% load ratings %}
+{% load crispy_forms_tags %}
 
 .divider{
     width:5px;
@@ -100,14 +102,7 @@
                                     {% csrf_token %}
                                     <div class="modal-body">
                                         {% block conteudo_modal %}
-                                            <input type="hidden" name="aprovado" id="aprovado"/>
-                                            <div class="form-group">
-                                              <label class="control-label" for="justificativa">Justificativa</label>
-                                              <textarea id="justificativa" name="justificativa" class="form-control"
-                                                        rows="3" placeholder="Insira uma Justificativa"></textarea>
-                                              <span class="help-block"></span>
-                                            </div>
-                                            <span>Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário </span>
+                                            {{ formulario_aprovacao|crispy }}
                                         {% endblock %}
                                     </div>
                                     <div class="modal-footer">
@@ -120,7 +115,7 @@
                     </div>
                     <script>
                        function setar_valor_aprovado(valor) {
-                           document.getElementById("aprovado").value = valor;
+                           document.getElementById("id_aprovado").value = valor;
                        }
                     </script>
                 {% endif %}
@@ -147,19 +142,13 @@
                         {{vaga.beneficios}}
                     {% endif %}
                 </p>
-                <div class="form-group col-lg-8 col-md-8 col-s-8 col-xs-12">
-                    <label class="ratingLabel">Avaliação da vaga:</label>
-                    <div class="rating">
-                        <input id="star_c-5" name="rating_c" type="radio" value="5"/>
-                        <label for="star_c-5" class="full"></label>
-                        <input id="star_c-3" name="rating_c" type="radio" value="3"/>
-                        <label for="star_c-3" class="full"></label>
-                        <input id="star_c-2" name="rating_c" type="radio" value="2"/>
-                        <label for="star_c-2" class="full"></label>
-                        <input id="star_c-1" name="rating_c" type="radio" value="1"/>
-                        <label for="star_c-1" class="full"></label>
-                        <input id="star_c-0"  name="rating_c" type="radio" value="0"/>
-                        <label for="star_c-0" class="full"></label>
+
+                <hr>
+                <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da vaga:</strong>
+                    <div>
+                        {# https://github.com/wildfish/django-star-ratings #}
+                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                        {% ratings vaga %}
                     </div>
                 </div>
             </div>

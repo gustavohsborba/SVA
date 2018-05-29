@@ -1,29 +1,80 @@
 {% extends 'sva/base.html' %}
+{% load crispy_forms_tags %}
+{% load svatags %}
 
 {% block content %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/form.css' %}" />
-        <form action="" method="POST">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit">Editar</button>
-        </form>
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        <a href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
-        <script language="Javascript">
-        function confirmacao() {
-             var resposta = confirm("Deseja desativar essa conta?");
+<div class="container-fluid">
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <div class = "text-center">
+                    <h2 class="box-title">Editar {{ form.Nome_Completo.value }}</h2>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="col-md-5">
+                    <div class = "text-center">
+                        <h4>Dados para contato</h4>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_Nome_Completo">Nome <font size="2" color="red">*</font></label>
+                        <input type="text" class="form-control" id="id_Nome_Completo" name="Nome_Completo" maxlength="60" placeholder="Nome do professor" required="true" value="{{form.Nome_Completo.value}}">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label for="id_telefone">Telefone </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-phone"></i></span>
+                                    <input type="text" class="form-control" id="id_telefone" name="telefone" maxlength="20" pattern="[0-9 ]+" title="Somente caracteres númericos" placeholder="Contato" value="{{form.telefone.value|default_if_none:''}}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="form-group">
+                                <label for="id_Email">Email <font size="2" color="red">*</font></label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="id_Email" name="Email" maxlength="100" placeholder="Email de contato" required="true" value="{{form.Email.value|default_if_none:''}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-md-offset-1">
+                    <div class = "text-center">
+                         <h4>Informações técnicas</h4>
+                    </div>
+                    <div class="form-group ">
+                        <label class=" col-form-label">Curso <font size="2" color="red">*</font></label>
+                        {{form.curso}}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_siape">Siape <font size="2" color="red">*</font></label>
+                        <input type="text" class="form-control" id="id_siape" name="siape" maxlength="8"  pattern="[0-9 ]+" title="Somente caracteres númericos" placeholder="Identificador" value="{{form.siape.value|default_if_none:''}}">
+                    </div>
+                </div>
+            </div>
+            <div class="box-footer">
+                <button type="submit" class="btn btn-primary">Editar</button>
 
-             if (resposta == true) {
-                  window.location.href = "{{ 'excluirprofessor' }}";
-             }
-        }
-        </script>
+                {% if professor.user.pk == request.user.pk or request.user.is_superuser %}
+                    <a class="pull-right btn btn-danger" href="javascript:func()" onclick="confirmacao()"> Desativar conta </a>
+                    <script language="Javascript">
+                    function confirmacao() {
+                         var resposta = confirm("Deseja desativar essa conta?");
 
+                         if (resposta == true) {
+                              window.location.href = "{% url 'Excluir_Professor' professor.user.pk %}";
+                         }
+                    }
+                    </script>
+
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock content %}

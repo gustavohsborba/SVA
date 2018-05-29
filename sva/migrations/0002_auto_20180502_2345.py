@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             name='Aluno',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('endereco', models.CharField(max_length=100, null=True)),
+                ('endereco', models.CharField(max_length=255, null=True)),
                 ('matricula', models.CharField(max_length=12, null=True, validators=[django.core.validators.validate_integer])),
                 ('cpf', models.CharField(max_length=14, unique=True, validators=[sva.validators.validate_CPF])),
                 ('telefone', models.CharField(max_length=20, null=True, validators=[django.core.validators.validate_integer])),

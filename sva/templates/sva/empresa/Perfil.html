@@ -1,5 +1,7 @@
 {% extends 'sva/base.html' %}
 {% load svatags %}
+{% load ratings %}
+{% load crispy_forms_tags %}
 
 {% block content %}
     <div class="container-fluid">
@@ -8,7 +10,7 @@
                 <p><h3 class="profile-username text-center">{{ empresa.nome }}</h3></p>
                 <p class="text-muted text-center">CNPJ: {{ empresa.cnpj }}</p>
                 {% if request.user.is_superuser or request.user|has_groups:"Administrador,Setor de Estágios" %}
-                    {% if not empresa.data_aprovacao %}
+                    {% if empresa.situacao == 'AGUARDANDO_APROVACAO' %}
                     <hr>
                         <div class="text-center">
                             <button type="button" class="btn btn-danger" onClick="setar_valor_aprovado('false')" data-toggle="modal" data-target="#modal-default">
@@ -18,6 +20,8 @@
                                 Deferir Cadastro
                             </button>
                         </div>
+                    {% elif empresa.situacao == 'INDEFERIDO' %}
+                        <div class="text-center"><h3 class="profile-username text-center">CADASTRO INDEFERIDO</h3></div>
                     {% endif %}
 
                     <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px;">
@@ -33,14 +37,7 @@
                               {% csrf_token %}
                               <div class="modal-body">
                                 {% block conteudo_modal %}
-                                    <input type="hidden" name="aprovado" id="aprovado"/>
-                                    <div class="form-group">
-                                      <label class="control-label" for="inputError">Justificativa</label>
-                                      <textarea id="justificativa" name="justificativa" class="form-control"
-                                                rows="3" placeholder="Insira uma Justificativa"></textarea>
-                                      <span class="help-block"></span>
-                                    </div>
-                                    <span>Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário </span>
+                                    {{ form_aprovacao|crispy }}
                                 {% endblock %}
                               </div>
                               <div class="modal-footer">
@@ -54,10 +51,19 @@
                     </div>
                     <script>
                        function setar_valor_aprovado(valor) {
-                           document.getElementById("aprovado").value = valor;
+                           document.getElementById("id_aprovado").value = valor;
                        }
                     </script>
 
+                {% endif %}
+
+                {% if request.user|has_group:"Aluno" %}
+                    <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da empresa:</strong>
+                    <div>
+                        {# https://github.com/wildfish/django-star-ratings #}
+                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                        {% ratings empresa %}
+                    </div>
                 {% endif %}
                 {% if empresa.endereco is not None %}
                 <hr>
@@ -88,6 +94,15 @@
                         </p>
                     </div>
                 {% endif %}
+
+                {% if empresa.user.pk != request.user.pk and empresa.data_aprovacao %}
+                    <hr>
+                    <strong><i class="fa fa-star"></i> Avaliação média: </strong>
+                    <p>
+                        {{ empresa.nota_media|default_if_none:" -- " }}
+                    </p>
+                {% endif %}
+
                 {% if empresa.user.pk == request.user.pk or request.user.is_superuser %}
                     <div class="box-footer">
                         <div class="pull-right" >

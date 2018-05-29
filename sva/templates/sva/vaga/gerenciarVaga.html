@@ -40,7 +40,7 @@
                                                     {% else %}
                                                         <div class="text-center"><b>{{vaga.alunos_inscritos.count}} alunos inscritos</b></div>
                                                     {% endif %}
-                                                    Aprovada em {{vaga.data_aprovacao|date:"d-m-Y H:i"}} por {{vaga.usuario_aprovacao}}
+                                                    Aprovada em {{vaga.data_aprovacao|date:"d-m-Y H:i"}} por {{vaga.usuario_aprovacao.first_name}} {{vaga.usuario_aprovacao.last_name}}
                                                     <br>
                                                     <b>Criada em</b> {{vaga.data_submissao|date:"d-m-Y H:i"}}
                                                     &nbsp;

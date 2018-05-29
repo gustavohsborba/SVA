@@ -9,6 +9,7 @@ def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return group in user.groups.all()
 
+
 @register.filter(name='has_groups')
 def has_groups(user, groups_names):
     groups = Group.objects.filter(name__in=[g for g in groups_names.split(',')])

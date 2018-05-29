@@ -87,7 +87,7 @@ class Aluno(models.Model):
     curso = models.ForeignKey(to=Curso, null=False, blank=False, on_delete=models.PROTECT)
     habilidades = models.ManyToManyField(to=Habilidade, related_name='alunos', blank=True)
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='alunos', blank=True)
-    endereco = models.CharField(max_length=100, null=True)
+    endereco = models.CharField(max_length=255, null=True)
     matricula = models.CharField(max_length=12, null=True, validators=[validate_integer])
     cpf = models.CharField(unique=True, max_length=14, validators=[validate_CPF])
     telefone = models.CharField(max_length=20, null=True, validators=[validate_integer])
@@ -117,10 +117,23 @@ class GerenteVaga(models.Model):
         permissions = (('can_request_gerente_vaga', 'Pode solicitar criação de gerente'),
                        ('can_release_gerente_vaga', 'Pode liberar criação de gerente'))
 
+    DEFERIDO = 'DEFERIDO'
+    INDEFERIDO = 'INDEFERIDO'
+    AGUARDANDO_APROVACAO = 'AGUARDANDO_APROVACAO'
+    EXCLUIDO = 'EXCLUIDO'
+
+    SITUACAO_GERENTE_VAGA_CHOICES = {
+        (DEFERIDO, 'Deferido'),
+        (INDEFERIDO, 'Indeferido'),
+        (AGUARDANDO_APROVACAO, 'Aguardando Aprovação'),
+        (EXCLUIDO, 'Excluído'),
+    }
+
     user = models.ForeignKey(to=User, on_delete=models.PROTECT, null=False, related_name='gerentes_vaga')
     nota_media = models.FloatField(null=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', null=True, blank=True)
     data_fim = models.DateTimeField(verbose_name='Data de Cancelamento', blank=True, null=True)
+    situacao = models.CharField(verbose_name='Situação', max_length=30, choices=SITUACAO_GERENTE_VAGA_CHOICES, blank=False, null=False, default='AGUARDANDO_APROVACAO')
 
     @property
     def ativo(self):
@@ -138,10 +151,8 @@ class Empresa(GerenteVaga):
     cnpj = models.CharField(unique=True, max_length=14, validators=[validate_CNPJ])
     nome = models.CharField(max_length=60, null=False, blank=False, db_index=True)
     website = models.CharField(max_length=255, null=True, blank=True, validators=[URLValidator])
-    endereco = models.CharField(max_length=100, null=True, blank=True)
+    endereco = models.CharField(max_length=255, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True, validators=[validate_integer])
-
-    # TODO: FAZER UMA MÁQUINA DE ESTADOS: DEFERIDO, INDEFERIDO, AGUARDANDO_APROVACAO, AGUARDANDO_EDICAO
 
     def save(self, *args, **kwargs):
         self.user.first_name = self.nome
@@ -184,6 +195,7 @@ class Professor(GerenteVaga):
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
 
+
 class Vaga(models.Model):
 
     class Meta:
@@ -194,15 +206,29 @@ class Vaga(models.Model):
                        ('can_approve_vaga', 'Pode aprovar vaga'),
                        ('can_moderate_vaga', 'Pode moderar o fórum da vaga'),)
 
+    CADASTRADA = 1
+    EDITADA = 2
+    ATIVA = 3
+    INATIVA = 4
+    REPROVADA = 5
+
     SITUACAO_VAGA_CHOICES = {
-        (1, 'Cadastrada'),
-        (2, 'Editada'),
-        (3, 'Ativa'),
-        (4, 'Inativa'),
-        (5, 'Reprovada')
+        (CADASTRADA, 'Cadastrada'),
+        (EDITADA, 'Editada'),
+        (ATIVA, 'Ativa'),
+        (INATIVA, 'Inativa'),
+        (REPROVADA, 'Reprovada')
+    }
+
+    TIPO_VAGA_CHOICES = {
+        (1, 'Estágio'),
+        (2, 'Monitoria'),
+        (3, 'Iniciação Científica'),
+        (4, 'Outro')
     }
 
     gerente_vaga = models.ForeignKey(to=GerenteVaga, null=False, blank=False, related_name='vagas')
+    usuario_aprovacao = models.ForeignKey(to=User, null=True, blank=True, related_name='vagas_aprovadas')
     areas_atuacao = models.ManyToManyField(to=AreaAtuacao, related_name='vagas')
     cursos = models.ManyToManyField(to=Curso, blank=True, related_name='vagas_atribuidas')
     alunos_inscritos = models.ManyToManyField(to=Aluno, blank=True, related_name='vagas_inscritas')
@@ -220,8 +246,8 @@ class Vaga(models.Model):
     beneficios = models.TextField(verbose_name='Benefícios', null=True, blank=True)
     nota_media = models.FloatField(verbose_name='Nota', null=False, blank=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', blank=True, null=True)
-    usuario_aprovacao = models.CharField(verbose_name='Responsável pela aprovação', max_length=60, blank=True, null=True)
     situacao = models.IntegerField(verbose_name='Situação', null=False, blank=False, default=1, choices=SITUACAO_VAGA_CHOICES)
+    tipo_vaga = models.IntegerField(verbose_name='Tipo da Vaga', null=False, blank=False, default=4, choices=TIPO_VAGA_CHOICES)
 
     @property
     def vencida(self):
@@ -238,6 +264,7 @@ class Avaliacao(models.Model):
     vaga_avaliada = models.ForeignKey(Vaga, blank=False, null=False)
 
     nota = models.IntegerField(verbose_name='Nota atribuída', null=False, blank=False)
+
 
 class Notificacao(models.Model):
     class Meta:

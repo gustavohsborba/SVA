@@ -39,7 +39,7 @@ class FormularioVaga(forms.ModelForm):
 
     class Meta:
         model = Vaga
-        fields = ('cursos','areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios')
+        fields = ('cursos','areas_atuacao','titulo','descricao','data_validade','carga_horaria_semanal','local','valor_bolsa','beneficios','tipo_vaga')
 
     data_validade = forms.CharField(widget=forms.TextInput(attrs={'autocomplete':'off'}), required=False)
 
@@ -80,30 +80,32 @@ class FormularioEditarAluno(forms.ModelForm):
 
     Nome_Completo = forms.CharField(max_length=100,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
     Rua = forms.CharField(max_length=40,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Numero = forms.CharField(max_length=4,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Complemento = forms.CharField(max_length=10,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Cidade = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    Estado = forms.CharField(max_length=20,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
-    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
-    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
+    Numero = forms.CharField(max_length=6,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Complemento = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Cidade = forms.CharField(max_length=30,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    Estado = forms.CharField(max_length=25,widget=forms.TextInput(attrs={"class":"form-control form-control-lg"}))
+    matricula = forms.CharField(max_length=12, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de matrícula"}))
+    telefone = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control form-control-lg", "placeholder": "Número de contato"}))
     curso = forms.ModelChoiceField(queryset=Curso.objects.all(),widget=forms.Select(attrs={"class":"form-control form-control-lg"}))
+    Email = forms.CharField(max_length=100, widget=forms.TextInput(attrs={"class": "form-control form-control-lg"}))
 
     def __init__(self, *args, **kwargs):
         super(FormularioEditarAluno, self).__init__(*args, **kwargs)
         self.fields['habilidades'].widget.attrs['class'] = 'form-control'
     class Meta:
         model = Aluno
-        fields = ['curso', 'matricula', 'telefone' ,'habilidades']
+        fields = ['curso', 'matricula', 'telefone', 'habilidades']
 
 
 class FormularioEditarEmpresa(forms.ModelForm):
-    Bairro = forms.CharField(max_length=40)
+    Bairro = forms.CharField(max_length=30)
     Rua = forms.CharField(max_length=40)
-    Numero = forms.CharField(max_length=4)
-    Complemento = forms.CharField(max_length=10, required=False)
-    Cidade = forms.CharField(max_length=20)
-    Estado = forms.CharField(max_length=20)
+    Numero = forms.CharField(max_length=6)
+    Complemento = forms.CharField(max_length=50, required=False)
+    Cidade = forms.CharField(max_length=30)
+    Estado = forms.CharField(max_length=25)
     Email = forms.CharField(max_length=100, validators=[validate_email])
+    telefone = forms.CharField(max_length=12, min_length=9, validators=[validate_integer], help_text='apenas números')
     Site = forms.CharField(max_length=200, required=False)
 
     class Meta:
@@ -158,7 +160,9 @@ class FormularioCadastroProfessor(forms.ModelForm):
 
 class FormularioEditarProfessor(forms.ModelForm):
     Nome_Completo = forms.CharField(max_length=100)
-    Telefone = forms.CharField(max_length=12)
+    telefone = forms.CharField(min_length=9, required=False)
+    Email = forms.CharField(max_length=100, validators=[validate_email])
+    curso = forms.ModelChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg"}))
 
     class Meta:
         model = Professor
@@ -180,9 +184,29 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
+
 class FormularioPesquisaVagasAluno(forms.Form):
     Vaga_Cadastrada = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Vaga','class':'form-control'}))
     Area_Atuacao = forms.CharField(max_length=50,required=False,widget=forms.TextInput(attrs={'placeholder': 'Area de Atuação','class':'form-control'}))
+
+
+class FormularioPesquisaProfessor(forms.Form):
+    curso_campus_nome = forms.CharField(max_length=50, required=False, widget=forms.TextInput(
+        attrs={'placeholder': 'Pesquisar por curso, campus ou Nome',
+               'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
+
+
+class FormularioPesquisaEmpresa(forms.Form):
+    nome = forms.CharField(max_length=50, required=False, widget=forms.TextInput(
+        attrs={'placeholder': 'Filtrar por nome da empresa',
+               'class': 'form-control col-sm-6 col-md-6', 'size': '40%'}))
+
+
+class FormularioAprovacao(forms.Form):
+    aprovado = forms.CharField(max_length=15, required=True, widget=forms.HiddenInput(attrs={"class": "form-control"}), validators=[validate_boolean])
+    justificativa = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": 'Insira uma justificativa'}),
+                                    required=True, help_text='Por favor, insira uma justificativa ou uma mensagem de boas-vindas, que será enviada para o usuário ')
+
 
 # TODO: https://github.com/shymonk/django-datatable
 class ProfessorTable(Table):
@@ -195,6 +219,7 @@ class ProfessorTable(Table):
     class Meta:
         model = Professor
 
+
 class UploadCurriculo(forms.ModelForm):
     class Meta:
         model = Aluno
@@ -206,4 +231,3 @@ class UploadCurriculo(forms.ModelForm):
         self.fields['curriculo'].widget.attrs['id'] = 'files-input-upload'
         self.fields['curriculo'].widget.attrs['class'] = 'input-file'
         self.fields['curriculo'].widget.attrs['data-max-size'] = '32154'
-
