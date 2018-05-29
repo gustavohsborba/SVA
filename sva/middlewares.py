@@ -101,9 +101,15 @@ class NotificacaoMiddleware(MiddlewareMixin):
 
 @receiver(post_save, sender=Rating)
 def avaliacao_counter(sender, instance, created, **kwargs):
-    if instance.content_type_id == 14:  # vaga
+    if instance.content_type_id == ContentType.objects.get(app_label='sva', model='vaga').pk:
         vaga = Vaga.objects.get(pk=instance.object_id)
         vaga.nota_media = instance.average
         vaga.save()
-    # TODO: Criar avaliação para outras coisas além de vagas.
-    # Verificar na tabela do banco django_ratings_rating outros IDs dos objetos que têm avaliação.
+    elif instance.content_type_id == ContentType.objects.get(app_label='sva', model='professor').pk:
+        professor = Professor.objects.get(pk=instance.object_id)
+        professor.nota_media = instance.average
+        professor.save()
+    elif instance.content_type_id == ContentType.objects.get(app_label='sva', model='empresa').pk:
+        empresa = Empresa.objects.get(pk=instance.object_id)
+        empresa.nota_media = instance.average
+        empresa.save()

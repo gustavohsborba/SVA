@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q, Value
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
@@ -51,33 +51,25 @@ def formulario_contato(request):
 
 @login_required
 def pesquisar_vaga(request):
-    form =  FormularioPesquisaVagasAluno(request.POST)
-    context = {}
-    context['form']=form
+    form = FormularioPesquisaVagasAluno(request.POST)
+    vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+    busca = []
+    # TODO: É possível fazer o formulário de pesquisas por vagas do aluno ter um campo de texto apenas, onde se pesquisa por todos esses campos aí.
     if form.is_valid():
-            if form.cleaned_data['Area_Atuacao']=="":
-                context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'])
-                context['busca'] = form.cleaned_data['Vaga_Cadastrada']
-            elif form.cleaned_data['Vaga_Cadastrada']=="":
-                areas=AreaAtuacao.objects.filter(nome__icontains= form.cleaned_data['Area_Atuacao'])
-                context['busca'] = form.cleaned_data['Area_Atuacao']
-                for area in areas:
-                    context['vagas'] = Vaga.objects.filter(areas_atuacao=area.id)
-            else:
-                areas = AreaAtuacao.objects.filter(nome__icontains=form.cleaned_data['Area_Atuacao'])
-                context['busca'] = form.cleaned_data['Vaga_Cadastrada']+", "+form.cleaned_data['Area_Atuacao']
-                for area in areas:
-                    context['vagas'] = Vaga.objects.filter(titulo__icontains= form.cleaned_data['Vaga_Cadastrada'], areas_atuacao=area.id)
-    else:
-        context['vagas'] = Vaga.objects.filter()
-        context['busca'] = ""
-
+        if form.cleaned_data.get('Vaga_Cadastrada'):
+            vagas = vagas.filter(titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
+            busca.append(form.cleaned_data['Vaga_Cadastrada'])
+        if form.cleaned_data.get('Area_Atuacao'):
+            vagas = vagas.filter(areas_atuacao__nome__icontains=form.cleaned_data['Area_Atuacao'])
+            busca.append(form.cleaned_data['Area_Atuacao'])
     if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
         busca_rapida = request.POST.get('buscar_keyword')
-        context['vagas'] = Vaga.objects.filter(titulo__icontains=busca_rapida)
-        context['busca'] = request.POST.get('buscar_keyword')
-    context['now']= timezone.now()
+        vagas = vagas.filter(titulo__icontains=busca_rapida)
+        busca.append(request.POST.get('buscar_keyword'))
+    busca = ','.join(busca)
+    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
+
 
 @login_required
 @user_passes_test(isGerenteVaga, login_url="/home/")
@@ -107,8 +99,8 @@ def gerenciar_vaga(request):
 @user_passes_test(isGerenteVaga, login_url="/home/")
 def criar_vaga(request):
     gerente = GerenteVaga.objects.get(user=request.user)
-    if gerente is None:
-        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+    if gerente is None or gerente.situacao != "DEFERIDO":
+        messages.error(request, mensagens.ERRO_GERENTE_INATIVO, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
 
     if request.method == 'POST':
@@ -125,7 +117,8 @@ def criar_vaga(request):
             return redirect(gerenciar_vaga)
     else:
         form = FormularioVaga()
-    return render(request, 'sva/vaga/criarVaga.html', {'form': form})
+    context = {'form': form, 'gerente': gerente}
+    return render(request, 'sva/vaga/criarVaga.html', context)
 
 
 @login_required
@@ -281,7 +274,7 @@ def aprovar_vaga(request, pkvaga):
     if vaga is not None and form.is_valid() and form.cleaned_data['aprovado'] == 'true':
         vaga.situacao = Vaga.ATIVA
         vaga.data_aprovacao = datetime.now()
-        vaga.usuario_aprovacao = request.user.first_name + ' ' + request.user.last_name
+        vaga.usuario_aprovacao = request.user
         vaga.save()
         mensagem = 'Seu cadastro da vaga %s foi aprovado no SVA por %s. Segue mensagem:\n\n %s' \
                    % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
@@ -486,6 +479,7 @@ def exibir_empresa(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
 def listar_empresa(request):
     form = FormularioPesquisaEmpresa(request.POST)
     empresas = Empresa.objects.filter(situacao=Empresa.DEFERIDO)
@@ -570,12 +564,14 @@ def editar_aluno(request, pk):
            'Complemento': Parte[2] if len(Parte) >= 3 else '',
            'Cidade': Parte[3] if len(Parte) >= 4 else '',
            'Estado': Parte[4] if len(Parte) >= 5 else '',
-           'Nome_Completo': Nome}
+           'Nome_Completo': Nome,
+            'Email': aluno.user.email}
     if request.method == 'POST':
         form = FormularioEditarAluno(request.POST, instance=aluno, initial=initial)
         if form.is_valid():
             aluno.curso = form.cleaned_data['curso']
             aluno.telefone = form.cleaned_data['telefone']
+            aluno.user.email = form.cleaned_data['Email']
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
             aluno.endereco = form.cleaned_data['Rua'] + ',' + \
@@ -590,6 +586,7 @@ def editar_aluno(request, pk):
             aluno.habilidades = form.cleaned_data['habilidades']
             aluno.user.save()
             messages.success(request, 'Editado com sucesso')
+            return redirect(exibir_aluno, pk)
     else:
         form = FormularioEditarAluno(instance=aluno, initial=initial)
     return render(request, 'sva/aluno/EditarAluno.html', {'form': form})
@@ -667,7 +664,6 @@ def download_curriculo(request,pk):
     if pk != str(request.user.id):
         gerente = GerenteVaga.objects.get(user=request.user)
         if gerente is None:
-            return redirect("login")
             messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
             return HttpResponseRedirect('/home/')
     filename = aluno.curriculo.name.split('/')[-1]
@@ -745,19 +741,22 @@ def editar_professor(request, pk):
     Nome = professor.user.first_name + ' ' + professor.user.last_name
     Telefone = professor.telefone
     Curso = professor.curso
+    Email = professor.user.email
     initial = {
         'Nome_Completo': Nome,
-        'Telefone': Telefone,
-        'Curso': Curso}
+        'telefone': Telefone,
+        'Curso': Curso,
+        'Email': Email}
 
     if request.method == 'POST':
         form = FormularioEditarProfessor(request.POST, instance=professor, initial=initial)
         if form.is_valid():
             texto = form.cleaned_data['Nome_Completo']
             Nome = texto.split(" ", 1)
+            professor.user.email = form.cleaned_data['Email']
             professor.curso = form.cleaned_data['curso']
             professor.siape = form.cleaned_data['siape']
-            professor.telefone = form.cleaned_data['Telefone']
+            professor.telefone = form.cleaned_data['telefone']
             professor.save()
             professor.user.first_name = Nome[0] if len(Nome) > 0 else ''
             professor.user.last_name = Nome[1] if len(Nome) > 1 else ''

@@ -1,5 +1,6 @@
 {% extends 'sva/base.html' %}
 {% load svatags %}
+{% load ratings %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -11,10 +12,8 @@
                 <p class="text-muted text-center">SIAPE: {{ professor.siape }}</p>
 
 
-                <strong><i class="fa fa-envelope"></i> Curso: </strong>
-                <p>
-                    {{ professor.curso }}
-                </p>
+                <strong><span class="fa fa-graduation-cap"></span><b> Curso </b></strong>
+                <p>{{ professor.curso.nome }} ({{ professor.curso.sigla }})</p>
 
 
                 {# SEÇÃO DO ADMINISTRADOR -- APROVAÇÃO CASO EXISTA #}
@@ -72,7 +71,7 @@
                 <h3 class="text-muted box-title text-left">Contato</h3>
                 <strong><i class="fa fa-phone"></i> Telefone </strong>
                 <p>
-                    {{ professor.telefone }}
+                    {{ professor.telefone|default_if_none:'' }}
                 </p>
                 <strong><i class="fa fa-envelope"></i> Email </strong>
                 <p>
@@ -82,13 +81,13 @@
 
 
 
-                {% if professor.user.pk != request.user.pk and professor.data_aprovacao %}
-                    <hr>
-                    <h3 class="text-muted box-title text-left">Avaliação</h3>
-                    <strong><i class="fa fa-envelope"></i> Avaliação Média: </strong>
-                    <p>
-                        {{ professor.nota_media|default_if_none:" -- " }}
-                    </p>
+                {% if request.user|has_group:"Aluno" %}
+                    <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação do professor:</strong>
+                    <div>
+                        {# https://github.com/wildfish/django-star-ratings #}
+                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                        {% ratings professor %}
+                    </div>
                 {% endif %}
 
 

@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='empresa',
             name='endereco',
-            field=models.CharField(blank=True, max_length=100, null=True),
+            field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='empresa',
