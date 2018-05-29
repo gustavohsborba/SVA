@@ -643,8 +643,10 @@ def upload_curriculo(request,pk):
 
         if len(spl) == 2:
             curriculo = spl[1]
-    return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo,'data':aluno.data_upload_curriculo})
-
+    try:
+        return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo,'data':aluno.data_upload_curriculo,'visualizar':aluno.curriculo})
+    except:
+        return render(request, 'sva/aluno/curriculo.html', {'form': form,'curriculo':curriculo,'data':aluno.data_upload_curriculo,'visualizar':None})
 @login_required(login_url='/accounts/login/')
 def excluir_curriculo(request, pk):
     aluno = get_object_or_404(Aluno, user_id=pk)
@@ -671,7 +673,6 @@ def download_curriculo(request,pk):
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
 
     return response
-
 ###############################################################################
 #                                 ACESSO                                      #
 ###############################################################################
