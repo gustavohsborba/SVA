@@ -169,6 +169,7 @@ def visualizar_vaga(request, pkvaga):
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
     gerente = GerenteVaga.objects.get(vagas=vaga)
+    aluno_inscrito_exists = False
     if(request.user.groups.filter(name='Aluno').exists()):
         aluno = Aluno.objects.get(user_id=request.user.id)
         context['aluno'] = aluno
@@ -179,12 +180,17 @@ def visualizar_vaga(request, pkvaga):
             context['interessado'] = 0
         #Verifica se aluno logado eh inscrito na vaga
         if(vaga.alunos_inscritos.filter(id=aluno.id).exists()):
+            aluno_inscrito_exists = True
             context['inscrito'] = 1
             context['interessado'] = 2
         else:
             context['inscrito'] = 0
 
     context['gerente'] = gerente
+    if request.user != gerente.user and vaga.situacao != 3 and not is_admin(request.user) and not aluno_inscrito_exists:
+        messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
+        return redirect(principal_vaga)
+
     if request.method == 'POST':
         if 'subscribe' in request.POST:
             vaga.alunos_inscritos.add(aluno)
