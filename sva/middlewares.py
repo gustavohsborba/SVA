@@ -22,7 +22,8 @@ class NotificacaoMiddleware(MiddlewareMixin):
 
     TEXTO_NOTIFICACAO_INDICACAO_VAGA = '%s indicou a vaga %s pra você. Clique para visualizar'
     TEXTO_NOTIFICACAO_CADASTRO_VAGA = '%s cadastrou uma nova vaga. Clique para visualizar'
-    TEXTO_NOTIFICACAO_APROVACAO_VAGA = '%s cadastrou uma nova vaga. Clique para visualizar'
+    TEXTO_NOTIFICACAO_APROVACAO_VAGA = 'Sua vaga %s foi APROVADA Clique para visualizar'
+    TEXTO_NOTIFICACAO_REPROVACAO_VAGA = 'Sua vaga %s foi REPROVADA Clique para visualizar'
 
     TEXTO_NOTIFICACAO_SOLICITACAO_AREA = '%s solicitou uma nova área de atuação. Clique para verificar.'
 
@@ -40,6 +41,7 @@ class NotificacaoMiddleware(MiddlewareMixin):
                 notificacao.vaga = instance
                 notificacao.usuario = usuario
                 notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
+                notificacao.link = reverse("vaga_visualizar", args={instance.pk})
                 notificacao.save()
 
     @receiver(post_save, sender=Empresa)
@@ -78,12 +80,12 @@ class NotificacaoMiddleware(MiddlewareMixin):
 
             # Gera uma notificação pro Gerente
             gerente = instance.gerente_vaga
-
             notificacao = Notificacao()
             notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
             notificacao.vaga = instance
             notificacao.usuario = gerente.user
-            notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
+            notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_APROVACAO_VAGA % Vaga.titulo
+            notificacao.link = reverse("vaga_visualizar", args={instance.pk})
             notificacao.save()
 
             # Gera uma notificação pros alunos interessados:
@@ -97,6 +99,18 @@ class NotificacaoMiddleware(MiddlewareMixin):
             #    notificacao.usuario = usuario
             #    notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
             #    notificacao.save()
+
+    @receiver(post_save, sender=Vaga)
+    def cria_notificacao_reprovacao_vaga(sender, instance, created, **kwargs):
+        if not created and instance.situacao == Vaga.REPROVADA:
+            gerente = instance.gerente_vaga
+            notificacao = Notificacao()
+            notificacao.tipo = Notificacao.TIPO_REPROVACAO_VAGA
+            notificacao.vaga = instance
+            notificacao.usuario = gerente.user
+            notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_REPROVACAO_VAGA % Vaga.titulo
+            notificacao.link = reverse("vaga_editar", args={instance.pk})
+            notificacao.save()
 
 
 @receiver(post_save, sender=Rating)

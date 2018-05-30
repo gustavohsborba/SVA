@@ -282,6 +282,7 @@ class Notificacao(models.Model):
     TIPO_SOLICITACAO_AREA_ATUACAO = 7
     TIPO_NOVA_MENSAGEM_FORUM = 8
     TIPO_RESPOSTA_FORUM = 9
+    TIPO_REPROVACAO_VAGA = 10
 
     TIPO_NOTIFICACAO_CHOICES = {(TIPO_INDICACAO, 'Indicação de Vaga'),
                                 (TIPO_CADASTRO_PROFESSOR, 'Cadastro de Professor'),
@@ -291,6 +292,7 @@ class Notificacao(models.Model):
                                 (TIPO_VAGA_INTERESSE, 'Vaga de Interesse'),
                                 (TIPO_SOLICITACAO_AREA_ATUACAO, 'Solicitação de Área de Atuação'),
                                 (TIPO_NOVA_MENSAGEM_FORUM, 'Nova Mensagem no Fórum'),
+                                (TIPO_REPROVACAO_VAGA, 'Vaga Reprovada'),
                                 (TIPO_RESPOSTA_FORUM, 'Resposta no Fórum')}
 
     vaga = models.ForeignKey(to=Vaga, null=True, blank=True, on_delete=models.CASCADE, related_name='notificacoes')
