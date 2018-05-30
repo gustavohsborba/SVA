@@ -455,11 +455,11 @@ def excluir_empresa(request, pk):
         if vaga.vencida is False and vaga.situacao == 3:
             do_not_execute = True
     if do_not_execute is False:
+        Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
         empresa.user.is_active = False
         empresa.situacao = Empresa.EXCLUIDO
         empresa.save()
         empresa.user.save()
-        #Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  #NAO EH NECESSARIO
         messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
         return HttpResponseRedirect('/home/')
     else:
@@ -793,6 +793,7 @@ def excluir_professor(request, pk):
         if vaga.vencida is False and vaga.situacao == 3:
             do_not_execute = True
     if do_not_execute is False:
+        Vaga.objects.filter(gerente_vaga=professor, situacao__range=(1,3)).update(situacao=4)
         professor.user.is_active = False
         professor.situacao = Professor.EXCLUIDO
         professor.user.save()
