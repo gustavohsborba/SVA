@@ -221,7 +221,6 @@ def editar_vaga(request, pkvaga):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
     vaga = get_object_or_404(Vaga, id=pkvaga)
-
     if vaga.gerente_vaga_id != gerente.id:
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
@@ -229,7 +228,7 @@ def editar_vaga(request, pkvaga):
     if request.method == 'GET':
         form = FormularioVaga(instance=vaga)
         context = {}
-        if(vaga.data_validade is not None):
+        if vaga.data_validade is not None:
             data_val = vaga.data_validade.strftime('%Y-%m-%dT%H:%M')
             context['data_val'] = data_val
         context['form'] = form
@@ -251,7 +250,6 @@ def editar_vaga(request, pkvaga):
         vaga.save()
         messages.success(request, 'Editado com sucesso')
         return redirect(gerenciar_vaga)
-
 
 
 @login_required
@@ -289,6 +287,7 @@ def aprovar_vaga(request, pkvaga):
     else:
         vaga.situacao = Vaga.REPROVADA
         vaga.save()
+        vaga.descricao = form.cleaned_data['justificativa'] + '\n\n' + vaga.descricao
         mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',

@@ -287,6 +287,8 @@ class Notificacao(models.Model):
     TIPO_SOLICITACAO_AREA_ATUACAO = 7
     TIPO_NOVA_MENSAGEM_FORUM = 8
     TIPO_RESPOSTA_FORUM = 9
+    TIPO_REPROVACAO_VAGA = 10
+    TIPO_NOVOS_CANDIDATOS = 11
 
     TIPO_NOTIFICACAO_CHOICES = {(TIPO_INDICACAO, 'Indicação de Vaga'),
                                 (TIPO_CADASTRO_PROFESSOR, 'Cadastro de Professor'),
@@ -296,6 +298,8 @@ class Notificacao(models.Model):
                                 (TIPO_VAGA_INTERESSE, 'Vaga de Interesse'),
                                 (TIPO_SOLICITACAO_AREA_ATUACAO, 'Solicitação de Área de Atuação'),
                                 (TIPO_NOVA_MENSAGEM_FORUM, 'Nova Mensagem no Fórum'),
+                                (TIPO_REPROVACAO_VAGA, 'Vaga Reprovada'),
+                                (TIPO_NOVOS_CANDIDATOS, 'Novos Candidatos'),
                                 (TIPO_RESPOSTA_FORUM, 'Resposta no Fórum')}
 
     vaga = models.ForeignKey(to=Vaga, null=True, blank=True, on_delete=models.CASCADE, related_name='notificacoes')
@@ -307,6 +311,9 @@ class Notificacao(models.Model):
     lida = models.BooleanField(null=False, blank=False, default=False)
     data_leitura = models.DateTimeField(verbose_name='Data de visualização', null=True, blank=True)
     link = models.CharField(max_length=500, blank=True, null=True)
+    # TODO: CRIAR LINK INDIRETO DE NOTIFICAÇÃO (PARA SALVAR QUANDO ELA FOI LIDA)
+    # TODO: CRIAR DADOS_EXTRA PARA NOTIFICAÇÃO (INFORMAÇÕES ADICIONAIS)
+    # TODO: CRIAR CLASSES CSS PARA NOTIFICAÇÃO
 
     def __str__(self):
         return 'Para: %s %s\nMensagem: %s' % (self.usuario.first_name, self.usuario.last_name, self.mensagem)

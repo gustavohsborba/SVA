@@ -144,13 +144,16 @@
                 </p>
 
                 <hr>
-                <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da vaga:</strong>
-                    <div>
-                        {# https://github.com/wildfish/django-star-ratings #}
-                        {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
-                        {% ratings vaga %}
+
+                {% if request.user|has_group:"Aluno" %}
+                    <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da vaga:</strong>
+                        <div>
+                            {# https://github.com/wildfish/django-star-ratings #}
+                            {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
+                            {% ratings vaga %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
         </div>
     </div>
