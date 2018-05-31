@@ -31,11 +31,23 @@
             <!-- inner menu: contains the actual data -->
             <ul class="menu">
               {% for notificacao in notificacoes %}
-                  <li>
-                    <a href="{{ notificacao.url }}">
-                      <i class="fa fa-users text-aqua {{ notificacao.classes_css }}"></i> {{ notificacao.mensagem }}
-                    </a>
+                  <li><!-- start message -->
+                    <div>
+                      <div class="pull-left">
+                          <i class="img-circle fa {{ notificacao.classes_css }}"></i>
+                      </div>
+                      <div>
+                        <b>
+                          <a href="{{ notificacao.url }}">{{ notificacao.get_tipo_display }}</a>
+                          <small class="pull-right">
+                              <i class="fa fa-clock-o"></i> {{ notificacao.data_cadastro|date:"d/m H:i" }}
+                          </small>
+                        </b>
+                        <p> {{ notificacao.mensagem }} </p>
+                      </div>
+                    </div>
                   </li>
+
               {% endfor %}
             </ul>
           </li>
