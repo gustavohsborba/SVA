@@ -166,8 +166,10 @@ def encerrar_inscricao_vaga(request, pkvaga):
 
 def visualizar_vaga(request, pkvaga):
     context = {}
+    form = IndicarVaga(request.POST)
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
+    context['form'] = form
     gerente = GerenteVaga.objects.get(vagas=vaga)
     if(request.user.groups.filter(name='Aluno').exists()):
         aluno = Aluno.objects.get(user_id=request.user.id)
@@ -202,6 +204,36 @@ def visualizar_vaga(request, pkvaga):
         elif 'uninterested' in request.POST:
             vaga.alunos_interessados.remove(aluno)
             return redirect(visualizar_vaga, vaga.id)
+        elif 'indicar' in request.POST:
+            if form.is_valid():
+                if form.cleaned_data['email'] != aluno.user.email:
+                    try:
+                        notifica = Notificacao()
+                        notifica.tipo = 1
+                        notifica.mensagem = aluno.user.first_name + ' indicou uma vaga para você. Clique para visualizar'
+                        notifica.link = '/vaga/' + pkvaga
+                        notifica.usuario = User.objects.get(email=form.cleaned_data['email'])
+                        try:
+                            Aluno.objects.get(user=notifica.usuario)
+                        except:
+                            messages.error(request, 'O email indicado é de um usuário do sistema que não tem permissão para ser indicado')
+                            return redirect(visualizar_vaga, vaga.id)
+                        notifica.vaga = vaga
+                        notifica.save()
+                        mensagem = aluno.user.first_name+ ' indicou uma vaga para você. \n\n Descrição:\n\n ' \
+                                   +vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    except:
+                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. %s. Descrição:\n\n %s' \
+                                   + vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    messages.success(request, 'Indicado com sucesso')
+                    return redirect(visualizar_vaga, vaga.id)
+                else:
+                    messages.error(request, 'Email invalido')
+                    return redirect(visualizar_vaga, vaga.id)
     context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
