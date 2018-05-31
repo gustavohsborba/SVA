@@ -206,7 +206,6 @@ def visualizar_vaga(request, pkvaga):
             return redirect(visualizar_vaga, vaga.id)
         elif 'indicar' in request.POST:
             if form.is_valid():
-                if form.cleaned_data['email'] != aluno.user.email:
                     try:
                         notifica = Notificacao()
                         notifica.tipo = 1
@@ -225,14 +224,11 @@ def visualizar_vaga(request, pkvaga):
                         send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
                                   mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
                     except:
-                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. %s. Descrição:\n\n %s' \
+                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. \n\n Descrição:\n\n %s' \
                                    + vaga.descricao
                         send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
                                   mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
                     messages.success(request, 'Indicado com sucesso')
-                    return redirect(visualizar_vaga, vaga.id)
-                else:
-                    messages.error(request, 'Email invalido')
                     return redirect(visualizar_vaga, vaga.id)
     context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)

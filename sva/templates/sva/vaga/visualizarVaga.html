@@ -77,16 +77,16 @@
                                 </div>
                             </div>
                         </form>
-                            <div id="myModal" class="modal col-md-10 col-md-offset-2">
+                            <div id="myModal" class="modal col-md-12  ">
 
                               <!-- Modal content -->
-                              <div class="modal-content text-center">
+                              <div class="modal-content  text-center">
                                 <div class="modal-header ">
                                   <span class="close">&times;</span>
                                   <h2>Indicar vaga</h2>
                                 </div>
                                 <div class="modal-body">
-                                    <form action="" method="post">
+                                    <form  action=""  onsubmit="return validarCampos(this)"  method="post">
                                         {% csrf_token %}
                                         <p>{{form.email}}</p>
                                         <button  class="btn btn-primary " type="" onclick="offmodal()">cancelar</button>
@@ -149,7 +149,11 @@
               <h3 class="box-title text-center">Informações básicas</h3>
             </div>
             <div class="box-body">
+                {% if request.user|has_group:"Aluno" %}
+                    {% if vaga.situacao == 3 and not vaga.vencida %}
                 <button id="myBtn" class="btn btn-success pull-right"><i class="fa fa-users margin-r-5"></i>Indicar vaga</button>
+                    {%endif%}
+                {%endif%}
                 <strong><i class="fa fa-map-marker margin-r-5"></i> Local </strong>
                 <p>{{vaga.local}}</p>
                 <strong><i class="fa fa-clock-o margin-r-5"></i> Carga horária semanal </strong>
@@ -182,6 +186,7 @@
 
  <script language="Javascript">
 
+        var email = document.getElementById('email');
 
         var modal = document.getElementById('myModal');
 
@@ -206,6 +211,12 @@
         function offmodal() {
             modal.style.display = "none";
         }
-
+        function validarCampos(e){
+            if(e.email.value == "{{aluno.user.email}}"){
+                    alert("Email invalido, você não pode enviar um email para si mesmo");
+                    return false;
+            }
+            return true;
+         }
 </script>
 {% endblock %}
