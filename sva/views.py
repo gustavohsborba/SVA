@@ -210,7 +210,7 @@ def visualizar_vaga(request, pkvaga):
                         notifica = Notificacao()
                         notifica.tipo = 1
                         notifica.mensagem = aluno.user.first_name + ' indicou uma vaga para você. Clique para visualizar'
-                        notifica.link = '/vaga/' + pkvaga
+                        notifica.link = reverse("vaga_visualizar", args={pkvaga})
                         notifica.usuario = User.objects.get(email=form.cleaned_data['email'])
                         try:
                             Aluno.objects.get(user=notifica.usuario)
