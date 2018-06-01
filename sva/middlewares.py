@@ -99,7 +99,7 @@ class NotificacaoSignals:
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
                 notificacao.vaga = instance
                 notificacao.usuario = aluno.user
-                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+                notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
                 notificacao.link = reverse("vaga_visualizar", args={instance.pk})
                 notificacao.save()
 

@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q, Value
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
@@ -895,4 +895,22 @@ def aprovar_cadastro_professor(request, pk):
                   mensagem, 'sva@cefetmg.br', [professor.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/professor/Perfil.html', {'professor': professor})
+
+
+@transaction.atomic
+def acessar_notificacao(request):
+    pk = request.GET.get('pk', None)
+    notificacao = Notificacao.objects.get(pk=pk) if pk or pk!='' else None
+    if not notificacao:
+        data = {'erro': True}
+        return JsonResponse(data)
+    notificacao.lida = True
+    notificacao.data_leitura = datetime.now()
+    notificacao.save()
+    data = {
+        'sucesso': True,
+        'id_link': 'notflink-%d' % notificacao.pk,
+        'link': notificacao.link
+    }
+    return JsonResponse(data)
 
