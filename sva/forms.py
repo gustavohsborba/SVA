@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.admin import UserAdmin
 from django.core.validators import validate_email
+
 from .models import *
 from django.contrib.auth.forms import AuthenticationForm
 import datetime
@@ -183,6 +184,13 @@ class LoginForm(AuthenticationForm):
     class Meta:
         #model = SignUp
         fields = ['usuário', 'senha']
+
+class FormularioPesquisarQuery(forms.Form):
+    texto = forms.CharField(max_length=50, required=False,
+                                      widget=forms.TextInput(attrs={'placeholder': 'Vaga', 'class': 'form-control'}))
+
+class FormularioPesquisarFilter(forms.Form):
+    curso = forms.ModelMultipleChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg"}))
 
 
 class FormularioPesquisaVagasAluno(forms.Form):

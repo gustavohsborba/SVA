@@ -1,46 +1,103 @@
 {% extends 'sva/base.html' %}
 {% block content %}
 
-<div class="row">
-    <div class="col-md-10 col-md-offset-3">
-        <form action="" method="POST" class="form-inline"  style=" margin-bottom:50px">
+<div class="container-fluid" style=" margin-bottom:50px">
+    <div class="col-md-9 col-md-offset-3">
+        <form action="" method="POST" class="form-inline" style=" margin-bottom:20px">
             {% csrf_token %}
-            <div class="input-group  ">
-                <div class="input-group-prepend input-group-lg" >
-                    {{ form.Vaga_Cadastrada }}
-                    {{form.Area_Atuacao}}
+            <div class="input-group">
+                <div class="input-group-prepend input-group-lg">
+                    {{ form_header.texto }}
                     <div class="input-group-btn" >
                         <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-</div>
-{% if busca is not None and busca != "" %}
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="list-group ">
-           <small class="text-muted pull-right" >Resultados da busca por: {{busca}}</small>
+    <div class="col-md-10 col-md-offset-2">
+
+        <div class="input-group">
+                <label>Curso</label>
+                {{form_filter.curso}}
+        </div>
+        <div class="input-group">
+            <select data-filter="model" class="filter-model filter form-control">
+                <option value="">Select Model</option>
+                <option value="">Show All</option>
+                <option value="Les Paul">Les Paul</option>
+            </select>
         </div>
     </div>
 </div>
-{% endif %}
 
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="list-group ">
-            {% for vaga in vagas %}
-                 <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-                   <div class="d-flex w-100 justify-content-between">
-                       <h4 class="mb-1">{{vaga.titulo}}</h4>
-                   </div>
-                    <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
-                     {% if vaga.data_validade.date is not None %}
-                         {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
-                             {%ifnotequal data "dias"%}
-                                 {%ifnotequal data "dia"%}
-                                    <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+<div class="container-fluid">
+    {% if busca is not None and busca != "" %}
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="list-group ">
+               <small class="text-muted pull-right" >Resultados da busca por: {{busca}}</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box">
+                <div class="box-header">
+                  <h3 class="box-title">Filtros</h3>
+                </div>
+                <div class="box-body">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default">Action</button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </div>
+                    eeeee
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="list-group ">
+                {% for vaga in vagas %}
+                     <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                       <div class="d-flex w-100 justify-content-between">
+                           <h4 class="mb-1">{{vaga.titulo}}</h4>
+                       </div>
+                        <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
+                         {% if vaga.data_validade.date is not None %}
+                             {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
+                                 {%ifnotequal data "dias"%}
+                                     {%ifnotequal data "dia"%}
+                                        <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                     {%else%}
+                                         {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                             {%if teste <= 3 %}
+                                                 <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                             {%else%}
+                                                 <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                             {%endif%}
+                                         {%endwith%}
+                                    {%endifnotequal%}
                                  {%else%}
                                      {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
                                          {%if teste <= 3 %}
@@ -49,26 +106,16 @@
                                              <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
                                          {%endif%}
                                      {%endwith%}
-                                {%endifnotequal%}
-                             {%else%}
-                                 {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
-                                     {%if teste <= 3 %}
-                                         <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
-                                     {%else%}
-                                         <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                                     {%endif%}
-                                 {%endwith%}
-                             {%endifnotequal%}
-                         {%endwith%}
-                     {% else %}
-                        <p  class ="pull-right" >Inscrições abertas</p>
-                     {% endif %}
-                     <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
-                 </a>
-            {% endfor %}
+                                 {%endifnotequal%}
+                             {%endwith%}
+                         {% else %}
+                            <p  class ="pull-right" >Inscrições abertas</p>
+                         {% endif %}
+                         <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                     </a>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
-

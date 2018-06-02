@@ -51,7 +51,9 @@ def formulario_contato(request):
 
 @login_required
 def pesquisar_vaga(request):
-    form = FormularioPesquisaVagasAluno(request.POST)
+    form_header = FormularioPesquisarQuery(request.POST)
+    form_filter = FormularioPesquisarFilter(request.POST)
+    form = FormularioPesquisarQuery(request.POST)
     vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
     busca = []
     # TODO: É possível fazer o formulário de pesquisas por vagas do aluno ter um campo de texto apenas, onde se pesquisa por todos esses campos aí.
@@ -67,7 +69,7 @@ def pesquisar_vaga(request):
         vagas = vagas.filter(titulo__icontains=busca_rapida)
         busca.append(request.POST.get('buscar_keyword'))
     busca = ','.join(busca)
-    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca}
+    context = {'now': datetime.now(), 'form_header': form_header, 'form_filter': form_filter, 'vagas': vagas, 'busca': busca}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 
