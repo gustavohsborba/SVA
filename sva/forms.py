@@ -231,3 +231,6 @@ class UploadCurriculo(forms.ModelForm):
         self.fields['curriculo'].widget.attrs['id'] = 'files-input-upload'
         self.fields['curriculo'].widget.attrs['class'] = 'input-file'
         self.fields['curriculo'].widget.attrs['data-max-size'] = '32154'
+
+class IndicarVaga(forms.Form):
+    email = forms.EmailField(required=True,max_length=50,widget=forms.EmailInput(attrs={'class':'form-control form-control-lg','placeholder':'Digite um email..','id':'email' }))
