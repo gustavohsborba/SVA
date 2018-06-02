@@ -166,8 +166,10 @@ def encerrar_inscricao_vaga(request, pkvaga):
 
 def visualizar_vaga(request, pkvaga):
     context = {}
+    form = IndicarVaga(request.POST)
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
+    context['form'] = form
     gerente = GerenteVaga.objects.get(vagas=vaga)
     if(request.user.groups.filter(name='Aluno').exists()):
         aluno = Aluno.objects.get(user_id=request.user.id)
@@ -202,6 +204,32 @@ def visualizar_vaga(request, pkvaga):
         elif 'uninterested' in request.POST:
             vaga.alunos_interessados.remove(aluno)
             return redirect(visualizar_vaga, vaga.id)
+        elif 'indicar' in request.POST:
+            if form.is_valid():
+                    try:
+                        notifica = Notificacao()
+                        notifica.tipo = 1
+                        notifica.mensagem = aluno.user.first_name + ' indicou uma vaga para você. Clique para visualizar'
+                        notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                        notifica.usuario = User.objects.get(email=form.cleaned_data['email'])
+                        try:
+                            Aluno.objects.get(user=notifica.usuario)
+                        except:
+                            messages.error(request, 'O email indicado é de um usuário do sistema que não tem permissão para ser indicado')
+                            return redirect(visualizar_vaga, vaga.id)
+                        notifica.vaga = vaga
+                        notifica.save()
+                        mensagem = aluno.user.first_name+ ' indicou uma vaga para você. \n\n Descrição:\n\n ' \
+                                   +vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    except:
+                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. \n\n Descrição:\n\n %s' \
+                                   + vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    messages.success(request, 'Indicado com sucesso')
+                    return redirect(visualizar_vaga, vaga.id)
     context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
@@ -441,20 +469,30 @@ def editar_empresa(request, pk):
 
     return render(request, 'sva/empresa/EditarEmpresa.html', {'form': form, 'empresa': empresa})
 
-
+@transaction.atomic
 @login_required(login_url='/accounts/login/')
 def excluir_empresa(request, pk):
     empresa = get_object_or_404(Empresa, user_id=pk)
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    empresa.user.is_active = False
-    empresa.situacao = Empresa.EXCLUIDO
-    empresa.save()
-    empresa.user.save()
-    Vaga.objects.filter(gerente_vaga=empresa).update(situacao=4)  # inativa as vagas
-    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-    return HttpResponseRedirect('/home/')
+    vagas = Vaga.objects.filter(gerente_vaga=empresa)
+    do_not_execute = False
+    for vaga in vagas:
+        if vaga.vencida is False and vaga.situacao == 3:
+            do_not_execute = True
+    if do_not_execute is False:
+        Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
+        empresa.user.is_active = False
+        empresa.situacao = Empresa.EXCLUIDO
+        empresa.save()
+        empresa.user.save()
+        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')
+    else:
+        messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
+
 
 
 def exibir_empresa(request, pk):
@@ -775,14 +813,23 @@ def excluir_professor(request, pk):
     if pk != str(request.user.id):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
-    professor.user.is_active = False
-    professor.situacao = Professor.EXCLUIDO
-    Vaga.objects.filter(gerente_vaga=professor).update(situacao=4)  # inativa as vagas
-    professor.user.save()
-    professor.save()
-    messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-    return HttpResponseRedirect('/home/')
 
+    vagas = Vaga.objects.filter(gerente_vaga=professor)
+    do_not_execute = False
+    for vaga in vagas:
+        if vaga.vencida is False and vaga.situacao == 3:
+            do_not_execute = True
+    if do_not_execute is False:
+        Vaga.objects.filter(gerente_vaga=professor, situacao__range=(1,3)).update(situacao=4)
+        professor.user.is_active = False
+        professor.situacao = Professor.EXCLUIDO
+        professor.user.save()
+        professor.save()
+        messages.error(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+        return HttpResponseRedirect('/home/')
+    else:
+        messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
+        return HttpResponseRedirect('/home/')
 
 @login_required(login_url="/home/")
 def Listar_Vagas_Aluno(request, pk):

@@ -258,6 +258,11 @@ class Vaga(models.Model):
     def __str__(self):
         return '%s - %s' % (self.titulo, self.gerente_vaga.user.first_name)
 
+def verificaValidade(instance, **kwargs):
+    if instance.vencida is True and instance.situacao == 3:
+        instance.situacao = 4
+
+models.signals.post_init.connect(verificaValidade, Vaga)
 
 class Avaliacao(models.Model):
     aluno_avaliador = models.ForeignKey(Aluno, blank=False, null=False)
