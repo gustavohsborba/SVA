@@ -15,7 +15,8 @@ from .models import *
 
 def notificacoes_context_processor(request):
     context_data = dict()
-    context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
+    if request.user.is_authenticated():
+        context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
     return context_data
 
 
