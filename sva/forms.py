@@ -185,12 +185,11 @@ class LoginForm(AuthenticationForm):
         #model = SignUp
         fields = ['usuário', 'senha']
 
-class FormularioPesquisarQuery(forms.Form):
-    texto = forms.CharField(max_length=50, required=False,
-                                      widget=forms.TextInput(attrs={'placeholder': 'Vaga', 'class': 'form-control'}))
-
-class FormularioPesquisarFilter(forms.Form):
-    curso = forms.ModelMultipleChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg"}))
+class FormularioPesquisarVagas(forms.Form):
+    def is_valid(self):
+        return True
+    #NAO MUDAR O NOME DESSE CAMPO!!!
+    curso_1 = forms.ModelMultipleChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg","style": "display: none;", "name":"curso"}))
 
 
 class FormularioPesquisaVagasAluno(forms.Form):

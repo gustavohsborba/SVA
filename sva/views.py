@@ -51,25 +51,28 @@ def formulario_contato(request):
 
 @login_required
 def pesquisar_vaga(request):
-    form_header = FormularioPesquisarQuery(request.POST)
-    form_filter = FormularioPesquisarFilter(request.POST)
-    form = FormularioPesquisarQuery(request.POST)
+
+    form = FormularioPesquisarVagas(request.POST)
     vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
     busca = []
-    # TODO: É possível fazer o formulário de pesquisas por vagas do aluno ter um campo de texto apenas, onde se pesquisa por todos esses campos aí.
-    if form.is_valid():
+    initial = ""
+    '''if form.is_valid():
         if form.cleaned_data.get('Vaga_Cadastrada'):
             vagas = vagas.filter(titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
             busca.append(form.cleaned_data['Vaga_Cadastrada'])
         if form.cleaned_data.get('Area_Atuacao'):
             vagas = vagas.filter(areas_atuacao__nome__icontains=form.cleaned_data['Area_Atuacao'])
-            busca.append(form.cleaned_data['Area_Atuacao'])
+            busca.append(form.cleaned_data['Area_Atuacao'])'''
+    if form.is_valid():
+        busca = request.POST.getlist('texto')
+    # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
     if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
         busca_rapida = request.POST.get('buscar_keyword')
         vagas = vagas.filter(titulo__icontains=busca_rapida)
         busca.append(request.POST.get('buscar_keyword'))
+        initial = busca_rapida
     busca = ','.join(busca)
-    context = {'now': datetime.now(), 'form_header': form_header, 'form_filter': form_filter, 'vagas': vagas, 'busca': busca}
+    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial }
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 

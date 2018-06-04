@@ -1,94 +1,279 @@
 {% extends 'sva/base.html' %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
+    <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!--//https://codepen.io/jackiejohnston/pen/NNrpjQ-->
+    <script src="{% static 'js/uislider.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/uislider.css' %}">
+    <!--https://cdnjs.com/libraries/bootstrap-slider-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/bootstrap-slider.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/css/bootstrap-slider.css">
+    <!--https://bootsnipp.com/snippets/ZkMKE-->
+    <link rel="stylesheet" href="{% static 'css/fancy-checkbox.css' %}">
+{% endblock %}
 {% block content %}
-
-<div class="container-fluid" style=" margin-bottom:50px">
-    <div class="col-md-9 col-md-offset-3">
-        <form action="" method="POST" class="form-inline" style=" margin-bottom:20px">
-            {% csrf_token %}
-            <div class="input-group">
-                <div class="input-group-prepend input-group-lg">
-                    {{ form_header.texto }}
-                    <div class="input-group-btn" >
-                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="col-md-10 col-md-offset-2">
-
-        <div class="input-group">
-                <label>Curso</label>
-                {{form_filter.curso}}
-        </div>
-        <div class="input-group">
-            <select data-filter="model" class="filter-model filter form-control">
-                <option value="">Select Model</option>
-                <option value="">Show All</option>
-                <option value="Les Paul">Les Paul</option>
-            </select>
-        </div>
-    </div>
-</div>
-
 <div class="container-fluid">
-    {% if busca is not None and busca != "" %}
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
-            <div class="list-group ">
-               <small class="text-muted pull-right" >Resultados da busca por: {{busca}}</small>
+    <form action="" method="POST">
+    {% csrf_token %}
+    <div class="container-fluid" style="margin-bottom:50px">
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <label>Filtrar pesquisa por</label>
             </div>
         </div>
-    </div>
-    {% endif %}
-    <div class="row">
-        <div class="col-md-3">
-            <div class="box">
-                <div class="box-header">
-                  <h3 class="box-title">Filtros</h3>
-                </div>
-                <div class="box-body">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default">Action</button>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <div class="form-inline form-group"  style="margin-bottom:20px">
+                    <div class="input-group">
+                        <div class="input-group-prepend input-group-lg" style="margin-bottom:5px" id="1">
+                            <select data-filter="model" class="filter-model filter form-control" name="filtro" id="id_filtro_1">
+                                <option value="1">Todos os campos</option>
+                                <option value="2">Nome de vagas</option>
+                                <option value="3">Empresas e/ou professores</option>
+                                <option value="4">Áreas de atuação</option>
+                                <option value="5">Cursos</option>
+                                <option value="6">Descrição</option>
+                                <option value="7">Local</option>
+                            </select>
+                            <input type="text" name="texto" placeholder="Palavras-chave" class="form-control" maxlength="50" id="id_texto_1" value="{{initial}}">
+                            {{form.curso_1}}
+                            <div class="input-group-btn" >
+                                <button type="button" class="btn bg-olive btn-flat btn-default btn-add"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-lg btn-block btn-primary"><i class="glyphicon glyphicon-search" ></i> Pesquisar</button>
+                        <script>
+                            $(document).submit(function () {
+                                debugger;
+                                $('#min-value').val($('#slider-range-value1').text());
+                                $('#max-value').val($('#slider-range-value2').text());
+                            });
+                        </script>
                     </div>
-                    eeeee
                 </div>
             </div>
         </div>
-        <div class="col-md-9">
-            <div class="list-group ">
-                {% for vaga in vagas %}
-                     <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
-                       <div class="d-flex w-100 justify-content-between">
-                           <h4 class="mb-1">{{vaga.titulo}}</h4>
-                       </div>
-                        <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
-                         {% if vaga.data_validade.date is not None %}
-                             {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
-                                 {%ifnotequal data "dias"%}
-                                     {%ifnotequal data "dia"%}
-                                        <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+        <script>
+            var count=2;
+
+            $('.input-group-prepend').on('change', function() {
+                var currentId = $(this).attr("id");
+              if ( $("#id_filtro_"+currentId).val() == 5)
+              {
+                $("#id_curso_"+currentId).show();
+                $("#id_texto_"+currentId).hide();
+              }
+              else
+              {
+                $("#id_curso_"+currentId).hide();
+                $("#id_texto_"+currentId).show();
+              }
+            });
+
+            $(document).ready(function(){
+                $("#id_curso_1").attr("name","curso");
+            });
+
+            $( document ).on( 'click', '.btn-add', function ( event ) {
+                event.preventDefault();
+
+                var field = $(this).closest( '.input-group-prepend' );
+                var field_new = field.clone(true, true);
+
+                $(this)
+                    .toggleClass( 'btn-default' )
+                    .toggleClass( 'btn-add' )
+                    .toggleClass( 'btn-danger' )
+                    .toggleClass( 'btn-remove' )
+                    .toggleClass( 'btn-flat' )
+                    .toggleClass( 'bg-maroon' )
+                    .html( '–' );
+
+                field_new.find("#id_curso_"+(count-1)).attr("id","id_curso_"+count);
+                field_new.find("#id_filtro_"+(count-1)).attr("id","id_filtro_"+count);
+                field_new.find("#id_texto_"+(count-1)).attr("id","id_texto_"+count);
+                field_new.attr("id",count);
+
+
+                field_new.find("#id_filtro_"+(count)).on('change', function() {
+                    var currentId = $(this).attr("id").slice(-1);;
+                  if ( $("#id_filtro_"+currentId).val() == 5)
+                  {
+                    $("#id_curso_"+currentId).show();
+                    $("#id_texto_"+currentId).hide();
+                  }
+                  else
+                  {
+                    $("#id_curso_"+currentId).hide();
+                    $("#id_texto_"+currentId).show();
+                  }
+                });
+
+                field_new.find("#id_curso_"+count).hide();
+                field_new.find("#id_texto_"+count).show();
+
+                field_new.find( 'input' ).val( '' );
+                field_new.insertAfter( field );
+
+                count++;
+            } );
+
+            $( document ).on( 'click', '.btn-remove', function ( event ) {
+                event.preventDefault();
+                $(this).closest( '.input-group-prepend' ).remove();
+            } );
+        </script>
+    </div>
+
+    <div class="container-fluid">
+        {% if busca is not None and busca != "" %}
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="list-group ">
+                   <small class="text-muted pull-right" >Resultados da busca por: {{busca}}</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-3">
+                <div class="box">
+                    <div class="box-header">
+                      <h3 class="box-title">Filtros específicos</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="input-group">
+                            <label for="id_ordem">Ordenar resultados por</label>
+                            <select data-filter="model" class="filter-model filter form-control" name="ordem" id="id_ordem">
+                                <option value="1">Mais recentes</option>
+                                <option value="2">Mais populares</option>
+                                <option value="3">Melhores avaliações</option>
+                                <option value="4">Mais comentadas</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <div class="input-group">
+                            <label>Buscar vagas de</label>
+                            <div class="checkbox checkbox-primary">
+                                <input id="id_estagio" name="estagio" type="checkbox" checked="">
+                                <label for="id_estagio">
+                                    Estágio
+                                </label>
+                            </div>
+                            <div class="checkbox checkbox-primary">
+                                <input id="id_ic" name="ic" type="checkbox" checked="">
+                                <label for="id_ic">
+                                    Iniciação Científica
+                                </label>
+                            </div>
+                            <div class="checkbox checkbox-primary">
+                                <input id="id_monitoria" name="monitoria" type="checkbox" checked="">
+                                <label for="id_monitoria">
+                                    Monitoria
+                                </label>
+                            </div>
+                            <div class="checkbox checkbox-primary">
+                                <input id="id_outros" name="outros" type="checkbox" checked="">
+                                <label for="id_outros">
+                                    Outros
+                                </label>
+                            </div>
+                        </div>
+                        <hr>
+                        <!--TEMPORARIAMENTE REMOVIDO POR NAO ATENDER ESPECIFICACAO DO CSU-->
+                        <!--SALARIO SLIDER-->
+                        <!--<div style=" margin-bottom:10px;"></div>
+                        <label>Salário mínimo</label>
+                        <div style=" margin-bottom:5px;"></div>
+                        <input id="ex6" type="text" data-slider-min="0" data-slider-max="3000" data-slider-step="10" data-slider-value="300" style="width: 100%;"/>
+                        <p><span id="ex6CurrentSliderValLabel">&nbsp;R$<span id="ex6SliderVal">300</span></span></p>
+                        <script>
+                            $("#ex6").slider();
+                            $("#ex6").on("slide", function(slideEvt) {
+                                $("#ex6SliderVal").text(slideEvt.value);
+                            });
+                        </script>-->
+                        <label for="id_salario">Valor mínimo de bolsa</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">R$</span>
+                            <input type="number" name="salario" step="any" min="0" class="form-control" placeholder="000,00" id="id_salario">
+                        </div>
+                        <!--FIM SALARIO SLIDER-->
+                        <!--HORAS SLIDER-->
+                        <div style=" margin-bottom:10px;"></div>
+                        <label>Horas semanais</label>
+                        <div style=" margin-bottom:10px;"></div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div id="slider-range"></div>
+                            </div>
+                        </div>
+                        <div class="row slider-labels">
+                            <div class="col-xs-6 caption">
+                                <strong>Min.:</strong> <span name="min-horas" id="slider-range-value1"></span>h
+                            </div>
+                            <div class="col-xs-6 text-right caption">
+                                <strong>Máx.:</strong> <span name="max-horas" id="slider-range-value2"></span>h
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <input type="hidden" class="form-control" id="min-value" name="min-value" value="">
+                                <input type="hidden" class="form-control" id="max-value" name="max-value" value="">
+                                <script>
+                                $(document).ready(function(){
+                                    $('#min-value').val($('#slider-range-value1').text());
+                                    $('#max-value').val($('#slider-range-value2').text());
+                                });
+                                </script>
+                            </div>
+                        </div>
+                        <!--FIM HORAS SLIDER-->
+                        <hr>
+                        <!-- NOTA SLIDER -->
+                        <div style=" margin-bottom:10px;"></div>
+                        <label>Nota média mínima</label>
+                        <div style=" margin-bottom:10px;"></div>
+                        <div class="container-fluid">
+                        <input id="ex13" name="avaliacao" type="text" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
+                         "2 <i class="fa fa-fw fa-star"></i>", "3 <i class="fa fa-fw fa-star"></i>", "4 <i class="fa fa-fw fa-star"></i>", "5 <i class="fa fa-fw fa-star"></i>"]' style="width: 100%;"/>
+                        <script>
+                            $("#ex13").slider({
+                            value: 0,
+                            ticks: [0, 1, 2, 3, 4, 5],
+                            ticks_labels: ['0 <i class="fa fa-fw fa-star"></i>', '1 <i class="fa fa-fw fa-star"></i>', '2 <i class="fa fa-fw fa-star"></i>', '3 <i class="fa fa-fw fa-star"></i>', '4 <i class="fa fa-fw fa-star"></i>', '5 <i class="fa fa-fw fa-star"></i>'],
+                            ticks_snap_bounds: 100
+                        });
+                        </script>
+                            </div>
+                        <!-- FIM NOTA SLIDER -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="list-group ">
+                    {% for vaga in vagas %}
+                         <a href="{% url 'vaga_visualizar' pkvaga=vaga.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                           <div class="d-flex w-100 justify-content-between">
+                               <h4 class="mb-1">{{vaga.titulo}}</h4>
+                           </div>
+                            <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
+                             {% if vaga.data_validade.date is not None %}
+                                 {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
+                                     {%ifnotequal data "dias"%}
+                                         {%ifnotequal data "dia"%}
+                                            <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                         {%else%}
+                                             {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
+                                                 {%if teste <= 3 %}
+                                                     <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
+                                                 {%else%}
+                                                     <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
+                                                 {%endif%}
+                                             {%endwith%}
+                                        {%endifnotequal%}
                                      {%else%}
                                          {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
                                              {%if teste <= 3 %}
@@ -97,25 +282,18 @@
                                                  <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
                                              {%endif%}
                                          {%endwith%}
-                                    {%endifnotequal%}
-                                 {%else%}
-                                     {%with teste=now.date|timesince:vaga.data_validade.date|slice:":2"|add:0%}
-                                         {%if teste <= 3 %}
-                                             <p  class ="pull-right"  style="color:#d50000">Inscrições até: {{vaga.data_validade.date}}</p>
-                                         {%else%}
-                                             <p  class ="pull-right" >Inscrições até: {{vaga.data_validade.date}}</p>
-                                         {%endif%}
-                                     {%endwith%}
-                                 {%endifnotequal%}
-                             {%endwith%}
-                         {% else %}
-                            <p  class ="pull-right" >Inscrições abertas</p>
-                         {% endif %}
-                         <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
-                     </a>
-                {% endfor %}
+                                     {%endifnotequal%}
+                                 {%endwith%}
+                             {% else %}
+                                <p  class ="pull-right" >Inscrições abertas</p>
+                             {% endif %}
+                             <small class="text-muted"> {{vaga.gerente_vaga.user.first_name}} {{vaga.gerente_vaga.user.last_name}} </small>
+                         </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
+    </form>
 </div>
 {% endblock %}
