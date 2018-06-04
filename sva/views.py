@@ -52,9 +52,54 @@ def formulario_contato(request):
 @login_required
 def pesquisar_vaga(request):
 
+    def verificaAreasAtuacao(vaga, nome_area):
+        areas_vaga = AreaAtuacao.objects.filter(vagas=vaga)
+        for area in areas_vaga:
+            if nome_area in area.nome:
+                return True
+        return False
+    def verificaCursos(vaga, nome_curso):
+        cursos_vaga = Curso.objects.filter(vagas_atribuidas=vaga)
+        for curso in cursos_vaga:
+            if nome_curso in curso.nome or nome_curso in curso.sigla or nome_curso in curso.get_nivel_ensino_display():
+                return True
+        return False
+
     form = FormularioPesquisarVagas(request.POST)
     vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+    filtroSelecionado = []
+    inputTexto =  []
+    inputCurso =  []
+    inputArea =  []
     busca = []
+
+    if form.is_valid():
+        filtroSelecionado = request.POST.getlist('filtro')
+        inputTexto = request.POST.getlist('texto')
+        inputCurso = request.POST.getlist('curso')
+        inputArea = request.POST.getlist('area')
+        aux = 0
+        for filtro in filtroSelecionado:
+            vagasAux = []
+            cursoAux = False
+            if filtro == "1": #TODOS OS CAMPOS
+                for vaga in vagas:
+                    if inputTexto[aux] in vaga.gerente_vaga.user.first_name:
+                        vagasAux.append(vaga)
+                        continue
+                    if verificaAreasAtuacao(vaga, inputTexto[aux]):
+                        vagasAux.append(vaga)
+                        continue
+                    if verificaCursos(vaga, inputTexto[aux]):
+                        vagasAux.append(vaga)
+                        continue
+
+            vagas = vagasAux
+            aux+=1
+            busca.append(filtro)
+
+
+
     initial = ""
     '''if form.is_valid():
         if form.cleaned_data.get('Vaga_Cadastrada'):
@@ -64,7 +109,8 @@ def pesquisar_vaga(request):
             vagas = vagas.filter(areas_atuacao__nome__icontains=form.cleaned_data['Area_Atuacao'])
             busca.append(form.cleaned_data['Area_Atuacao'])'''
     if form.is_valid():
-        busca = request.POST.getlist('texto')
+        busca = busca
+        #busca = request.POST.getlist('texto')
     # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
     if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
         busca_rapida = request.POST.get('buscar_keyword')
