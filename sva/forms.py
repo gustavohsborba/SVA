@@ -188,8 +188,10 @@ class LoginForm(AuthenticationForm):
 class FormularioPesquisarVagas(forms.Form):
     def is_valid(self):
         return True
-    #NAO MUDAR O NOME DESSE CAMPO!!!
+    #NAO MUDAR O NOME DOS CAMPOS!!!
     curso_1 = forms.ModelMultipleChoiceField(queryset=Curso.objects.all(), widget=forms.Select(attrs={"class": "form-control form-control-lg","style": "display: none;", "name":"curso"}))
+    area_1 = forms.ModelMultipleChoiceField(queryset=AreaAtuacao.objects.all(), widget=forms.Select(
+        attrs={"class": "form-control form-control-lg", "style": "display: none;", "name": "area"}))
 
 
 class FormularioPesquisaVagasAluno(forms.Form):

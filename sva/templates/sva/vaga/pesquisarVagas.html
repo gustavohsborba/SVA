@@ -39,6 +39,7 @@
                             </select>
                             <input type="text" name="texto" placeholder="Palavras-chave" class="form-control" maxlength="50" id="id_texto_1" value="{{initial}}">
                             {{form.curso_1}}
+                            {{form.area_1}}
                             <div class="input-group-btn" >
                                 <button type="button" class="btn bg-olive btn-flat btn-default btn-add"><i class="fa fa-plus"></i></button>
                             </div>
@@ -46,7 +47,6 @@
                         <button type="submit" class="btn btn-lg btn-block btn-primary"><i class="glyphicon glyphicon-search" ></i> Pesquisar</button>
                         <script>
                             $(document).submit(function () {
-                                debugger;
                                 $('#min-value').val($('#slider-range-value1').text());
                                 $('#max-value').val($('#slider-range-value2').text());
                             });
@@ -64,16 +64,24 @@
               {
                 $("#id_curso_"+currentId).show();
                 $("#id_texto_"+currentId).hide();
+                $("#id_area_"+currentId).hide();
               }
-              else
+              else if( $("#id_filtro_"+currentId).val() == 4)
               {
                 $("#id_curso_"+currentId).hide();
+                $("#id_texto_"+currentId).hide();
+                $("#id_area_"+currentId).show();
+              }
+              else{
+                $("#id_curso_"+currentId).hide();
                 $("#id_texto_"+currentId).show();
+                $("#id_area_"+currentId).hide();
               }
             });
 
             $(document).ready(function(){
                 $("#id_curso_1").attr("name","curso");
+                $("#id_area_1").attr("name","area");
             });
 
             $( document ).on( 'click', '.btn-add', function ( event ) {
@@ -92,6 +100,7 @@
                     .html( '–' );
 
                 field_new.find("#id_curso_"+(count-1)).attr("id","id_curso_"+count);
+                field_new.find("#id_area_"+(count-1)).attr("id","id_area_"+count);
                 field_new.find("#id_filtro_"+(count-1)).attr("id","id_filtro_"+count);
                 field_new.find("#id_texto_"+(count-1)).attr("id","id_texto_"+count);
                 field_new.attr("id",count);
@@ -99,19 +108,27 @@
 
                 field_new.find("#id_filtro_"+(count)).on('change', function() {
                     var currentId = $(this).attr("id").slice(-1);;
-                  if ( $("#id_filtro_"+currentId).val() == 5)
-                  {
-                    $("#id_curso_"+currentId).show();
-                    $("#id_texto_"+currentId).hide();
-                  }
-                  else
-                  {
-                    $("#id_curso_"+currentId).hide();
-                    $("#id_texto_"+currentId).show();
-                  }
+                    if ( $("#id_filtro_"+currentId).val() == 5)
+                      {
+                        $("#id_curso_"+currentId).show();
+                        $("#id_texto_"+currentId).hide();
+                        $("#id_area_"+currentId).hide();
+                      }
+                      else if( $("#id_filtro_"+currentId).val() == 4)
+                      {
+                        $("#id_curso_"+currentId).hide();
+                        $("#id_texto_"+currentId).hide();
+                        $("#id_area_"+currentId).show();
+                      }
+                      else{
+                        $("#id_curso_"+currentId).hide();
+                        $("#id_texto_"+currentId).show();
+                        $("#id_area_"+currentId).hide();
+                      }
                 });
 
                 field_new.find("#id_curso_"+count).hide();
+                field_new.find("#id_area_"+count).hide();
                 field_new.find("#id_texto_"+count).show();
 
                 field_new.find( 'input' ).val( '' );
