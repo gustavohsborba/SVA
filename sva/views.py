@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Q, Value
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 import string
 from random import choice
 
@@ -967,3 +968,34 @@ def acessar_notificacao(request):
     }
     return JsonResponse(data)
 
+@csrf_exempt
+def gerenciar_areaatuacao(request):
+    context={}
+    areas=AreaAtuacao.objects.filter();
+    context['areas']=areas
+
+    if request.is_ajax():
+        print (request.POST['type'])
+        if(request.POST['type']=="edit"):
+            area=AreaAtuacao.objects.get(id=int(request.POST['id']))
+            area.nome=request.POST['data']
+            messages.success(request, 'Área de atuação editada com sucesso!', mensagens.MSG_SUCCESS)
+            area.save()
+        if (request.POST['type']=="delete"):
+            AreaAtuacao.objects.get(id=int(request.POST['id'])).delete()
+            messages.success(request, 'Área de atuação removida com sucesso!', mensagens.MSG_SUCCESS)
+            return redirect(gerenciar_areaatuacao)
+        return render(request, 'sva/vaga/areaatuacao.html', context)
+
+
+    if request.method == 'POST':
+        novaarea = AreaAtuacao()
+        if AreaAtuacao.objects.filter(nome=request.POST['new-texts']).first() :
+            messages.error(request, _('Essa área de atuação já existe'), mensagens.MSG_ERRO)
+            return redirect(gerenciar_areaatuacao)
+        novaarea.nome = request.POST['new-texts']
+        novaarea.save()
+        messages.success(request, 'Área de atuação criada com sucesso!',mensagens.MSG_SUCCESS)
+        return redirect(gerenciar_areaatuacao)
+
+    return render(request, 'sva/vaga/areaatuacao.html',context)
