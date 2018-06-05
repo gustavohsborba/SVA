@@ -314,6 +314,8 @@ def pesquisar_vaga(request):
         # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
         if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get(
                 'buscar_keyword') != '':
+            vagas = {}
+            vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
             busca_rapida = request.POST.get('buscar_keyword')
             vagas = vagas.filter(titulo__icontains=busca_rapida)
             busca.append(request.POST.get('buscar_keyword'))
