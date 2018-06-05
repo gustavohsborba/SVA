@@ -231,7 +231,7 @@ def visualizar_vaga(request, pkvaga):
                         send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
                                   mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
                     except:
-                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. \n\n Descrição:\n\n %s' \
+                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. \n\n Descrição:\n\n' \
                                    + vaga.descricao
                         send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
                                   mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
