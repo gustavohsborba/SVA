@@ -1,5 +1,7 @@
 {% extends 'sva/base.html' %}
 {% load static %}
+{% load svatags %}
+
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
     <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
@@ -13,6 +15,7 @@
     <!--https://bootsnipp.com/snippets/ZkMKE-->
     <link rel="stylesheet" href="{% static 'css/fancy-checkbox.css' %}">
 {% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <form action="" method="POST">
@@ -158,21 +161,38 @@
             <div class="col-md-3">
                 <div class="box">
                     <div class="box-header">
-                      <h3 class="box-title">Filtros específicos</h3>
+                        <h3 class="box-title">Filtros específicos</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
                     </div>
                     <div class="box-body">
                         <div class="input-group">
                             <label for="id_ordem">Ordenar resultados por</label>
                             <select data-filter="model" class="filter-model filter form-control" name="ordem" id="id_ordem">
                                 <option value="1">Mais recentes</option>
-                                <option value="2">Mais populares</option>
+                                <option value="2">Mais inscritas</option>
                                 <option value="3">Melhores avaliações</option>
                                 <option value="4">Mais comentadas</option>
+                                <option value="5">Menor prazo de inscrição</option>
                             </select>
                         </div>
+                        {% if request.user.is_superuser or request.user|has_groups:"Administrador" or request.user|has_groups:"Setor de Estágios" %}
+                        <div style=" margin-bottom:10px;"></div>
+                        <div class="input-group">
+                            <label for="id_superuser_option">Mostrar vagas </label>
+                            <select data-filter="model" class="filter-model filter form-control" name="superuser_option" id="id_superuser_option">
+                                <option value="1">Ativas</option>
+                                <option value="2">Pendentes de avaliação</option>
+                                <option value="3">Inativas</option>
+                                <option value="4">Reprovadas</option>
+                                <option value="5">Todas</option>
+                            </select>
+                        </div>
+                        {% endif %}
                         <hr>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="input-group">
                                     <label>Buscar vagas de</label>
                                     <div class="checkbox checkbox-primary">
@@ -196,39 +216,39 @@
                                     <div class="checkbox checkbox-primary">
                                         <input id="id_outros" name="outros" type="checkbox" checked="">
                                         <label for="id_outros">
-                                            Outros
+                                            Diversas
                                         </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label>Ofertadas a nível</label>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_tecnico" name="tecnico" type="checkbox" checked="">
+                                        <input id="id_tecnico" name="tecnico" type="checkbox">
                                         <label for="id_tecnico">
                                             Técnico
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_graduacao" name="graduacao" type="checkbox" checked="">
+                                        <input id="id_graduacao" name="graduacao" type="checkbox">
                                         <label for="id_graduacao">
                                             Graduação
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_mestrado" name="mestrado" type="checkbox" checked="">
+                                        <input id="id_mestrado" name="mestrado" type="checkbox" >
                                         <label for="id_mestrado">
                                             Mestrado
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_doutorado" name="doutorado" type="checkbox" checked="">
+                                        <input id="id_doutorado" name="doutorado" type="checkbox">
                                         <label for="id_doutorado">
                                             Doutorado
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_especializacao" name="especializacao" type="checkbox" checked="">
+                                        <input id="id_especializacao" name="especializacao" type="checkbox">
                                         <label for="id_especializacao">
                                             Especialização
                                         </label>
