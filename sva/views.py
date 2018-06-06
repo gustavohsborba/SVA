@@ -2,6 +2,7 @@
 from operator import attrgetter
 from typing import Dict, Any, Union
 
+from django.urls import reverse
 from django.contrib import messages
 from django.db.models.functions import Concat
 from django.utils.translation import gettext_lazy as _
@@ -10,7 +11,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 from django.db.models import Q, Value, Count
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
 from random import choice
@@ -453,8 +454,10 @@ def encerrar_inscricao_vaga(request, pkvaga):
 
 def visualizar_vaga(request, pkvaga):
     context = {}
+    form = IndicarVaga(request.POST)
     vaga = get_object_or_404(Vaga, id=pkvaga)
     context['vaga'] = vaga
+    context['form'] = form
     gerente = GerenteVaga.objects.get(vagas=vaga)
     aluno_inscrito_exists = False
     if(request.user.groups.filter(name='Aluno').exists()):
@@ -495,6 +498,32 @@ def visualizar_vaga(request, pkvaga):
         elif 'uninterested' in request.POST:
             vaga.alunos_interessados.remove(aluno)
             return redirect(visualizar_vaga, vaga.id)
+        elif 'indicar' in request.POST:
+            if form.is_valid():
+                    try:
+                        notifica = Notificacao()
+                        notifica.tipo = 1
+                        notifica.mensagem = aluno.user.first_name + ' indicou uma vaga para você. Clique para visualizar'
+                        notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                        notifica.usuario = User.objects.get(email=form.cleaned_data['email'])
+                        try:
+                            Aluno.objects.get(user=notifica.usuario)
+                        except:
+                            messages.error(request, 'O email indicado é de um usuário do sistema que não tem permissão para ser indicado')
+                            return redirect(visualizar_vaga, vaga.id)
+                        notifica.vaga = vaga
+                        notifica.save()
+                        mensagem = aluno.user.first_name+ ' indicou uma vaga para você. \n\n Descrição:\n\n ' \
+                                   +vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    except:
+                        mensagem = aluno.user.first_name + 'indicou uma vaga para você. \n\n Descrição:\n\n %s' \
+                                   + vaga.descricao
+                        send_mail('Vaga indicada - Sistema de Vagas Acadêmicas',
+                                  mensagem, 'sva@cefetmg.br', [form.cleaned_data['email']])
+                    messages.success(request, 'Indicado com sucesso')
+                    return redirect(visualizar_vaga, vaga.id)
     context['formulario_aprovacao'] = FormularioAprovacao()
     return render(request, 'sva/vaga/visualizarVaga.html', context)
 
@@ -1207,4 +1236,22 @@ def aprovar_cadastro_professor(request, pk):
                   mensagem, 'sva@cefetmg.br', [professor.user.email])
     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return render(request, 'sva/professor/Perfil.html', {'professor': professor})
+
+
+@transaction.atomic
+def acessar_notificacao(request):
+    pk = request.GET.get('pk', None)
+    notificacao = Notificacao.objects.get(pk=pk) if pk or pk!='' else None
+    if not notificacao:
+        data = {'erro': True}
+        return JsonResponse(data)
+    notificacao.lida = True
+    notificacao.data_leitura = datetime.now()
+    notificacao.save()
+    data = {
+        'sucesso': True,
+        'id_link': 'notflink-%d' % notificacao.pk,
+        'link': notificacao.link
+    }
+    return JsonResponse(data)
 
