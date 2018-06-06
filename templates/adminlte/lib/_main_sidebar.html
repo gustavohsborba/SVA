@@ -101,8 +101,9 @@
         <li class="treeview">
             <a href="#"><i class="fa fa-list"></i> Vagas<span class="caret"></span></a>
             <ul class="treeview-menu" role="menu">
-                <li><a href="{% url 'vaga_gerenciar_pendentes'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar cadastro</span></a></li>
                 <li><a href="{% url 'vaga_pesquisar' %}"><i class="glyphicon glyphicon-search"></i><span>Pesquisar vagas</span></a></li>
+                <li><a href="{% url 'vaga_gerenciar_pendentes'%}"><i class="fa fa-check-square-o"></i><span>Gerenciar cadastro</span></a></li>
+                <li><a href="{% url 'gerenciar_areaatuacao' %}"><i class="fa fa-gear"></i><span>Gerenciar áreas de atuação</span></a></li>
             </ul>
         </li>
     {% endif %}

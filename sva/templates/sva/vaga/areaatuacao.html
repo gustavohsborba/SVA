@@ -1,0 +1,156 @@
+{% extends 'sva/vaga/vaga.html' %}
+{% load svatags %}
+.span4 > div, .span8 > div
+{
+background-color:#eee;
+border: 1px solid #888;
+border-radius:3px;
+}
+{% block content %}
+<style>
+.no-border {
+
+    div.wrapper {
+            width: 300px;
+            height:300px;
+            border:1px solid black;
+    }
+
+    input[type="text"] {
+             display: block;
+             margin : 0 auto;
+    }
+
+}
+</style>
+<script xmlns="http://www.w3.org/1999/html">
+    $(document).ready(function(){
+        id=-1;
+        $("button").click(function() {
+            itens = this.id.split('-');
+            if (itens[0] == "buttonedit") {
+                if (document.getElementById('input-text-' + itens[1]).name == "edit") {
+                    this.name = "save"
+                } else {
+                    $.post("",
+                        {
+                            type: "edit",
+                            id: itens[1],
+                            data: document.getElementById('input-text-' + itens[1]).value
+                        },
+                        function (data, status) {
+                        });
+                    this.name == "edit"
+                }
+
+                if (itens[0] == "buttonedit" && (id == -1 || id == itens[1])) {
+                    if (id == -1) {
+                        id = itens[1];
+                        document.getElementById('input-text-' + itens[1]).disabled = false;
+                        document.getElementById('imgedit-' + itens[1]).classList.remove('fa-edit');
+                        document.getElementById('imgedit-' + itens[1]).classList.add('fa-plus');
+                        this.classList.remove("btn-warning");
+                        this.classList.add("btn-success");
+                    } else {
+                        id = -1;
+                        document.getElementById('input-text-' + itens[1]).disabled = true;
+                        document.getElementById('imgedit-' + itens[1]).classList.add('fa-edit');
+                        document.getElementById('imgedit-' + itens[1]).classList.remove('fa-plus');
+                        this.classList.add("btn-warning");
+                        this.classList.remove("btn-success");
+
+                    }
+
+                }
+            }
+
+            if(itens[0]=="buttonremove"){
+                if(id!=-1){
+                    id = -1;
+                    document.getElementById('input-text-' + itens[1]).disabled = true;
+                    document.getElementById('imgedit-' + itens[1]).classList.add('fa-edit');
+                    document.getElementById('imgedit-' + itens[1]).classList.remove('fa-plus');
+                    document.getElementById('buttonedit-' + itens[1]).classList.add("btn-warning");
+                    document.getElementById('buttonedit-' + itens[1]).classList.remove("btn-success");
+                }else{
+                    var r = confirm("Você tem certeza que deseja remover a Área de Atuação "
+                        +document.getElementById('input-text-' + itens[1]).value+"?");
+                    if (r == true) {
+                        $.post("",
+                            {
+                                type: "delete",
+                                id: itens[1],
+                                data: document.getElementById('input-text-' + itens[1]).value
+                            },
+                            function (data, status) {
+                            });
+                        debugger;
+
+                        $("#"+this.id).closest('.box').remove();
+                    }
+                }
+            }
+
+        });
+    });
+</script>
+
+<div class="container">
+    <form name="Form" method="post" >
+        {% csrf_token %}
+        <div class="row">
+            <h3><b>Gerenciar área de atuação</b></h3>
+        </div>
+        <div class="row">
+            <H4>Adicionar nova área:</H4>
+        </div>
+        <div class="row">
+            <div class="box">
+                <div class="box-body">
+                    <div class="col-md-10"><input type="text"  class="form-control" name="new-texts" id="new-text" placeholder="Insira uma nova área de atuação">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="pull-right">
+                            <button type="submit" id="button-add" class="btn btn-success" >
+                                <i class="fa fa-plus  margin-r-1"></i></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <H4>Áreas existentes:</H4>
+    </div>
+
+    {% for area in areas %}
+    <div class="box ">
+        <div class="box-body  ">
+            <div class="row " >
+                <div class="col-md-10">
+                    <div class="form-group ">
+                        <!--<span id="span-{{area.id}}">{{area.nome}}</span>-->
+                        <input type="text" disabled  class="form-control no-border" name="edit"
+                               id="input-text-{{area.id}}" value="{{area.nome}}"
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2 ">
+                    <div class="pull-right">
+                        <button  id="buttonedit-{{area.id}}" class="btn btn-warning ">
+                            <i id="imgedit-{{area.id}}" class="fa fa-edit  margin-r-1"></i>
+                        </button>
+                        <button  id="buttonremove-{{area.id}}" class="btn btn-danger ">
+                            <i  class="fa fa-remove  margin-r-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+
+</div>
+{% endblock %}
