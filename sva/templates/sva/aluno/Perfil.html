@@ -5,17 +5,23 @@
          <div class="box-body box-profile">
              <p><h3 class="profile-username text-center">Perfil de {{ aluno.user.first_name }} {{ aluno.user.last_name }}</h3></p>
              <hr>
-             <p><span class="fa fa-graduation-cap"></span><b>Curso: </b>{{ aluno.curso.nome }} ({{ aluno.curso.sigla }}) </p>
-             <p><span class="fa fa-envelope"></span><b>Email: </b>{{ aluno.user.email }}</p>
-             <p><span class="fa fa-phone" ></span><b>Telefone: </b>{{ aluno.telefone }}</p>
+             <strong><span class="fa fa-graduation-cap"></span><b> Curso </b></strong>
+             <p>{{ aluno.curso.nome }} ({{ aluno.curso.sigla }})</p>
+             <strong><span class="fa fa-envelope"></span><b> Email </b></strong>
+             <p>{{ aluno.user.email|default_if_none:'' }}</p>
+             <strong><span class="fa fa-phone" ></span><b> Telefone </b></strong>
+             <p>{{ aluno.telefone|default_if_none:'' }}</p>
+             {% if aluno.habilidades.count != 0 %}
              <hr>
-             <strong><i class="fa  fa-book margin-r-5"></i>Habilidades </strong>
-             <p>
-                {% for hab in aluno.habilidades.all %}
-                    <span class="label label-success">[{{hab.nome}}]</span>&nbsp;
-                {% endfor %}
-             </p>
+                 <strong><i class="fa  fa-book margin-r-5"></i>Habilidades </strong>
+                 <p>
+                    {% for hab in aluno.habilidades.all %}
+                        <span class="label label-success">[{{hab.nome}}]</span>&nbsp;
+                    {% endfor %}
+                 </p>
+             {% endif %}
          </div>
      </div>
  </div>
+
 {% endblock content %}

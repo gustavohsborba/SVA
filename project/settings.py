@@ -17,7 +17,8 @@ from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+MEDIA_ROOT= os.path.join(os.path.dirname(BASE_DIR),"curriculo")
+MEDIA_URL = '/media/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'widget_tweaks',
+    'star_ratings',
     'table',
     'sva'
 ]
@@ -61,7 +63,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'sva.middlewares.NotificacaoMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -79,6 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sva.middlewares.notificacoes_context_processor',
             ],
         },
     },
@@ -168,3 +170,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'sistemadevagasacademicas@gmail.com'
 EMAIL_HOST_PASSWORD = 'sva_dev_password'
 EMAIL_PORT = 587
+
+STAR_RATINGS_STAR_SPRITE = '/static/img/stars.png'

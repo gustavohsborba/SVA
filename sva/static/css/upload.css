@@ -1,0 +1,6 @@
+.container{
+    margin-top:20px;
+}
+input[type="file"] {
+    display: none;
+}

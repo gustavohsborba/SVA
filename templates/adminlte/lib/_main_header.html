@@ -1,6 +1,6 @@
 {% extends 'adminlte/lib/_main_header.html' %}
 {% load adminlte_helpers i18n %}
-
+{% load static %}
 {% block logo %}
 <a href="{% block logo_href %}/home{% endblock %}" class="logo">
     <!-- mini logo for sidebar mini 50x50 pixels -->
@@ -29,18 +29,55 @@
           <li class="header">Você tem {{ notificacoes|length }} notificações </li>
           <li>
             <!-- inner menu: contains the actual data -->
-            <ul class="menu">
+            <ul class="menu" id="listanotificacoes">
               {% for notificacao in notificacoes %}
-                  <li>
-                    <a href="{{ notificacao.url }}">
-                      <i class="fa fa-users text-aqua {{ notificacao.classes_css }}"></i> {{ notificacao.mensagem }}
-                    </a>
+                  <li id="notificacao-{{ notificacao.pk }}"><!-- start message -->
+                    <div style="cursor: pointer" class="full-opacity-hover">
+                      <div class="pull-left">
+                          <i class="img-circle fa {{ notificacao.classes_css }}"></i>
+                      </div>
+                      <div>
+                        <b>
+                          <a id="notflink-{{ notificacao.pk }}" href="{{ notificacao.link }}">{{ notificacao.get_tipo_display }}</a>
+                          <small class="pull-right">
+                              <i class="fa fa-clock-o"></i> {{ notificacao.data_cadastro|date:"d/m H:i" }}
+                          </small>
+                        </b>
+                        <p> {{ notificacao.mensagem }} </p>
+                      </div>
+                    </div>
                   </li>
+
               {% endfor %}
             </ul>
           </li>
         </ul>
     </li>
+
+    <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+    <script type="application/javascript">
+        $('#listanotificacoes').on('click', 'li', function() {
+            var listId = $(this).attr('id').split('-')[1];
+            console.log( listId );
+
+            $.ajax({
+                url: "{% url 'notificacao_visualizar' %}",
+                data: {
+                  'pk': listId
+                },
+                dataType: 'json',
+                success: function (data) {
+                  console.log( data );
+                  console.log( data.sucesso );
+                  console.log( data.id_link );
+                  if (data.sucesso) {
+                     $(data.id_link).click();
+                     window.location.href = data.link;
+                  }
+                }
+            });
+        });
+    </script>
 
 
     {% if request.user.is_authenticated %}

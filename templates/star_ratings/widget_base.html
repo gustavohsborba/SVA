@@ -1,0 +1,22 @@
+{% extends "star_ratings/widget_base.html" %}
+{% load i18n %}
+{% load svatags %}
+
+{% block rating_detail %}
+    {% block rating_average %}
+    <div class="star-ratings-rating-average">{% trans 'Média: ' %} <span class='star-ratings-rating-value'>{{ rating.average|floatformat:"-2" }}</span></div>
+    {% endblock rating_average %}
+    {% block rating_count %}
+    <div class="star-ratings-rating-count"><span class='star-ratings-rating-value'>{{ rating.count }}</span> pessoas avaliaram esta vaga</div>
+    {% endblock rating_count %}
+
+    {% block rating_user %}
+        {% if not request.user|has_group:"Professor" and not request.user|has_group:"Empresa" and not request.user|has_group:"Gerente Vagas" %}
+            {% if not user.is_authenticated and not anonymous_ratings and not read_only %}
+            <div class="star-ratings-rating-user">Você avaliou: <span class='star-ratings-rating-value'>{% if user_rating %}{{ user_rating.score }}{% else %}{% trans 'Não' %}{% endif %}</span></div>
+                <p>{% trans 'Por favor, logue para avaliar.' %}</p>
+            {% endif %}
+        {% endif %}
+    {% endblock rating_user %}
+    <div class="star-ratings-errors"></div>
+{% endblock %}

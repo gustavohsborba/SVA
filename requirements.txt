@@ -1,3 +1,4 @@
+table
 pip
 Django==1.11.11
 setuptools==28.8.0
@@ -9,3 +10,4 @@ django-crispy-forms
 django-cruds-adminlte
 django-widget-tweaks
 django-datatable
+django-star-ratings
