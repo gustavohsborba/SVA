@@ -98,6 +98,10 @@ def pesquisar_vaga(request):
     form = FormularioPesquisarVagas(request.POST)
     #Armazena palavras chave pesquisadas
     busca = []
+    #FORCA POST_INIT SIGNAL PARA ATUALIZAR SITUACAO DE VAGAS VENCIDAS
+    updatedVaga = Vaga.objects.filter().first()
+
+    #LISTA INICIAL DE OBJETOS DA PESQUISA
     vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
 
     if request.method == 'POST' and form.is_valid():
