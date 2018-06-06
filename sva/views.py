@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from operator import attrgetter
 from typing import Dict, Any, Union
 
 from django.urls import reverse
@@ -9,7 +10,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
-from django.db.models import Q, Value
+from django.db.models import Q, Value, Count
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import string
@@ -52,23 +53,309 @@ def formulario_contato(request):
 
 @login_required
 def pesquisar_vaga(request):
-    form = FormularioPesquisaVagasAluno(request.POST)
-    vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+
+    def verificaAreasAtuacao(vaga, nome_area):
+        areas_vaga = AreaAtuacao.objects.filter(vagas=vaga)
+        for area in areas_vaga:
+            if nome_area in area.nome:
+                return True
+        return False
+
+    def verificaAreasAtuacaoByID(vaga, id_area):
+        try:
+            AreaAtuacao.objects.get(vagas=vaga, id=id_area)
+            return True
+        except:
+            return False
+
+    def verificaCursos(vaga, nome_curso):
+        cursos_vaga = Curso.objects.filter(vagas_atribuidas=vaga)
+        for curso in cursos_vaga:
+            if nome_curso in curso.nome or nome_curso in curso.sigla:
+                #nome_curso in curso.get_nivel_ensino_display()
+                return True
+        return False
+
+    def verificaCursoByID(vaga, id_curso):
+        try:
+            Curso.objects.get(vagas_atribuidas=vaga, id=id_curso)
+            return True
+        except:
+            if Curso.objects.filter(vagas_atribuidas=vaga).count() == 0: #OFERTADA A TODOS OS CURSOS
+                return True
+            else:
+                return False
+
+    def verificaCursoByNivel(vaga, nivel_ensino):
+        if Curso.objects.filter(vagas_atribuidas=vaga).count() == 0: #OFERTADA A TODOS OS CURSOS
+            return True
+        cursos_vaga = Curso.objects.filter(vagas_atribuidas=vaga)
+        for curso in cursos_vaga:
+            if nivel_ensino == curso.nivel_ensino:
+                return True
+        return False
+
+    #Formulario base de pesquisa (trata querysets de area e curso somente, os outros campos sao colocados via template)
+    form = FormularioPesquisarVagas(request.POST)
+    #Armazena palavras chave pesquisadas
     busca = []
-    # TODO: É possível fazer o formulário de pesquisas por vagas do aluno ter um campo de texto apenas, onde se pesquisa por todos esses campos aí.
-    if form.is_valid():
-        if form.cleaned_data.get('Vaga_Cadastrada'):
-            vagas = vagas.filter(titulo__icontains=form.cleaned_data['Vaga_Cadastrada'])
-            busca.append(form.cleaned_data['Vaga_Cadastrada'])
-        if form.cleaned_data.get('Area_Atuacao'):
-            vagas = vagas.filter(areas_atuacao__nome__icontains=form.cleaned_data['Area_Atuacao'])
-            busca.append(form.cleaned_data['Area_Atuacao'])
-    if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get('buscar_keyword') != '':
-        busca_rapida = request.POST.get('buscar_keyword')
-        vagas = vagas.filter(titulo__icontains=busca_rapida)
-        busca.append(request.POST.get('buscar_keyword'))
-    busca = ','.join(busca)
-    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca}
+    #FORCA POST_INIT SIGNAL PARA ATUALIZAR SITUACAO DE VAGAS VENCIDAS
+    updatedVaga = Vaga.objects.filter().first()
+
+    #LISTA INICIAL DE OBJETOS DA PESQUISA
+    vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+
+    #Form initial value
+    initial = ""
+    formRemake = False
+    ordemRemake = 0
+    superuserOptionRemake = 0
+    salarioRemake = None
+    minvalueRemake = 5
+    maxvalueRemake = 45
+    checkBoxRemake = []
+    avaliacaoRemake = 0
+
+    if request.method == 'POST' and form.is_valid():
+        formRemake = True
+        ordemRemake = request.POST.get('ordem')
+        superuserOptionRemake = request.POST.get('superuser_option')
+        checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('tecnico') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('graduacao') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('mestrado') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('doutorado') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('especializacao') == "on" else checkBoxRemake.append("off")
+        salarioRemake = request.POST.get('salario')
+        minvalueRemake = request.POST.get('min-value')
+        maxvalueRemake = request.POST.get('max-value')
+        avaliacaoRemake = request.POST.get('avaliacao')
+
+        ordem_resultados = request.POST.get('ordem')
+        if is_admin(request.user):
+            # ORDENA POR VAGAS MAIS RECENTES
+            if ordem_resultados == "1":
+                vagas = Vaga.objects.filter().order_by('-data_submissao')
+            # ORDENA POR DATA DE SUBMISSAO
+            elif ordem_resultados == "2":
+                vagas = Vaga.objects.filter().annotate(num_insc=Count('alunos_inscritos')).order_by(
+                    '-num_insc')
+            # ORDENA POR AVALIACOES
+            elif ordem_resultados == "3":
+                vagas = Vaga.objects.filter().order_by('-nota_media')
+            # ORDENA POR MAIS COMENTADAS
+            # TODO: CSU FORUM POR VAGA
+            elif ordem_resultados == "4":
+                vagas = Vaga.objects.filter()
+            # ORDENA POR MENOR PRAZO
+            elif ordem_resultados == "5":
+                vagas = Vaga.objects.filter().order_by('data_validade')
+            # ORDENACAO PADRAO (NAO ENTRA NOS CASOS DO SELECT)
+            else:
+                vagas = Vaga.objects.filter()
+
+            #TRATA SELECAO ESPECIAL DO SUPER USUARIO POR SITUACAO DA VAGA
+            superuser_option = request.POST.get('superuser_option')
+            vagasAux = []
+            for vaga in vagas:
+                if superuser_option == "1" and vaga.situacao == Vaga.ATIVA:
+                    vagasAux.append(vaga)
+                if (vaga.situacao == Vaga.CADASTRADA or vaga.situacao == Vaga.EDITADA) and superuser_option == "2":
+                    vagasAux.append(vaga)
+                if superuser_option == "3" and vaga.situacao == Vaga.INATIVA:
+                    vagasAux.append(vaga)
+                if superuser_option == "4" and vaga.situacao == Vaga.REPROVADA:
+                    vagasAux.append(vaga)
+                if superuser_option == "5":
+                    vagasAux = vagas
+                    break
+            vagas = vagasAux
+        else:
+            # ORDENA POR VAGAS MAIS RECENTES
+            if ordem_resultados == "1":
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('-data_submissao')
+            # ORDENA POR DATA DE SUBMISSAO
+            elif ordem_resultados == "2":
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_insc=Count('alunos_inscritos')).order_by('-num_insc')
+            # ORDENA POR AVALIACOES
+            elif ordem_resultados == "3":
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('-nota_media')
+            # ORDENA POR MAIS COMENTADAS
+            # TODO: CSU FORUM POR VAGA
+            elif ordem_resultados == "4":
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+            # ORDENA POR MENOR PRAZO
+            elif ordem_resultados == "5":
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('data_validade')
+            # ORDENACAO PADRAO (NAO ENTRA NOS CASOS DO SELECT)
+            else:
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+
+        vagasAux = []
+        #TRATA FILTROS CHECKBOX
+        for vaga in vagas:
+            addFlag = False
+            if request.POST.get('estagio') == "on" and vaga.tipo_vaga == 1:
+                addFlag = True
+            elif request.POST.get('monitoria') == "on" and vaga.tipo_vaga == 2:
+                addFlag = True
+            elif request.POST.get('ic') == "on" and vaga.tipo_vaga == 3:
+                addFlag = True
+            elif request.POST.get('outros') == "on" and vaga.tipo_vaga == 4:
+                addFlag = True
+            if request.POST.get('tecnico') == "on" and not verificaCursoByNivel(vaga, 1):
+                addFlag = False
+            if request.POST.get('graduacao') == "on" and not verificaCursoByNivel(vaga, 2):
+                addFlag = False
+            if request.POST.get('mestrado') == "on" and not verificaCursoByNivel(vaga, 3):
+                addFlag = False
+            if request.POST.get('doutorado') == "on" and not verificaCursoByNivel(vaga, 4):
+                addFlag = False
+            if request.POST.get('especializacao') == "on" and not verificaCursoByNivel(vaga, 5):
+                addFlag = False
+            if addFlag == True:
+                vagasAux.append(vaga)
+
+        vagas = vagasAux
+
+        vagasAux = []
+        #TRATA FILTRO VALORES E SLIDERS
+        for vaga in vagas:
+            if request.POST.get('salario') is not None and request.POST.get('salario') != "":
+                if vaga.valor_bolsa >= float(request.POST.get('salario')) and vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) \
+                        and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+                    vagasAux.append(vaga)
+                    continue
+            elif vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+                vagasAux.append(vaga)
+        vagas = vagasAux
+
+        #Listas auxiliares para tratar os dados em lista do request.post
+        filtroSelecionado = request.POST.getlist('filtro')
+        inputTexto = request.POST.getlist('texto')
+        inputCurso = request.POST.getlist('curso')
+        inputArea = request.POST.getlist('area')
+        aux = 0
+        for filtro in filtroSelecionado:
+            #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
+            vagasAux = []
+            #FILTRO - TODOS OS CAMPOS
+            #VERIFICA SE O INPUT DE TEXTO TEM CASAMENTO EM QUALQUER UM DOS CAMPOS: Nome do gerente de vagas, areas de atuacao, cursos, titulo, descricao, local ou beneficios da vaga.
+            if filtro == "1":
+                if inputTexto[aux] is not None and inputTexto[aux] != "":
+                    busca.append(inputTexto[aux])
+                    for vaga in vagas:
+                        if inputTexto[aux] in vaga.gerente_vaga.user.first_name or inputTexto[aux] in vaga.gerente_vaga.user.last_name:
+                            vagasAux.append(vaga)
+                            continue
+                        if verificaAreasAtuacao(vaga, inputTexto[aux]):
+                            vagasAux.append(vaga)
+                            continue
+                        if verificaCursos(vaga, inputTexto[aux]):
+                            vagasAux.append(vaga)
+                            continue
+                        if inputTexto[aux] in vaga.titulo:
+                            vagasAux.append(vaga)
+                            continue
+                        if inputTexto[aux] in vaga.descricao:
+                            vagasAux.append(vaga)
+                            continue
+                        if vaga.gerente_vaga.user.groups.filter(name__in=['Empresa']).exists():
+                            if inputTexto[aux] in vaga.local or inputTexto[aux] in vaga.gerente_vaga.empresa.endereco:
+                                vagasAux.append(vaga)
+                                continue
+                        else:
+                            if inputTexto[aux] in vaga.local:
+                                vagasAux.append(vaga)
+                                continue
+                        if inputTexto[aux] in vaga.local:
+                            vagasAux.append(vaga)
+                            continue
+                        if inputTexto[aux] in vaga.beneficios:
+                            vagasAux.append(vaga)
+                            continue
+                    vagas = vagasAux
+            #FILTRO - NOME DE VAGAS
+            #VERIFICA SE O INPUT DE TEXTO TEM CASAMENTO COM O TITULO DA VAGA
+            elif filtro == "2":
+                if inputTexto[aux] is not None and inputTexto[aux] != "":
+                    busca.append(inputTexto[aux])
+                    for vaga in vagas:
+                        if inputTexto[aux] in vaga.titulo:
+                            vagasAux.append(vaga)
+                    vagas = vagasAux
+            #FILTRO - EMPRESAS E/OU PROFESSORES
+            #VERIFICA SE O INPUT DE TEXTO TEM CASAMENTO COM O NOME DO GERENTE DE VAGA
+            elif filtro == "3":
+                if inputTexto[aux] is not None and inputTexto[aux] != "":
+                    busca.append(inputTexto[aux])
+                    for vaga in vagas:
+                        if inputTexto[aux] in vaga.gerente_vaga.user.first_name or inputTexto[aux] in vaga.gerente_vaga.user.last_name:
+                            vagasAux.append(vaga)
+                    vagas = vagasAux
+            #FILTRO - AREAS DE ATUACAO
+            #VERIFICA SE O SELECT DE AREAS DE ATUACAO (RETORNA ID) TEM CASAMENTO COM O ID DE PELO MENOS UMA AREA DE ATUACAO DA VAGA
+            elif filtro == "4":
+                area = AreaAtuacao.objects.get(id=inputArea[aux])
+                busca.append(area.nome)
+                for vaga in vagas:
+                    if verificaAreasAtuacaoByID(vaga, inputArea[aux]):
+                        vagasAux.append(vaga)
+                vagas = vagasAux
+            #FILTRO - CURSOS
+            #VERIFICA SE O SELECT DE CURSOS (RETORNA ID) TEM CASAMENTO COM O ID DE PELO MENOS UM CURSO DA VAGA (SE A VAGA NAO TIVER CURSO, ELA EH CONSIDERADA DISPONIVEL PARA TODOS)
+            elif filtro == "5":
+                curso = Curso.objects.get(id=inputCurso[aux])
+                busca.append(curso.nome)
+                for vaga in vagas:
+                    if verificaCursoByID(vaga, inputCurso[aux]):
+                        vagasAux.append(vaga)
+                vagas = vagasAux
+            #FILTRO - DESCRICAO
+            #VERIFICA SE O INPUT DE TEXTO TEM CASAMENTO COM A DESCRICAO OU OS BENEFICIOS DA VAGA
+            elif filtro == "6":
+                if inputTexto[aux] is not None and inputTexto[aux] != "":
+                    busca.append(inputTexto[aux])
+                    for vaga in vagas:
+                        if inputTexto[aux] in vaga.descricao or inputTexto[aux] in vaga.beneficios:
+                            vagasAux.append(vaga)
+                    vagas = vagasAux
+            #FILTRO - LOCAL
+            #VERIFICA SE O INPUT DE TEXTO TEM CASAMENTO COM O LOCAL DA VAGA OU LOCAL DA EMPRESA
+            elif filtro == "7":
+                if inputTexto[aux] is not None and inputTexto[aux] != "":
+                    busca.append(inputTexto[aux])
+                    for vaga in vagas:
+                        if vaga.gerente_vaga.user.groups.filter(name__in=['Empresa']).exists():
+                            if inputTexto[aux] in vaga.local or inputTexto[aux] in vaga.gerente_vaga.empresa.endereco:
+                                vagasAux.append(vaga)
+                        else:
+                            if inputTexto[aux] in vaga.local:
+                                vagasAux.append(vaga)
+                    vagas = vagasAux
+            #FILTRO - NENHUM CASO ATENDIDO
+            else:
+                vagasAux = Vaga.objects.filter(situacao=Vaga.ATIVA)
+                vagas = vagasAux
+            #Incrementa auxiliar iterador da lista
+            aux+=1
+    if request.method == 'POST':
+        # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
+        if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get(
+                'buscar_keyword') != '':
+            vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+            busca_rapida = request.POST.get('buscar_keyword')
+            vagas = vagas.filter(titulo__icontains=busca_rapida)
+            busca.append(request.POST.get('buscar_keyword'))
+            initial = busca_rapida
+
+    busca = ', '.join(busca)
+    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
+               'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
+               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 

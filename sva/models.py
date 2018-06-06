@@ -261,6 +261,7 @@ class Vaga(models.Model):
 def verificaValidade(instance, **kwargs):
     if instance.vencida is True and instance.situacao == 3:
         instance.situacao = 4
+        instance.save()
 
 models.signals.post_init.connect(verificaValidade, Vaga)
 
