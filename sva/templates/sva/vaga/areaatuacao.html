@@ -48,14 +48,14 @@ border-radius:3px;
                         id = itens[1];
                         document.getElementById('input-text-' + itens[1]).disabled = false;
                         document.getElementById('imgedit-' + itens[1]).classList.remove('fa-edit');
-                        document.getElementById('imgedit-' + itens[1]).classList.add('fa-plus');
+                        document.getElementById('imgedit-' + itens[1]).classList.add('fa-check');
                         this.classList.remove("btn-warning");
                         this.classList.add("btn-success");
                     } else {
                         id = -1;
                         document.getElementById('input-text-' + itens[1]).disabled = true;
                         document.getElementById('imgedit-' + itens[1]).classList.add('fa-edit');
-                        document.getElementById('imgedit-' + itens[1]).classList.remove('fa-plus');
+                        document.getElementById('imgedit-' + itens[1]).classList.remove('fa-check');
                         this.classList.add("btn-warning");
                         this.classList.remove("btn-success");
 
@@ -95,7 +95,7 @@ border-radius:3px;
     });
 </script>
 
-<div class="container">
+<div class="container row col-sm-12 col-xs-12 col-md-10 col-md-offset-1">
     <form name="Form" method="post" >
         {% csrf_token %}
         <div class="row">
