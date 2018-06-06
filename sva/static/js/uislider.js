@@ -11,7 +11,7 @@ $(document).ready(function() {
     decimals: 0
   });
   noUiSlider.create(rangeSlider, {
-    start: [5, 45],
+    start: [parseInt($('#min-value').val()), parseInt($('#max-value').val())],
     step: 1,
     range: {
       'min': [0],

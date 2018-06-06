@@ -170,11 +170,39 @@
                         <div class="input-group">
                             <label for="id_ordem">Ordenar resultados por</label>
                             <select data-filter="model" class="filter-model filter form-control" name="ordem" id="id_ordem">
+                                {% if formRemake is False %}
                                 <option value="1">Mais recentes</option>
                                 <option value="2">Mais inscritas</option>
                                 <option value="3">Melhores avaliações</option>
                                 <option value="4">Mais comentadas</option>
                                 <option value="5">Menor prazo de inscrição</option>
+                                {% else %}
+                                    {% if ordemRemake == "1" %}
+                                        <option value="1" selected="selected">Mais recentes</option>
+                                    {% else %}
+                                        <option value="1">Mais recentes</option>
+                                    {% endif %}
+                                    {% if ordemRemake == "2" %}
+                                        <option value="2" selected="selected">Mais inscritas</option>
+                                    {% else %}
+                                        <option value="2">Mais inscritas</option>
+                                    {% endif %}
+                                    {% if ordemRemake == "3" %}
+                                        <option value="3" selected="selected">Melhores avaliações</option>
+                                    {% else %}
+                                        <option value="3">Melhores avaliações</option>
+                                    {% endif %}
+                                    {% if ordemRemake == "4" %}
+                                        <option value="4" selected="selected">Mais comentadas</option>
+                                    {% else %}
+                                        <option value="4">Mais comentadas</option>
+                                    {% endif %}
+                                    {% if ordemRemake == "5" %}
+                                        <option value="5" selected="selected">Menor prazo de inscrição</option>
+                                    {% else %}
+                                        <option value="5">Menor prazo de inscrição</option>
+                                    {% endif %}
+                                {% endif %}
                             </select>
                         </div>
                         {% if request.user.is_superuser or request.user|has_groups:"Administrador" or request.user|has_groups:"Setor de Estágios" %}
@@ -182,11 +210,39 @@
                         <div class="input-group">
                             <label for="id_superuser_option">Mostrar vagas </label>
                             <select data-filter="model" class="filter-model filter form-control" name="superuser_option" id="id_superuser_option">
+                                {% if formRemake is False %}
                                 <option value="1">Ativas</option>
                                 <option value="2">Pendentes de avaliação</option>
                                 <option value="3">Inativas</option>
                                 <option value="4">Reprovadas</option>
                                 <option value="5">Todas</option>
+                                {% else %}
+                                    {% if superuserOptionRemake == "1" %}
+                                        <option value="1" selected="selected">Ativas</option>
+                                    {% else %}
+                                        <option value="1">Ativas</option>
+                                    {% endif %}
+                                    {% if superuserOptionRemake == "2" %}
+                                        <option value="2" selected="selected">Pendentes de avaliação</option>
+                                    {% else %}
+                                        <option value="2">Pendentes de avaliação</option>
+                                    {% endif %}
+                                    {% if superuserOptionRemake == "3" %}
+                                        <option value="3"  selected="selected">Inativas</option>
+                                    {% else %}
+                                        <option value="3">Inativas</option>
+                                    {% endif %}
+                                    {% if superuserOptionRemake == "4" %}
+                                        <option value="4" selected="selected">Reprovadas</option>
+                                    {% else %}
+                                        <option value="4">Reprovadas</option>
+                                    {% endif %}
+                                    {% if superuserOptionRemake == "5" %}
+                                        <option value="5" selected="selected">Todas</option>
+                                    {% else %}
+                                        <option value="5">Todas</option>
+                                    {% endif %}
+                                {% endif %}
                             </select>
                         </div>
                         {% endif %}
@@ -196,25 +252,41 @@
                                 <div class="input-group">
                                     <label>Buscar vagas de</label>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_estagio" name="estagio" type="checkbox" checked="">
+                                        {% if checkBoxRemake|index:0 == "off" %}
+                                            <input id="id_estagio" name="estagio" type="checkbox">
+                                        {% else %}
+                                            <input id="id_estagio" name="estagio" type="checkbox" checked="">
+                                        {% endif %}
                                         <label for="id_estagio">
                                             Estágio
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:1 == "off" %}
+                                        <input id="id_ic" name="ic" type="checkbox">
+                                        {% else %}
                                         <input id="id_ic" name="ic" type="checkbox" checked="">
+                                        {% endif %}
                                         <label for="id_ic">
                                             Iniciação Científica
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:2 == "off" %}
+                                        <input id="id_monitoria" name="monitoria" type="checkbox">
+                                        {% else %}
                                         <input id="id_monitoria" name="monitoria" type="checkbox" checked="">
+                                        {% endif %}
                                         <label for="id_monitoria">
                                             Monitoria
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:3 == "off" %}
+                                        <input id="id_outros" name="outros" type="checkbox">
+                                        {% else %}
                                         <input id="id_outros" name="outros" type="checkbox" checked="">
+                                        {% endif %}
                                         <label for="id_outros">
                                             Diversas
                                         </label>
@@ -222,33 +294,53 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label>Ofertadas a nível</label>
+                                <label>Destinadas a nível</label>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:4 == "on" %}
+                                        <input id="id_tecnico" name="tecnico" type="checkbox" checked="">
+                                        {% else %}
                                         <input id="id_tecnico" name="tecnico" type="checkbox">
+                                        {% endif %}
                                         <label for="id_tecnico">
                                             Técnico
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:5 == "on" %}
+                                        <input id="id_graduacao" name="graduacao" type="checkbox" checked="">
+                                        {% else %}
                                         <input id="id_graduacao" name="graduacao" type="checkbox">
+                                        {% endif %}
                                         <label for="id_graduacao">
                                             Graduação
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
-                                        <input id="id_mestrado" name="mestrado" type="checkbox" >
+                                        {% if checkBoxRemake|index:6 == "on" %}
+                                        <input id="id_mestrado" name="mestrado" type="checkbox" checked="">
+                                        {% else %}
+                                        <input id="id_mestrado" name="mestrado" type="checkbox">
+                                        {% endif %}
                                         <label for="id_mestrado">
                                             Mestrado
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:7 == "on" %}
+                                        <input id="id_doutorado" name="doutorado" type="checkbox" checked="">
+                                        {% else %}
                                         <input id="id_doutorado" name="doutorado" type="checkbox">
+                                        {% endif %}
                                         <label for="id_doutorado">
                                             Doutorado
                                         </label>
                                     </div>
                                     <div class="checkbox checkbox-primary">
+                                        {% if checkBoxRemake|index:8 == "on" %}
+                                        <input id="id_especializacao" name="especializacao" type="checkbox" checked="">
+                                        {% else %}
                                         <input id="id_especializacao" name="especializacao" type="checkbox">
+                                        {% endif %}
                                         <label for="id_especializacao">
                                             Especialização
                                         </label>
@@ -272,7 +364,7 @@
                         <label for="id_salario">Valor mínimo de bolsa</label>
                         <div class="input-group">
                             <span class="input-group-addon">R$</span>
-                            <input type="number" name="salario" step="any" min="0" class="form-control" placeholder="000,00" id="id_salario">
+                            <input type="number" name="salario" step="any" min="0" class="form-control" placeholder="000,00" id="id_salario" value="{{salarioRemake|default_if_none:''}}">
                         </div>
                         <!--FIM SALARIO SLIDER-->
                         <!--HORAS SLIDER-->
@@ -294,14 +386,8 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-12">
-                                <input type="hidden" class="form-control" id="min-value" name="min-value" value="">
-                                <input type="hidden" class="form-control" id="max-value" name="max-value" value="">
-                                <script>
-                                $(document).ready(function(){
-                                    $('#min-value').val($('#slider-range-value1').text());
-                                    $('#max-value').val($('#slider-range-value2').text());
-                                });
-                                </script>
+                                <input type="hidden" class="form-control" id="min-value" name="min-value" value="{{minvalueRemake}}">
+                                <input type="hidden" class="form-control" id="max-value" name="max-value" value="{{maxvalueRemake}}">
                             </div>
                         </div>
                         <!--FIM HORAS SLIDER-->
@@ -311,11 +397,11 @@
                         <label>Nota média mínima</label>
                         <div style=" margin-bottom:10px;"></div>
                         <div class="container-fluid">
-                        <input id="ex13" name="avaliacao" type="text" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
+                        <input id="ex13" name="avaliacao" type="text" value="{{avaliacaoRemake}}" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
                          "2 <i class="fa fa-fw fa-star"></i>", "3 <i class="fa fa-fw fa-star"></i>", "4 <i class="fa fa-fw fa-star"></i>", "5 <i class="fa fa-fw fa-star"></i>"]' style="width: 100%;"/>
                         <script>
                             $("#ex13").slider({
-                            value: 0,
+                            value: parseInt($('#ex13').val()),
                             ticks: [0, 1, 2, 3, 4, 5],
                             ticks_labels: ['0 <i class="fa fa-fw fa-star"></i>', '1 <i class="fa fa-fw fa-star"></i>', '2 <i class="fa fa-fw fa-star"></i>', '3 <i class="fa fa-fw fa-star"></i>', '4 <i class="fa fa-fw fa-star"></i>', '5 <i class="fa fa-fw fa-star"></i>'],
                             ticks_snap_bounds: 100
@@ -333,7 +419,7 @@
                            <div class="d-flex w-100 justify-content-between">
                                <h4 class="mb-1">{{vaga.titulo}}</h4>
                            </div>
-                            <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa}}</font></p>
+                            <p class="mb-1"> <em >Nota:</em> {{vaga.nota_media}} <font class="pull-right">Bolsa: R${{vaga.valor_bolsa|floatformat:2}}</font></p>
                              {% if vaga.data_validade.date is not None %}
                                  {%with data=now.date|timesince:vaga.data_validade.date|slice:"2:"%}
                                      {%ifnotequal data "dias"%}

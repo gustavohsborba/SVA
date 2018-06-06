@@ -15,3 +15,7 @@ def has_groups(user, groups_names):
     groups = Group.objects.filter(name__in=[g for g in groups_names.split(',')])
     return set(groups).intersection(set(user.groups.all()))
 
+@register.filter(name='index')
+def index(List, i):
+    return List[int(i)]
+

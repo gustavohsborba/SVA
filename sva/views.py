@@ -104,7 +104,35 @@ def pesquisar_vaga(request):
     #LISTA INICIAL DE OBJETOS DA PESQUISA
     vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
 
+    #Form initial value
+    initial = ""
+    formRemake = False
+    ordemRemake = 0
+    superuserOptionRemake = 0
+    salarioRemake = None
+    minvalueRemake = 5
+    maxvalueRemake = 45
+    checkBoxRemake = []
+    avaliacaoRemake = 0
+
     if request.method == 'POST' and form.is_valid():
+        formRemake = True
+        ordemRemake = request.POST.get('ordem')
+        superuserOptionRemake = request.POST.get('superuser_option')
+        checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('tecnico') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('graduacao') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('mestrado') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('doutorado') == "on" else checkBoxRemake.append("off")
+        checkBoxRemake.append("on") if request.POST.get('especializacao') == "on" else checkBoxRemake.append("off")
+        salarioRemake = request.POST.get('salario')
+        minvalueRemake = request.POST.get('min-value')
+        maxvalueRemake = request.POST.get('max-value')
+        avaliacaoRemake = request.POST.get('avaliacao')
+
         ordem_resultados = request.POST.get('ordem')
         if is_admin(request.user):
             # ORDENA POR VAGAS MAIS RECENTES
@@ -313,12 +341,10 @@ def pesquisar_vaga(request):
                 vagas = vagasAux
             #Incrementa auxiliar iterador da lista
             aux+=1
-    initial = ""
     if request.method == 'POST':
         # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
         if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get(
                 'buscar_keyword') != '':
-            vagas = {}
             vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
             busca_rapida = request.POST.get('buscar_keyword')
             vagas = vagas.filter(titulo__icontains=busca_rapida)
@@ -326,7 +352,9 @@ def pesquisar_vaga(request):
             initial = busca_rapida
 
     busca = ', '.join(busca)
-    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial }
+    context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
+               'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
+               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 
