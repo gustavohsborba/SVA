@@ -10,8 +10,8 @@
     <script src="{% static 'js/uislider.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/uislider.css' %}">
     <!--https://cdnjs.com/libraries/bootstrap-slider-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/bootstrap-slider.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.2/css/bootstrap-slider.css">
+    <script src="{% static 'js/bootstrap-slider.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap-slider.css' %}">
     <!--https://bootsnipp.com/snippets/ZkMKE-->
     <link rel="stylesheet" href="{% static 'css/fancy-checkbox.css' %}">
 {% endblock %}
@@ -394,20 +394,60 @@
                         <hr>
                         <!-- NOTA SLIDER -->
                         <div style=" margin-bottom:10px;"></div>
-                        <label>Nota média mínima</label>
-                        <div style=" margin-bottom:10px;"></div>
-                        <div class="container-fluid">
-                        <input id="ex13" name="avaliacao" type="text" value="{{avaliacaoRemake}}" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
-                         "2 <i class="fa fa-fw fa-star"></i>", "3 <i class="fa fa-fw fa-star"></i>", "4 <i class="fa fa-fw fa-star"></i>", "5 <i class="fa fa-fw fa-star"></i>"]' style="width: 100%;"/>
-                        <script>
-                            $("#ex13").slider({
-                            value: parseInt($('#ex13').val()),
-                            ticks: [0, 1, 2, 3, 4, 5],
-                            ticks_labels: ['0 <i class="fa fa-fw fa-star"></i>', '1 <i class="fa fa-fw fa-star"></i>', '2 <i class="fa fa-fw fa-star"></i>', '3 <i class="fa fa-fw fa-star"></i>', '4 <i class="fa fa-fw fa-star"></i>', '5 <i class="fa fa-fw fa-star"></i>'],
-                            ticks_snap_bounds: 100
-                        });
-                        </script>
-                            </div>
+                        <div class="input-group">
+                            <label>Nota média mínima</label>
+                            <select data-filter="model" class="filter-model filter form-control" name="avaliacao" id="ex13">
+                                {% if formRemake is False %}
+                                    <option value="0">Nenhuma avaliação</option>
+                                    <option value="1">&#9733;</option>
+                                    <option value="2">&#9733;&#9733;</option>
+                                    <option value="3">&#9733;&#9733;&#9733;</option>
+                                    <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+                                    <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                                {% else %}
+                                    {% if avaliacaoRemake == "0" %}
+                                        <option value="0" selected="selected">Nenhuma avaliação</option>
+                                    {% else %}
+                                        <option value="0">Nenhuma avaliação</option>
+                                    {% endif %}
+                                    {% if avaliacaoRemake == "1" %}
+                                        <option value="1" selected="selected">&#9733;</option>
+                                    {% else %}
+                                        <option value="1">&#9733;</option>
+                                    {% endif %}
+                                    {% if avaliacaoRemake == "2" %}
+                                        <option value="2" selected="selected">&#9733;&#9733;</option>
+                                    {% else %}
+                                        <option value="2">&#9733;&#9733;</option>
+                                    {% endif %}
+                                    {% if avaliacaoRemake == "3" %}
+                                        <option value="3" selected="selected">&#9733;&#9733;&#9733;</option>
+                                    {% else %}
+                                        <option value="3">&#9733;&#9733;&#9733;</option>
+                                    {% endif %}
+                                    {% if avaliacaoRemake == "4" %}
+                                        <option value="4" selected="selected">&#9733;&#9733;&#9733;&#9733;</option>
+                                    {% else %}
+                                        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+                                    {% endif %}
+                                    {% if avaliacaoRemake == "5" %}
+                                        <option value="5" selected="selected">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                                    {% else %}
+                                        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                                    {% endif %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <!-- DEU RUIM<input id="ex13" name="avaliacao" type="text" value="{{avaliacaoRemake}}" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
+                             "2 <i class="fa fa-fw fa-star"></i>", "3 <i class="fa fa-fw fa-star"></i>", "4 <i class="fa fa-fw fa-star"></i>", "5 <i class="fa fa-fw fa-star"></i>"]' style="width: 100%;"/>
+                            <script>
+                                $("#ex13").slider({
+                                    value: parseInt($('#ex13').val()),
+                                    ticks: [0, 1, 2, 3, 4, 5],
+                                    ticks_labels: ['0 <i class="fa fa-fw fa-star"></i>', '1 <i class="fa fa-fw fa-star"></i>', '2 <i class="fa fa-fw fa-star"></i>', '3 <i class="fa fa-fw fa-star"></i>', '4 <i class="fa fa-fw fa-star"></i>', '5 <i class="fa fa-fw fa-star"></i>'],
+                                    ticks_snap_bounds: 100
+                                });
+                        </script>-->
                         <!-- FIM NOTA SLIDER -->
                     </div>
                 </div>
