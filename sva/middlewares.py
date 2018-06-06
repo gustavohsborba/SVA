@@ -15,7 +15,7 @@ from .models import *
 
 def notificacoes_context_processor(request):
     context_data = dict()
-    if not request.user.is_anonymous:
+    if request.user.is_authenticated():
         context_data['notificacoes'] = Notificacao.objects.filter(usuario=request.user, lida=False)
     return context_data
 
@@ -100,7 +100,7 @@ class NotificacaoSignals:
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
                 notificacao.vaga = instance
                 notificacao.usuario = aluno.user
-                notificacao.mensagem = NotificacaoMiddleware.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+                notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
                 notificacao.link = reverse("vaga_visualizar", args={instance.pk})
                 notificacao.save()
 

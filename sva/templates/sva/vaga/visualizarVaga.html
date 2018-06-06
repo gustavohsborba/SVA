@@ -10,10 +10,13 @@
 }
 
 {% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/indicar.css' %}">
     <div class="container-fluid">
         <div class="box box-primary">
             <div class="box-body box-profile">
                 <p class="text-muted text-right" >Avaliação da vaga {{vaga.nota_media}}</p>
+
                 <p><h3 class="profile-username text-center">{{ vaga.titulo }}</h3></p>
                 {% if gerente.user|has_group:"Professor" %}
                     <p class="text-muted text-center"><b>Criada por</b> <a href="{% url 'Exibir_Professor' pk=gerente.user_id %}"><em>{{ gerente.user.first_name }} {{ gerente.user.last_name }}</em></a></p>
@@ -78,6 +81,26 @@
                                 </div>
                             </div>
                         </form>
+                            <div id="myModal" class="modal col-md-12  ">
+
+                              <!-- Modal content -->
+                              <div class="modal-content  text-center">
+                                <div class="modal-header ">
+                                  <span class="close">&times;</span>
+                                  <h2>Indicar vaga</h2>
+                                </div>
+                                <div class="modal-body">
+                                    <form  action=""  onsubmit="return validarCampos(this)"  method="post">
+                                        {% csrf_token %}
+                                        <p>{{form.email}}</p>
+                                        <button  class="btn btn-primary " type="" onclick="offmodal()">cancelar</button>
+                                        <input class="btn btn-primary "  name="indicar" type="submit" value="Indicar">
+                                    </form>
+                                </div>
+                              </div>
+                            </div>
+
+
                     {% endif %}
                 {% endif %}
 
@@ -130,6 +153,11 @@
               <h3 class="box-title text-center">Informações básicas</h3>
             </div>
             <div class="box-body">
+                {% if request.user|has_group:"Aluno" %}
+                    {% if vaga.situacao == 3 and not vaga.vencida %}
+                <button id="myBtn" class="btn btn-success pull-right"><i class="fa fa-users margin-r-5"></i>Indicar vaga</button>
+                    {%endif%}
+                {%endif%}
                 <strong><i class="fa fa-map-marker margin-r-5"></i> Local </strong>
                 <p>{{vaga.local}}</p>
                 <strong><i class="fa fa-clock-o margin-r-5"></i> Carga horária semanal </strong>
@@ -161,4 +189,40 @@
             </div>
         </div>
     </div>
+
+ <script language="Javascript">
+
+        var email = document.getElementById('email');
+
+        var modal = document.getElementById('myModal');
+
+        var btn = document.getElementById("myBtn");
+
+        var span = document.getElementsByClassName("close")[0];
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        function offmodal() {
+            modal.style.display = "none";
+        }
+        function validarCampos(e){
+            if(e.email.value == "{{aluno.user.email}}"){
+                    alert("Email invalido, você não pode enviar um email para si mesmo");
+                    return false;
+            }
+            return true;
+         }
+</script>
 {% endblock %}

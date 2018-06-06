@@ -312,9 +312,6 @@ class Notificacao(models.Model):
     lida = models.BooleanField(null=False, blank=False, default=False)
     data_leitura = models.DateTimeField(verbose_name='Data de visualização', null=True, blank=True)
     link = models.CharField(max_length=500, blank=True, null=True)
-    # TODO: CRIAR LINK INDIRETO DE NOTIFICAÇÃO (PARA SALVAR QUANDO ELA FOI LIDA)
-    # TODO: CRIAR DADOS_EXTRA PARA NOTIFICAÇÃO (INFORMAÇÕES ADICIONAIS)
-    # TODO: CRIAR CLASSES CSS PARA NOTIFICAÇÃO
 
     def __str__(self):
         return 'Para: %s %s\nMensagem: %s' % (self.usuario.first_name, self.usuario.last_name, self.mensagem)
