@@ -89,7 +89,7 @@
 
 
                         <div class="form-group has-feedback">
-                            {{ form.username|add_class:'form-control' }}
+                            {{ form.username|add_class:'form-control'|attr:'placeholder:CPF/CNPJ'|attr:'onfocus:this.placeholder=""'|attr:'onblur:this.placeholder="CPF/CNPJ"'}}
                             <span class="glyphicon glyphicon-user form-control-feedback"></span>
                             {% if form.username.errors %}
                                 <ol>
@@ -102,7 +102,7 @@
 
 
                         <div class="form-group has-feedback">
-                            {{ form.password|add_class:'form-control' }}
+                            {{ form.password|add_class:'form-control'|attr:'placeholder:Senha'|attr:'onfocus:this.placeholder=""'|attr:'onblur:this.placeholder="Senha"'}}
                             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                             {% if form.password.errors %}
                                 <ol>
@@ -144,5 +144,6 @@
         <div class="login-box vertical">
         </div>
     </div>
+
 
 {% endblock %}

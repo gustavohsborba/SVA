@@ -659,8 +659,14 @@ def cadastrar_aluno(request):
         usuario = User.objects.create_user(username)
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
-        aluno.user.first_name = form.cleaned_data['first_name']
-        aluno.user.last_name = ''
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        aluno.user.first_name=fullname[0]
+        fullname.remove(fullname[0])
+        last_name=""
+        for aux in fullname:
+            last_name=last_name+" "+aux
+        aluno.user.last_name = last_name
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
@@ -685,7 +691,14 @@ def cadastrar_professor(request):
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
-        professor.user.first_name = form.cleaned_data['nome']
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        professor.user.first_name = fullname[0]
+        fullname.remove(fullname[0])
+        last_name = ""
+        for aux in fullname:
+            last_name = last_name + " " + aux
+        professor.user.last_name = last_name
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
