@@ -626,32 +626,42 @@ def adicionar_comentario(request,pkvaga):
                 realname = user.first_name+" "+user.last_name
                 parte1 = form.cleaned_data['text'].split("[")
                 string = parte1[1].split("]")
+                comentario.user = request.user
+                comentario.vaga = vaga
+                comentario.text = form.cleaned_data['text']
+                comentario.save()
                 if string[0] == realname:
-
-                    comentario.user = request.user
-                    comentario.vaga = vaga
-                    comentario.text = form.cleaned_data['text']
-                    comentario.save()
-
                     notifica = Notificacao()
                     notifica.tipo = 9
-                    notifica.mensagem = request.user.first_name + 'Respondeu ao seu comentario. Clique para visualizar'
+                    notifica.mensagem = request.user.first_name + ' respondeu ao seu comentario. Clique para visualizar'
                     notifica.link = reverse("vaga_visualizar", args={pkvaga})
                     notifica.usuario = user
                     notifica.vaga = vaga
                     notifica.save()
                     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
                 else:
-                    comentario.user = request.user
-                    comentario.vaga = vaga
-                    comentario.text = form.cleaned_data['text']
-                    comentario.save()
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + ' fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
                     messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
             except:
                 comentario.user = request.user
                 comentario.vaga = vaga
                 comentario.text = form.cleaned_data['text']
                 comentario.save()
+
+                if request.user.first_name != vaga.gerente_vaga.user.first_name:
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + 'fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
                 messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
     return redirect(visualizar_vaga, pkvaga)
 
