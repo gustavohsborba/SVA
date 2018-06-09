@@ -243,3 +243,10 @@ class UploadCurriculo(forms.ModelForm):
 
 class IndicarVaga(forms.Form):
     email = forms.EmailField(required=True,max_length=50,widget=forms.EmailInput(attrs={'class':'form-control form-control-lg','placeholder':'Digite um email..','id':'email' }))
+
+
+class ComentarioForm(forms.ModelForm):
+    resposta = forms.CharField()
+    class Meta:
+        model = Comentario
+        fields = ['text','resposta']

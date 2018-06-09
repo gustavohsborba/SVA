@@ -21,7 +21,7 @@
                                             </button>
                                             {% csrf_token %}
                                             {{ form.curriculo }}
-                                          <button type="submit" onClick="return validate()" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-upload"></i> </span>Upload</button>
+                                          <button type="submit" onclick="return validate(this)" class="btn btn-labeled btn-primary"> <span class="btn-label"><i class="glyphicon glyphicon-upload"></i> </span>Upload</button>
                                     </span>
                                 </div>
                         <!-- /input-group image-preview [TO HERE]-->
@@ -69,8 +69,8 @@
                           window.open("{{visualizar.url}}", '_blank')
     }
     function validate(){
-        var size=3145728;
-        var file_size=document.getElementById('my-file').files[0].size;
+        var size=3000000;
+        var file_size=document.getElementById('files-input-upload').files[0].size;
         if(file_size>=size){
             alert('Arquivo muito grande, tamanho maximo é 3MB');
             return false;
