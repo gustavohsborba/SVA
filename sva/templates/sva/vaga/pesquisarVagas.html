@@ -295,56 +295,107 @@
                             </div>
                             <div class="col-md-12">
                                 <label>Destinadas a nível</label>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:4 == "on" %}
-                                        <input id="id_tecnico" name="tecnico" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_tecnico" name="tecnico" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_tecnico">
-                                            Técnico
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:5 == "on" %}
-                                        <input id="id_graduacao" name="graduacao" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_graduacao" name="graduacao" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_graduacao">
-                                            Graduação
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:6 == "on" %}
-                                        <input id="id_mestrado" name="mestrado" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_mestrado" name="mestrado" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_mestrado">
-                                            Mestrado
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:7 == "on" %}
-                                        <input id="id_doutorado" name="doutorado" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_doutorado" name="doutorado" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_doutorado">
-                                            Doutorado
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:8 == "on" %}
-                                        <input id="id_especializacao" name="especializacao" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_especializacao" name="especializacao" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_especializacao">
-                                            Especialização
-                                        </label>
-                                    </div>
+                                <div class="radio">
+                                    {% if radioRemake == 1 %}
+                                        <input  type="radio" id="id_tecnico" name="radioNivel" checked="checked" value="1">
+                                    {% else %}
+                                        <input  type="radio" id="id_tecnico" name="radioNivel" value="1">
+                                    {% endif %}
+                                    <label for="id_tecnico">
+                                        Técnico
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 2 %}
+                                        <input  type="radio" id="id_graduacao" name="radioNivel" checked="checked" value="2">
+                                    {% else %}
+                                        <input  type="radio" id="id_graduacao" name="radioNivel" value="2">
+                                    {% endif %}
+                                    <label for="id_graduacao">
+                                        Graduação
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 3 %}
+                                        <input  type="radio" id="id_mestrado" name="radioNivel" checked="checked" value="3">
+                                    {% else %}
+                                        <input  type="radio" id="id_mestrado" name="radioNivel" value="3">
+                                    {% endif %}
+                                    <label for="id_mestrado">
+                                        Mestrado
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 4 %}
+                                        <input  type="radio" id="id_doutorado" name="radioNivel" checked="checked" value="4">
+                                    {% else %}
+                                        <input  type="radio" id="id_doutorado" name="radioNivel" value="4">
+                                    {% endif %}
+                                    <label for="id_doutorado">
+                                        Doutorado
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 5 %}
+                                        <input  type="radio" id="id_especializacao" name="radioNivel" checked="checked" value="5">
+                                    {% else %}
+                                        <input  type="radio" id="id_especializacao" name="radioNivel" value="5">
+                                    {% endif %}
+                                    <label for="id_especializacao">
+                                        Especialização
+                                    </label>
+                                </div>
+                                <!--<label>Destinadas a nível</label>
+                                <div class="checkbox checkbox-danger">
+                                    {% if checkBoxRemake|index:4 == "on" %}
+                                    <input id="id_tecnico" name="tecnico" type="checkbox" checked="">
+                                    {% else %}
+                                    <input id="id_tecnico" name="tecnico" type="checkbox">
+                                    {% endif %}
+                                    <label for="id_tecnico">
+                                        Técnico
+                                    </label>
+                                </div>
+                                <div class="checkbox checkbox-primary">
+                                    {% if checkBoxRemake|index:5 == "on" %}
+                                    <input id="id_graduacao" name="graduacao" type="checkbox" checked="">
+                                    {% else %}
+                                    <input id="id_graduacao" name="graduacao" type="checkbox">
+                                    {% endif %}
+                                    <label for="id_graduacao">
+                                        Graduação
+                                    </label>
+                                </div>
+                                <div class="checkbox checkbox-primary">
+                                    {% if checkBoxRemake|index:6 == "on" %}
+                                    <input id="id_mestrado" name="mestrado" type="checkbox" checked="">
+                                    {% else %}
+                                    <input id="id_mestrado" name="mestrado" type="checkbox">
+                                    {% endif %}
+                                    <label for="id_mestrado">
+                                        Mestrado
+                                    </label>
+                                </div>
+                                <div class="checkbox checkbox-primary">
+                                    {% if checkBoxRemake|index:7 == "on" %}
+                                    <input id="id_doutorado" name="doutorado" type="checkbox" checked="">
+                                    {% else %}
+                                    <input id="id_doutorado" name="doutorado" type="checkbox">
+                                    {% endif %}
+                                    <label for="id_doutorado">
+                                        Doutorado
+                                    </label>
+                                </div>
+                                <div class="checkbox checkbox-primary">
+                                    {% if checkBoxRemake|index:8 == "on" %}
+                                    <input id="id_especializacao" name="especializacao" type="checkbox" checked="">
+                                    {% else %}
+                                    <input id="id_especializacao" name="especializacao" type="checkbox">
+                                    {% endif %}
+                                    <label for="id_especializacao">
+                                        Especialização
+                                    </label>
+                                </div>-->
                             </div>
                         </div>
                         <hr>
