@@ -63,23 +63,23 @@
 
             $('.input-group-prepend').on('change', function() {
                 var currentId = $(this).attr("id");
-              if ( $("#id_filtro_"+currentId).val() == 5)
-              {
-                $("#id_curso_"+currentId).show();
-                $("#id_texto_"+currentId).hide();
-                $("#id_area_"+currentId).hide();
-              }
-              else if( $("#id_filtro_"+currentId).val() == 4)
-              {
-                $("#id_curso_"+currentId).hide();
-                $("#id_texto_"+currentId).hide();
-                $("#id_area_"+currentId).show();
-              }
-              else{
-                $("#id_curso_"+currentId).hide();
-                $("#id_texto_"+currentId).show();
-                $("#id_area_"+currentId).hide();
-              }
+                if ( $("#id_filtro_"+currentId).val() == 5)
+                {
+                    $("#id_curso_"+currentId).show();
+                    $("#id_texto_"+currentId).hide();
+                    $("#id_area_"+currentId).hide();
+                }
+                else if( $("#id_filtro_"+currentId).val() == 4)
+                {
+                    $("#id_curso_"+currentId).hide();
+                    $("#id_texto_"+currentId).hide();
+                    $("#id_area_"+currentId).show();
+                }
+                else{
+                    $("#id_curso_"+currentId).hide();
+                    $("#id_texto_"+currentId).show();
+                    $("#id_area_"+currentId).hide();
+                }
             });
 
             $(document).ready(function(){

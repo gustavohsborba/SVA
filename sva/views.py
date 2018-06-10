@@ -140,7 +140,7 @@ def pesquisar_vaga(request):
                     vagasAux.append(vaga)
             vagas = vagasAux
     except:
-        radioInitial = 1
+        radioInitial = 0
 
     formRemake = False
     ordemRemake = 0
@@ -151,6 +151,10 @@ def pesquisar_vaga(request):
     checkBoxRemake = []
     radioRemake = radioInitial
     avaliacaoRemake = 0
+    filtroRemake = []
+    textoRemake = []
+    areaRemake = []
+    cursoRemake = []
 
     if request.method == 'POST' and form.is_valid():
         formRemake = True
@@ -160,7 +164,7 @@ def pesquisar_vaga(request):
         checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
         checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
         checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
-        radioRemake = int(request.POST.get('radioNivel'))
+        radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
         salarioRemake = request.POST.get('salario')
         minvalueRemake = request.POST.get('min-value')
         maxvalueRemake = request.POST.get('max-value')
@@ -272,6 +276,10 @@ def pesquisar_vaga(request):
         inputArea = request.POST.getlist('area')
         aux = 0
         for filtro in filtroSelecionado:
+            filtroRemake.append(filtro)
+            textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
+            cursoRemake.append(inputCurso[aux])
+            areaRemake.append(inputArea[aux])
             #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
             vagasAux = []
             #FILTRO - TODOS OS CAMPOS
@@ -387,7 +395,8 @@ def pesquisar_vaga(request):
     busca = ', '.join(busca)
     context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
                'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
-               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake}
+               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake, 'filtroRemake': filtroRemake, 'textoRemake': textoRemake, 'areaRemake': areaRemake,
+               'cursoRemake': cursoRemake}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 
