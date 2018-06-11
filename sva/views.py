@@ -108,6 +108,40 @@ def pesquisar_vaga(request):
 
     #Form initial value
     initial = ""
+    try:
+        alunoRadio = Aluno.objects.get(user=request.user)
+        if alunoRadio.curso.nivel_ensino == 1:
+            radioInitial = 1
+        elif alunoRadio.curso.nivel_ensino == 2:
+            radioInitial = 2
+        elif alunoRadio.curso.nivel_ensino == 3:
+            radioInitial = 3
+        elif alunoRadio.curso.nivel_ensino == 4:
+            radioInitial = 4
+        elif alunoRadio.curso.nivel_ensino == 5:
+            radioInitial = 5
+        else:
+            radioInitial = 1
+        if request.method != 'POST':
+            vagasAux = []
+            for vaga in vagas:
+                radioInitialFlag = True
+                if radioInitial == 1 and not verificaCursoByNivel(vaga, 1):
+                    radioInitialFlag = False
+                if radioInitial == 2 and not verificaCursoByNivel(vaga, 2):
+                    radioInitialFlag = False
+                if radioInitial == 3 and not verificaCursoByNivel(vaga, 3):
+                    radioInitialFlag = False
+                if radioInitial == 4 and not verificaCursoByNivel(vaga, 4):
+                    radioInitialFlag = False
+                if radioInitial == 5 and not verificaCursoByNivel(vaga, 5):
+                    radioInitialFlag = False
+                if radioInitialFlag == True:
+                    vagasAux.append(vaga)
+            vagas = vagasAux
+    except:
+        radioInitial = 0
+
     formRemake = False
     ordemRemake = 0
     superuserOptionRemake = 0
@@ -115,7 +149,12 @@ def pesquisar_vaga(request):
     minvalueRemake = 5
     maxvalueRemake = 45
     checkBoxRemake = []
+    radioRemake = radioInitial
     avaliacaoRemake = 0
+    filtroRemake = []
+    textoRemake = []
+    areaRemake = []
+    cursoRemake = []
 
     if request.method == 'POST' and form.is_valid():
         formRemake = True
@@ -125,11 +164,7 @@ def pesquisar_vaga(request):
         checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
         checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
         checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('tecnico') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('graduacao') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('mestrado') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('doutorado') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('especializacao') == "on" else checkBoxRemake.append("off")
+        radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
         salarioRemake = request.POST.get('salario')
         minvalueRemake = request.POST.get('min-value')
         maxvalueRemake = request.POST.get('max-value')
@@ -148,9 +183,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter().order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter()
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter().order_by('data_validade')
@@ -185,9 +219,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('data_validade')
@@ -207,15 +240,15 @@ def pesquisar_vaga(request):
                 addFlag = True
             elif request.POST.get('outros') == "on" and vaga.tipo_vaga == 4:
                 addFlag = True
-            if request.POST.get('tecnico') == "on" and not verificaCursoByNivel(vaga, 1):
+            if request.POST.get('radioNivel') == "1" and not verificaCursoByNivel(vaga, 1):
                 addFlag = False
-            if request.POST.get('graduacao') == "on" and not verificaCursoByNivel(vaga, 2):
+            if request.POST.get('radioNivel') == "2" and not verificaCursoByNivel(vaga, 2):
                 addFlag = False
-            if request.POST.get('mestrado') == "on" and not verificaCursoByNivel(vaga, 3):
+            if request.POST.get('radioNivel') == "3"and not verificaCursoByNivel(vaga, 3):
                 addFlag = False
-            if request.POST.get('doutorado') == "on" and not verificaCursoByNivel(vaga, 4):
+            if request.POST.get('radioNivel') == "4" and not verificaCursoByNivel(vaga, 4):
                 addFlag = False
-            if request.POST.get('especializacao') == "on" and not verificaCursoByNivel(vaga, 5):
+            if request.POST.get('radioNivel') == "5" and not verificaCursoByNivel(vaga, 5):
                 addFlag = False
             if addFlag == True:
                 vagasAux.append(vaga)
@@ -241,6 +274,10 @@ def pesquisar_vaga(request):
         inputArea = request.POST.getlist('area')
         aux = 0
         for filtro in filtroSelecionado:
+            filtroRemake.append(filtro)
+            textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
+            cursoRemake.append(int(inputCurso[aux]))
+            areaRemake.append(int(inputArea[aux]))
             #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
             vagasAux = []
             #FILTRO - TODOS OS CAMPOS
@@ -356,7 +393,8 @@ def pesquisar_vaga(request):
     busca = ', '.join(busca)
     context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
                'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
-               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake}
+               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake, 'filtroRemake': filtroRemake, 'textoRemake': textoRemake, 'areaRemake': areaRemake,
+               'cursoRemake': cursoRemake, 'cursosChoices': Curso.objects.all(), 'areasChoices': AreaAtuacao.objects.all()}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 

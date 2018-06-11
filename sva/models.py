@@ -242,7 +242,7 @@ class Vaga(models.Model):
     data_validade = models.DateTimeField(verbose_name='Data de Validade', blank=True, null=True)
     carga_horaria_semanal = models.PositiveIntegerField(verbose_name='Carga Horária Semanal', null=False, blank=False, validators=[integer_validator])
     local = models.CharField(verbose_name='Local de Trabalho', max_length=255, null=False, blank=False)
-    valor_bolsa = models.FloatField(verbose_name='Valor da Bolsa', null=False, blank=False, )
+    valor_bolsa = models.FloatField(verbose_name='Valor da Bolsa', null=False, blank=False)
     beneficios = models.TextField(verbose_name='Benefícios', null=True, blank=True)
     nota_media = models.FloatField(verbose_name='Nota', null=False, blank=False, default=0.0)
     data_aprovacao = models.DateTimeField(verbose_name='Data de Aprovação', blank=True, null=True)
@@ -316,20 +316,110 @@ class Notificacao(models.Model):
     def __str__(self):
         return 'Para: %s %s\nMensagem: %s' % (self.usuario.first_name, self.usuario.last_name, self.mensagem)
 
+class Filtro(models.Model):
+    class Meta:
+        verbose_name = 'Filtro'
+        verbose_name_plural = 'Filtros'
+
+    TODOS = 1
+    VAGA = 2
+    GERENTE = 3
+    AREAS = 4
+    CURSOS = 5
+    DESCRICAO = 6
+    LOCAL = 7
+
+    TIPO_CHOICES = {
+        (TODOS, 'Todos os campos'),
+        (VAGA, 'Nome de vagas'),
+        (GERENTE, 'Gerentes e/ou professores'),
+        (AREAS, 'Áreas de atuação'),
+        (CURSOS, 'Cursos'),
+        (DESCRICAO, 'Descrição'),
+        (LOCAL, 'Local')
+    }
+
+    tipo = models.PositiveIntegerField(verbose_name='Tipo do filtro', null=False, blank=False, default=TODOS, choices=TIPO_CHOICES)
+    texto = models.TextField(max_length=255, null=True, blank=True)
+    areas_atuacao = models.ForeignKey(to=AreaAtuacao, on_delete=models.CASCADE, blank=True, null=True, related_name='filtro')
+    cursos = models.ForeignKey(to=Curso, on_delete=models.CASCADE, blank=True, null=True, related_name='filtro')
 
 class FiltroPesquisa(models.Model):
     class Meta:
         verbose_name = 'Filtro de Pesquisa'
         verbose_name_plural = 'Filtros de Pesquisa'
 
-    aluno = models.ForeignKey(to=Aluno, null=True, blank=True, on_delete=models.CASCADE, related_name='filtros_pesquisa')
+    MAIS_RECENTES = 1
+    MAIS_INSCRITAS = 2
+    MELHORES_AVALIACOES = 3
+    MAIS_COMENTADAS = 4
+    MENOR_PRAZO_INSCRICAO = 5
+
+    ORDENACAO_CHOICES = {
+        (MAIS_RECENTES, 'Mais recentes'),
+        (MAIS_INSCRITAS, 'Mais inscritas'),
+        (MELHORES_AVALIACOES, 'Melhores avaliações'),
+        (MAIS_COMENTADAS, 'Mais comentadas'),
+        (MENOR_PRAZO_INSCRICAO, 'Menor prazo de inscrição')
+    }
+
+    ATIVAS = 1
+    PENDENTES = 2
+    INATIVAS = 3
+    REPROVADAS = 4
+    TODAS = 5
+
+    SITUACAO_CHOICES = {
+        (ATIVAS, 'Ativas'),
+        (PENDENTES, 'Pendentes de avaliação'),
+        (INATIVAS, 'Inativas'),
+        (REPROVADAS, 'Reprovadas'),
+        (TODAS, 'Todas')
+    }
+
+    TECNICO = 1
+    GRADUACAO = 2
+    MESTRADO = 3
+    DOUTORADO = 4
+    ESPECIALIZACAO = 5
+
+    NIVEL_CHOICES = {
+        (TECNICO, 'Técnico'),
+        (GRADUACAO, 'Graduação'),
+        (MESTRADO, 'Mestrado'),
+        (DOUTORADO, 'Doutorado'),
+        (ESPECIALIZACAO, 'Especialização')
+    }
+
+    AVALIACAO_CHOICES = {
+        (0, 'Nenhuma avaliação'),
+        (1, 'Uma estrela'),
+        (2, 'Duas estrelas'),
+        (3, 'Três estrelas'),
+        (4, 'Quatro estrelas'),
+        (5, 'Cinco estrelas')
+    }
+
+    user = models.ForeignKey(to=User, null=True, blank=True, on_delete=models.CASCADE, related_name='filtro_pesquisa')
+    filtros = models.ManyToManyField(to=Filtro, related_name='pesquisa')
 
     nome = models.CharField(verbose_name='Nome do Filtro', max_length=255, null=False, blank=False)
-    chave = models.CharField(max_length=255, null=False, blank=False)
-    valor = models.CharField(max_length=255, null=False, blank=False)
+    ordenacao = models.PositiveIntegerField(verbose_name='Forma de ordenação dos resultados', null=False, default=MAIS_RECENTES, choices=ORDENACAO_CHOICES)
+    situacao = models.PositiveIntegerField(verbose_name='Situação das vagas', null=False, default=ATIVAS, choices=SITUACAO_CHOICES)
+    tipo_estagio = models.BooleanField(default=True)
+    tipo_ic = models.BooleanField(default=True)
+    tipo_monitoria = models.BooleanField(default=True)
+    tipo_outros = models.BooleanField(default=True)
+    nivel = models.PositiveIntegerField(verbose_name='Situação das vagas', null=True, choices=NIVEL_CHOICES)
+    carga_horaria_minima = models.PositiveIntegerField(verbose_name='Carga horária semanal mínima', default=5, null=False,
+                                                        validators=[integer_validator])
+    carga_horaria_maxima = models.PositiveIntegerField(verbose_name='Carga horária semanal máxima', default=45, null=False,
+                                                       validators=[integer_validator])
+    salario = models.FloatField(verbose_name='Valor salarial', null=True, blank=True)
+    avaliacao = models.IntegerField(verbose_name='Avaliação das vagas', default=0, null=False, choices=AVALIACAO_CHOICES)
 
     def __str__(self):
-        return '%s - %s' % (self.nome, self.chave)
+        return '%s' % (self.nome)
 
 
 class Comentario(models.Model):
