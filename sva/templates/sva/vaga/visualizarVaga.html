@@ -44,14 +44,18 @@
                 <hr>
                 <strong><i class="fa fa-graduation-cap margin-r-5"></i> Ofertada aos cursos de </strong>
                 <p>
-                    {% for curso in vaga.cursos.all %}
-                        <span class="label label-primary">[{{curso.nome}} ({{curso.get_nivel_ensino_display}})]</span>&nbsp;
-                    {% endfor %}
+                    {% if vaga.cursos.count == 0 %}
+                    <span class="label label-info">Todos os cursos</span>
+                    {% else %}
+                        {% for curso in vaga.cursos.all %}
+                            <span class="label label-primary">{{curso.nome}} ({{curso.get_nivel_ensino_display}})</span>
+                        {% endfor %}
+                    {% endif %}
                 </p>
                 <strong><i class="fa fa-pencil margin-r-5"></i> Áreas de atuação </strong>
                 <p>
                     {% for area in vaga.areas_atuacao.all %}
-                        <span class="label label-success">[{{area.nome}}]</span>&nbsp;
+                        <span class="label label-success">{{area.nome}}</span>&nbsp;
                     {% endfor %}
                 </p>
                 {% if request.user|has_group:"Aluno" %}
