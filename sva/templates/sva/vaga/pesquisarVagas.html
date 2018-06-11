@@ -532,6 +532,63 @@
                         </div>
                     </div>
                 </div>
+                {% if user.is_authenticated %}
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Filtros de pesquisa</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                {% if filtrosPesquisa %}
+                                    <div class="list-group">
+                                    {% for filtro in filtrosPesquisa %}
+                                        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start clearfix">
+                                            <span>{{filtro.nome}}</span>
+                                            <input type="hidden" id="id_nome_filtro_{{filtro.id}}" value="{{filtro.nome}}"/>
+                                            <span class="pull-right">
+                                                <button type="submit" class="btn btn-xs btn-danger" id="id_filter_remove_{{filtro.id}}"><i class="fa fa-trash-o"></i></button>
+                                                <script>
+                                                    $("[id^=id_filter_remove_]").click(function() {
+                                                        var matches = $(this).attr('id').match(/\d+$/);
+                                                        debugger;
+                                                        var resposta = confirm("Você realmente deseja remover o filtro " + document.getElementById('id_nome_filtro_'+matches[0]).value + "?");
+                                                         if (resposta == true) {
+                                                            alert("EXCLUIR");
+                                                         }
+                                                        $("#id_type").val("remove_filter");
+                                                    });
+                                                </script>
+                                            </span>
+                                        </a>
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center">Você ainda não salvou filtros de pesquisa</div>
+                                    <div class="text-center">Crie alguns logo abaixo!</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="input-group">
+                            <input type="text" name="novo_filtro" pattern="[A-Za-zÀ-ž ]+" placeholder="Nome do novo filtro" class="form-control" maxlength="30" id="id_novo_filtro" value="">
+                            <input type="hidden" name="type" id="id_type" value="search">
+                            <div class="input-group-btn" >
+                                <button type="submit" class="btn btn-primary" id="id_filter_add"><i class="fa fa-floppy-o"></i></button>
+                                <script>
+                                    $("#id_filter_add").click(function() {
+                                        $("#id_type").val("add_filter");
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             <div class="col-md-9">
                 <div class="list-group ">

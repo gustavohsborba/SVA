@@ -155,8 +155,115 @@ def pesquisar_vaga(request):
     textoRemake = []
     areaRemake = []
     cursoRemake = []
+    filtrosPesquisa = []
+    if request.user.is_authenticated():
+        filtrosPesquisa = FiltroPesquisa.objects.filter(user=request.user)
 
-    if request.method == 'POST' and form.is_valid():
+    #SALVAR FILTRO
+    if request.method == 'POST' and request.POST['type']=="add_filter":
+        nome_filtro = request.POST['novo_filtro']
+        if request.user.is_authenticated() and request.POST['novo_filtro'] is not None and request.POST['novo_filtro'] != "":
+            countFiltros = FiltroPesquisa.objects.filter(user=request.user).count()
+            if countFiltros == 5:
+                messages.error(request, mensagens.ERROR_QUANT_MAX_FILTROS, mensagens.MSG_ERRO)
+            else:
+                novoFiltroPesquisa = FiltroPesquisa()
+                novoFiltroPesquisa.user = request.user
+                novoFiltroPesquisa.nome = nome_filtro
+                novoFiltroPesquisa.ordenacao = int(request.POST.get('ordem'))
+                if not is_admin(request.user):
+                    novoFiltroPesquisa.situacao = FiltroPesquisa.ATIVAS
+                else:
+                    novoFiltroPesquisa.situacao = int(request.POST.get('superuser_option'))
+                if request.POST.get('estagio') == "on":
+                    novoFiltroPesquisa.tipo_estagio = True
+                else:
+                    novoFiltroPesquisa.tipo_estagio = False
+                if request.POST.get('monitoria') == "on":
+                    novoFiltroPesquisa.tipo_monitoria = True
+                else:
+                    novoFiltroPesquisa.tipo_monitoria = False
+                if request.POST.get('ic') == "on":
+                    novoFiltroPesquisa.tipo_ic = True
+                else:
+                    novoFiltroPesquisa.tipo_ic = False
+                if request.POST.get('outros') == "on":
+                    novoFiltroPesquisa.tipo_outros = True
+                else:
+                    novoFiltroPesquisa.tipo_outros = False
+                if request.POST.get('radioNivel') is not None:
+                    novoFiltroPesquisa.nivel = int(request.POST.get('radioNivel'))
+                else:
+                    novoFiltroPesquisa.nivel = FiltroPesquisa.NENHUM_SELECIONADO
+                novoFiltroPesquisa.carga_horaria_minima = int(request.POST.get('min-value'))
+                novoFiltroPesquisa.carga_horaria_maxima = int(request.POST.get('max-value'))
+                if request.POST.get('salario') is not None and request.POST.get('salario') != "":
+                    novoFiltroPesquisa.salario = float(request.POST.get('salario'))
+                else:
+                    novoFiltroPesquisa.salario = 0
+                novoFiltroPesquisa.avaliacao = int(request.POST.get('avaliacao'))
+                filtros = request.POST.getlist('filtro')
+                textoFiltro = request.POST.getlist('texto')
+                cursoFiltro = request.POST.getlist('curso')
+                areaFiltro = request.POST.getlist('area')
+                aux = 0
+                filtrosAuxList = []
+                errorOnLoop = False
+                for filtro in filtros:
+                    novoFiltro = Filtro()
+                    novoFiltro.tipo = int(filtro)
+                    if textoFiltro[aux] == "" or textoFiltro[aux] is None:
+                        novoFiltro.texto = ""
+                    else:
+                        novoFiltro.texto = textoFiltro[aux]
+                    try:
+                        area = AreaAtuacao.objects.get(id=int(areaFiltro[aux]))
+                        novoFiltro.areas_atuacao = area
+                        curso = Curso.objects.get(id=int(cursoFiltro[aux]))
+                        novoFiltro.cursos = curso
+                        novoFiltro.save()
+                        filtrosAuxList.append(novoFiltro)
+                    except:
+                        errorOnLoop = True
+                        continue
+                    aux+=1
+                if errorOnLoop is True:
+                    for filtro in filtrosAuxList:
+                        filtro.delete()
+                    messages.error(request, mensagens.ERRO_PROCESSAMENTO, mensagens.MSG_ERRO)
+                else:
+                    novoFiltroPesquisa.save()
+                for filtro in filtrosAuxList:
+                    novoFiltroPesquisa.filtros.add(filtro)
+                messages.success(request, 'Filtro de pesquisa %s criado com sucesso' % nome_filtro, mensagens.MSG_SUCCESS)
+                #REFAZ FORMULARIO APOS ADICIONAR NOVO FILTRO
+                formRemake = True
+                ordemRemake = request.POST.get('ordem')
+                superuserOptionRemake = request.POST.get('superuser_option')
+                checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
+                checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
+                checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
+                checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
+                radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
+                salarioRemake = request.POST.get('salario')
+                minvalueRemake = request.POST.get('min-value')
+                maxvalueRemake = request.POST.get('max-value')
+                avaliacaoRemake = request.POST.get('avaliacao')
+                filtroSelecionado = request.POST.getlist('filtro')
+                inputTexto = request.POST.getlist('texto')
+                inputCurso = request.POST.getlist('curso')
+                inputArea = request.POST.getlist('area')
+                aux = 0
+                for filtro in filtroSelecionado:
+                    filtroRemake.append(filtro)
+                    textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[
+                                                                                               aux] != "" else textoRemake.append(
+                        "")
+                    cursoRemake.append(int(inputCurso[aux]))
+                    areaRemake.append(int(inputArea[aux]))
+                    aux += 1
+
+    if request.method == 'POST' and form.is_valid() and not request.POST['type']=="add_filter":
         formRemake = True
         ordemRemake = request.POST.get('ordem')
         superuserOptionRemake = request.POST.get('superuser_option')
@@ -394,7 +501,7 @@ def pesquisar_vaga(request):
     context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
                'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
                'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake, 'filtroRemake': filtroRemake, 'textoRemake': textoRemake, 'areaRemake': areaRemake,
-               'cursoRemake': cursoRemake, 'cursosChoices': Curso.objects.all(), 'areasChoices': AreaAtuacao.objects.all()}
+               'cursoRemake': cursoRemake, 'cursosChoices': Curso.objects.all(), 'areasChoices': AreaAtuacao.objects.all(), 'filtrosPesquisa': filtrosPesquisa}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 

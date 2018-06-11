@@ -377,6 +377,7 @@ class FiltroPesquisa(models.Model):
         (TODAS, 'Todas')
     }
 
+    NENHUM_SELECIONADO = 0
     TECNICO = 1
     GRADUACAO = 2
     MESTRADO = 3
@@ -384,6 +385,7 @@ class FiltroPesquisa(models.Model):
     ESPECIALIZACAO = 5
 
     NIVEL_CHOICES = {
+        (NENHUM_SELECIONADO, 'Qualquer'),
         (TECNICO, 'Técnico'),
         (GRADUACAO, 'Graduação'),
         (MESTRADO, 'Mestrado'),
