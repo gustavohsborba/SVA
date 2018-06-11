@@ -642,8 +642,8 @@ def aprovar_vaga(request, pkvaga):
                   mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     else:
         vaga.situacao = Vaga.REPROVADA
+        vaga.descricao = form.cleaned_data['justificativa'].upper() + '\n\n' + vaga.descricao
         vaga.save()
-        vaga.descricao = form.cleaned_data['justificativa'] + '\n\n' + vaga.descricao
         mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
