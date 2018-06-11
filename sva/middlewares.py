@@ -112,7 +112,7 @@ class NotificacaoSignals:
             notificacao.tipo = Notificacao.TIPO_REPROVACAO_VAGA
             notificacao.vaga = instance
             notificacao.usuario = gerente.user
-            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_REPROVACAO_VAGA % Vaga.titulo
+            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_REPROVACAO_VAGA % instance.titulo
             notificacao.link = reverse("vaga_editar", args={instance.pk})
             notificacao.save()
 
