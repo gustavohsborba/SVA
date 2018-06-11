@@ -10,8 +10,9 @@
 }
 
 {% block content %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/indicar.css' %}">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/indicar.css' %}">
+
     <div class="container-fluid">
         <div class="box box-primary">
             <div class="box-body box-profile">
@@ -186,20 +187,32 @@
                         </div>
                     </div>
                 {% endif %}
-                  <div class="box-footer">
-                       <p>  <span class="glyphicon glyphicon-comment"></span> <font size="3">Comentarios</font> <span class="label label-info pull-right">{{comentarios.count}}</span></p>
-                        <form action="{%url 'comentario' pkvaga=vaga.id%}"  method="post" >
-                            {% csrf_token %}
-                             <div class="input-group mb-3 " >
-                                 <input hidden name="resposta" id="resposta" type="text" value="0">
-                                 <input maxlength="150" required="True" class="form-control"  name="text" id="text" placeholder="Comentario..." type="text">
-                                 <div class="input-group-btn">
-                                 <button  class="btn btn-primary" type="submit">Comentar</button>
-                                 </div>
-                             </div>
-
-                        </form>
-                </div>
+        </div>
+        <div class="box box-primary">
+            <div class="box-footer text-center">
+                <p class="box-title" > <font  size="4"> <span class="glyphicon glyphicon-comment "></span></font> <font  size="5">Comentarios</font>
+                    {%if comentarios.count != 0%}
+                        {%if comentarios.count == 1%}
+                            <span class="pull-right badge bg-aqua pull-right"><font size="2">{{comentarios.count}} Comentario </font></span>
+                        {%else%}
+                            <span class="pull-right badge bg-aqua pull-right"><font size="2">{{comentarios.count}} Comentarios </font></span>
+                        {%endif%}
+                    {%endif%}
+                </p>
+                <br>
+                <form action="{%url 'comentario' pkvaga=vaga.id%}"  method="post" >
+                    {% csrf_token %}
+                     <div class="input-group mb-3 " >
+                         <input hidden name="resposta" id="resposta" type="text" value="0">
+                         <input maxlength="150" required="True" class="form-control"  name="text" id="text" placeholder="Comentario..." type="text">
+                         <div class="input-group-btn">
+                         <button  class="btn btn-primary" type="submit">Comentar</button>
+                         </div>
+                     </div>
+                </form>
+            </div>
+            {%if comentarios.count != 0%}
+                <br>
                 <div class="box-footer box-comments">
                     {% for comment in comentarios %}
                       <div class="box-comment">
@@ -207,7 +220,6 @@
                           <span class="username">
                               <span class="text-muted pull-right">{{ comment.created_date }}</span>
                               <p><strong>{{ comment.user.first_name}} {{ comment.user.last_name}}</strong></p>
-
                           </span><!-- /.username -->
                             {% if request.user|has_group:"Administrador" %}
                                 <a type="button" href="{% url 'excluir_comentario' pkcomentario=comment.id%}" onclick="return confirm('Deseja excluir o comentário?');" class="btn btn-danger btn-xs pull-right"><i class="fa  fa-trash-o"></i></a>
@@ -215,16 +227,13 @@
                             <p>{{ comment.text }}</p>
                         </div>
                           <a onclick="reply('{{ comment.user.first_name}} {{ comment.user.last_name}}',{{comment.user.pk}})">Responder</a>
-                        <!-- /.comment-text -->
                       </div>
-
                     {% endfor %}
-                </div>
-            </div>
+                    </div>
+            {%endif%}
         </div>
     </div>
-
- <script language="Javascript">
+    <script language="Javascript">
 
         var email = document.getElementById('email');
 
@@ -268,5 +277,5 @@
             }
          }
 
-</script>
+    </script>
 {% endblock %}
