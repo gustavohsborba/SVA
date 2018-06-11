@@ -183,9 +183,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter().order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter()
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter().order_by('data_validade')
@@ -220,9 +219,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('data_validade')
@@ -278,8 +276,8 @@ def pesquisar_vaga(request):
         for filtro in filtroSelecionado:
             filtroRemake.append(filtro)
             textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
-            cursoRemake.append(inputCurso[aux])
-            areaRemake.append(inputArea[aux])
+            cursoRemake.append(int(inputCurso[aux]))
+            areaRemake.append(int(inputArea[aux]))
             #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
             vagasAux = []
             #FILTRO - TODOS OS CAMPOS
@@ -396,7 +394,7 @@ def pesquisar_vaga(request):
     context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
                'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
                'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake, 'filtroRemake': filtroRemake, 'textoRemake': textoRemake, 'areaRemake': areaRemake,
-               'cursoRemake': cursoRemake}
+               'cursoRemake': cursoRemake, 'cursosChoices': Curso.objects.all(), 'areasChoices': AreaAtuacao.objects.all()}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 

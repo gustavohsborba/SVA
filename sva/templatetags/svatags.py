@@ -19,3 +19,7 @@ def has_groups(user, groups_names):
 def index(List, i):
     return List[int(i)]
 
+@register.filter(name='get_type')
+def get_type(value):
+    return type(value)
+
