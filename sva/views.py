@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, ContextManager
 
 from django.urls import reverse
 from django.contrib import messages
@@ -457,6 +457,7 @@ def visualizar_vaga(request, pkvaga):
     context = {}
     form = IndicarVaga(request.POST)
     vaga = get_object_or_404(Vaga, id=pkvaga)
+    context['comentarios'] = Comentario.objects.filter(vaga=vaga)
     context['vaga'] = vaga
     context['form'] = form
     gerente = GerenteVaga.objects.get(vagas=vaga)
@@ -613,6 +614,65 @@ def aprovar_vaga(request, pkvaga):
 
     return redirect(visualizar_vaga, pkvaga)
 
+@login_required(login_url='/accounts/login/')
+def adicionar_comentario(request,pkvaga):
+    vaga = get_object_or_404(Vaga, pk=pkvaga)
+    comentario = Comentario()
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            try:
+                user = User.objects.get(id=form.cleaned_data['resposta'])
+                realname = user.first_name+" "+user.last_name
+                parte1 = form.cleaned_data['text'].split("[")
+                string = parte1[1].split("]")
+                comentario.user = request.user
+                comentario.vaga = vaga
+                comentario.text = form.cleaned_data['text']
+                comentario.save()
+                if string[0] == realname:
+                    notifica = Notificacao()
+                    notifica.tipo = 9
+                    notifica.mensagem = request.user.first_name + ' respondeu ao seu comentario. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = user
+                    notifica.vaga = vaga
+                    notifica.save()
+                    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+                else:
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + ' fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
+                    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+            except:
+                comentario.user = request.user
+                comentario.vaga = vaga
+                comentario.text = form.cleaned_data['text']
+                comentario.save()
+
+                if request.user.first_name != vaga.gerente_vaga.user.first_name:
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + 'fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
+                messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return redirect(visualizar_vaga, pkvaga)
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
+def excluir_comentario(request,pkcomentario):
+    comment = get_object_or_404(Comentario, pk=pkcomentario)
+    vaga= comment.vaga
+    comment.delete()
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return redirect(visualizar_vaga, vaga.id)
 ###############################################################################
 #                               CADASTRO                                      #
 ###############################################################################
@@ -659,8 +719,14 @@ def cadastrar_aluno(request):
         usuario = User.objects.create_user(username)
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
-        aluno.user.first_name = form.cleaned_data['first_name']
-        aluno.user.last_name = ''
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        aluno.user.first_name=fullname[0]
+        fullname.remove(fullname[0])
+        last_name=""
+        for aux in fullname:
+            last_name=last_name+" "+aux
+        aluno.user.last_name = last_name
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
@@ -685,7 +751,14 @@ def cadastrar_professor(request):
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
-        professor.user.first_name = form.cleaned_data['nome']
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        professor.user.first_name = fullname[0]
+        fullname.remove(fullname[0])
+        last_name = ""
+        for aux in fullname:
+            last_name = last_name + " " + aux
+        professor.user.last_name = last_name
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()

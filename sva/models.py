@@ -330,3 +330,14 @@ class FiltroPesquisa(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.nome, self.chave)
+
+
+class Comentario(models.Model):
+    vaga = models.ForeignKey(to=Vaga,null=True, blank=True, on_delete=models.CASCADE,related_name='comentario')
+    user = models.ForeignKey(to=User, null=True, blank=True, on_delete=models.CASCADE,related_name='comentario')
+    text = models.TextField(max_length=300,null=False, blank=False)
+    created_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.text
+
