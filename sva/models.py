@@ -65,6 +65,14 @@ class Habilidade(models.Model):
 
 
 class AreaAtuacao(models.Model):
+    DEFERIDO = 'DEFERIDO'
+    AGUARDANDO_APROVACAO = 'AGUARDANDO_APROVACAO'
+
+    SITUACAO_AREA_ATUACAO_CHOICES = {
+                (DEFERIDO, 'Deferido'),
+                (AGUARDANDO_APROVACAO, 'Aguardando Aprovação'),
+    }
+
     class Meta:
         verbose_name = 'Área de Atuação'
         verbose_name_plural = 'Áreas de Atuação'
@@ -73,6 +81,8 @@ class AreaAtuacao(models.Model):
 
     area_mae = models.ForeignKey('self', blank=True, null=True)
     nome = models.CharField(max_length=45, null=False, unique=True, db_index=True)
+    situacao = models.CharField(verbose_name='Situação', max_length=30, choices=SITUACAO_AREA_ATUACAO_CHOICES,
+                                blank=False, null=False, default='AGUARDANDO_APROVACAO')
 
     def __str__(self):
         return '%s' % self.nome
