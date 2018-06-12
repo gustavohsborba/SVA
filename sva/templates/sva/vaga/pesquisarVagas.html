@@ -264,6 +264,82 @@
         {% endif %}
         <div class="row">
             <div class="col-md-3">
+                {% if user.is_authenticated %}
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Filtros de pesquisa</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                {% if filtrosPesquisa %}
+                                    <div class="list-group">
+                                    <input type="hidden" name="filtro_remover" id="id_remove_filtro" value=""/>
+                                    <input type="hidden" name="filtro_carregar" id="id_load_filtro" value=""/>
+                                    {% for filtro in filtrosPesquisa %}
+                                        <a href="javascript:void(0)" id="id_href_{{filtro.id}}"class="list-group-item list-group-item-action flex-column align-items-start clearfix">
+                                            <span>{{filtro.nome}}</span>
+                                            <input type="hidden" id="id_nome_filtro_{{filtro.id}}" value="{{filtro.nome}}"/>
+                                            <span class="pull-right">
+                                                <button type="submit" class="btn btn-xs btn-danger" id="id_filter_remove_{{filtro.id}}"><i class="fa fa-trash-o"></i></button>
+                                                <script>
+                                                    $("#id_filter_remove_{{filtro.id}}").click(function(e) {
+                                                        e.stopPropagation();
+                                                        var matches = $(this).attr('id').match(/\d+$/);
+                                                        var resposta = confirm("Você realmente deseja remover o filtro " + document.getElementById('id_nome_filtro_'+matches[0]).value + "?");
+                                                         if (resposta == true) {
+                                                            $("#id_type").val("remove_filter");
+                                                            $("#id_remove_filtro").val(matches[0]);
+                                                         }
+                                                         else{
+                                                            e.preventDefault();
+                                                            return false;
+                                                         }
+                                                    });
+                                                </script>
+                                            </span>
+                                        </a>
+                                        <script>
+                                            $("#id_href_{{filtro.id}}").on("click",function(a) {
+                                                var myid = $(this).attr('id').match(/\d+$/);
+                                                $("#id_type").val("load_filter");
+                                                $("#id_load_filtro").val(myid[0]);
+                                                debugger;
+                                                document.getElementById('form').submit();
+                                            });
+                                        </script>
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center">Você ainda não salvou filtros de pesquisa.</div>
+                                    <div class="text-center">Crie alguns logo abaixo!</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="input-group">
+                            <input type="text" name="novo_filtro" pattern="[A-Za-zÀ-ž0-9]+" placeholder="Nome do novo filtro" class="form-control" maxlength="30" id="id_novo_filtro" value="">
+                            <input type="hidden" name="type" id="id_type" value="search">
+                            <div class="input-group-btn" >
+                                <button type="submit" class="btn btn-primary" id="id_filter_add"><i class="fa fa-floppy-o"></i></button>
+                                <script>
+                                    $("#id_filter_add").click(function(z) {
+                                        $("#id_type").val("add_filter");
+                                        if($("#id_novo_filtro").val() == ""){
+                                            alert("Impossível criar filtro de pesquisa sem nome!");
+                                            z.preventDefault();
+                                        }
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="box">
                     <div class="box-header">
                         <h3 class="box-title">Filtros específicos</h3>
@@ -532,82 +608,6 @@
                         </div>
                     </div>
                 </div>
-                {% if user.is_authenticated %}
-                <div class="box">
-                    <div class="box-header">
-                        <h3 class="box-title">Filtros de pesquisa</h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        <div class="row">
-                            <div class="col-md-8 col-md-offset-2">
-                                {% if filtrosPesquisa %}
-                                    <div class="list-group">
-                                    <input type="hidden" name="filtro_remover" id="id_remove_filtro" value=""/>
-                                    <input type="hidden" name="filtro_carregar" id="id_load_filtro" value=""/>
-                                    {% for filtro in filtrosPesquisa %}
-                                        <a href="javascript:void(0)" id="id_href_{{filtro.id}}"class="list-group-item list-group-item-action flex-column align-items-start clearfix">
-                                            <span>{{filtro.nome}}</span>
-                                            <input type="hidden" id="id_nome_filtro_{{filtro.id}}" value="{{filtro.nome}}"/>
-                                            <span class="pull-right">
-                                                <button type="submit" class="btn btn-xs btn-danger" id="id_filter_remove_{{filtro.id}}"><i class="fa fa-trash-o"></i></button>
-                                                <script>
-                                                    $("#id_filter_remove_{{filtro.id}}").click(function(e) {
-                                                        e.stopPropagation();
-                                                        var matches = $(this).attr('id').match(/\d+$/);
-                                                        var resposta = confirm("Você realmente deseja remover o filtro " + document.getElementById('id_nome_filtro_'+matches[0]).value + "?");
-                                                         if (resposta == true) {
-                                                            $("#id_type").val("remove_filter");
-                                                            $("#id_remove_filtro").val(matches[0]);
-                                                         }
-                                                         else{
-                                                            e.preventDefault();
-                                                            return false;
-                                                         }
-                                                    });
-                                                </script>
-                                            </span>
-                                        </a>
-                                        <script>
-                                            $("#id_href_{{filtro.id}}").on("click",function(a) {
-                                                var myid = $(this).attr('id').match(/\d+$/);
-                                                $("#id_type").val("load_filter");
-                                                $("#id_load_filtro").val(myid[0]);
-                                                debugger;
-                                                document.getElementById('form').submit();
-                                            });
-                                        </script>
-                                    {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="text-center">Você ainda não salvou filtros de pesquisa.</div>
-                                    <div class="text-center">Crie alguns logo abaixo!</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="box-footer">
-                        <div class="input-group">
-                            <input type="text" name="novo_filtro" pattern="[A-Za-zÀ-ž0-9]+" placeholder="Nome do novo filtro" class="form-control" maxlength="30" id="id_novo_filtro" value="">
-                            <input type="hidden" name="type" id="id_type" value="search">
-                            <div class="input-group-btn" >
-                                <button type="submit" class="btn btn-primary" id="id_filter_add"><i class="fa fa-floppy-o"></i></button>
-                                <script>
-                                    $("#id_filter_add").click(function(z) {
-                                        $("#id_type").val("add_filter");
-                                        if($("#id_novo_filtro").val() == ""){
-                                            alert("Impossível criar filtro de pesquisa sem nome!");
-                                            z.preventDefault();
-                                        }
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
             </div>
             <div class="col-md-9">
                 <div class="list-group ">
