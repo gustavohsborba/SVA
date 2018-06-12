@@ -159,13 +159,25 @@ def pesquisar_vaga(request):
     if request.user.is_authenticated():
         filtrosPesquisa = FiltroPesquisa.objects.filter(user=request.user)
 
+    # DELETA FILTRO
+    if request.method == 'POST' and request.POST['type'] == "remove_filter":
+        filtroPesquisaRemove = FiltroPesquisa.objects.get(id=int(request.POST['filtro_remover']))
+        filtroNomeRemove = filtroPesquisaRemove.nome
+        Filtro.objects.filter(pesquisa=filtroPesquisaRemove).delete()
+        filtroPesquisaRemove.filtros.clear()
+        filtroPesquisaRemove.delete()
+        messages.success(request, 'Filtro de pesquisa %s deletado com sucesso' % filtroNomeRemove, mensagens.MSG_SUCCESS)
+
+
     #SALVAR FILTRO
     if request.method == 'POST' and request.POST['type']=="add_filter":
         nome_filtro = request.POST['novo_filtro']
         if request.user.is_authenticated() and request.POST['novo_filtro'] is not None and request.POST['novo_filtro'] != "":
             countFiltros = FiltroPesquisa.objects.filter(user=request.user).count()
             if countFiltros == 5:
-                messages.error(request, mensagens.ERROR_QUANT_MAX_FILTROS, mensagens.MSG_ERRO)
+                messages.error(request, mensagens.ERRO_QUANT_MAX_FILTROS, mensagens.MSG_ERRO)
+            elif FiltroPesquisa.objects.filter(user=request.user, nome=request.POST['novo_filtro']).count() > 0:
+                messages.error(request, 'Um filtro com o nome %s já existe' % request.POST['novo_filtro'], mensagens.MSG_ERRO)
             else:
                 novoFiltroPesquisa = FiltroPesquisa()
                 novoFiltroPesquisa.user = request.user
@@ -236,48 +248,56 @@ def pesquisar_vaga(request):
                 for filtro in filtrosAuxList:
                     novoFiltroPesquisa.filtros.add(filtro)
                 messages.success(request, 'Filtro de pesquisa %s criado com sucesso' % nome_filtro, mensagens.MSG_SUCCESS)
-                #REFAZ FORMULARIO APOS ADICIONAR NOVO FILTRO
-                formRemake = True
-                ordemRemake = request.POST.get('ordem')
-                superuserOptionRemake = request.POST.get('superuser_option')
-                checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
-                checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
-                checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
-                checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
-                radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
-                salarioRemake = request.POST.get('salario')
-                minvalueRemake = request.POST.get('min-value')
-                maxvalueRemake = request.POST.get('max-value')
-                avaliacaoRemake = request.POST.get('avaliacao')
-                filtroSelecionado = request.POST.getlist('filtro')
-                inputTexto = request.POST.getlist('texto')
-                inputCurso = request.POST.getlist('curso')
-                inputArea = request.POST.getlist('area')
-                aux = 0
-                for filtro in filtroSelecionado:
-                    filtroRemake.append(filtro)
-                    textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[
-                                                                                               aux] != "" else textoRemake.append(
-                        "")
-                    cursoRemake.append(int(inputCurso[aux]))
-                    areaRemake.append(int(inputArea[aux]))
-                    aux += 1
 
-    if request.method == 'POST' and form.is_valid() and not request.POST['type']=="add_filter":
-        formRemake = True
-        ordemRemake = request.POST.get('ordem')
-        superuserOptionRemake = request.POST.get('superuser_option')
-        checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
-        radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
-        salarioRemake = request.POST.get('salario')
-        minvalueRemake = request.POST.get('min-value')
-        maxvalueRemake = request.POST.get('max-value')
-        avaliacaoRemake = request.POST.get('avaliacao')
+    if request.method == 'POST' and form.is_valid():
+        if request.POST['type'] == "load_filter":
+            filtroPesquisaLoad = FiltroPesquisa.objects.get(user=request.user, id=int(request.POST['filtro_carregar']))
+            formRemake = True
+            ordemRemake = str(filtroPesquisaLoad.ordenacao)
+            superuserOptionRemake = str(filtroPesquisaLoad.situacao)
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_estagio is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_monitoria is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_ic is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_outros is True else checkBoxRemake.append("off")
+            radioRemake = filtroPesquisaLoad.nivel
+            salarioRemake = str(filtroPesquisaLoad.salario)
+            minvalueRemake = filtroPesquisaLoad.carga_horaria_minima
+            maxvalueRemake = filtroPesquisaLoad.carga_horaria_maxima
+            avaliacaoRemake = str(filtroPesquisaLoad.avaliacao)
+            filtroLoad = Filtro.objects.filter(pesquisa=filtroPesquisaLoad)
+            for filtro in filtroLoad:
+                filtroRemake.append(str(filtro.tipo))
+                textoRemake.append(filtro.texto) if filtro.texto is not None and filtro.texto != "" else textoRemake.append("")
+                cursoRemake.append(filtro.cursos.id)
+                areaRemake.append(filtro.areas_atuacao.id)
 
-        ordem_resultados = request.POST.get('ordem')
+        else:
+            formRemake = True
+            ordemRemake = request.POST.get('ordem')
+            superuserOptionRemake = request.POST.get('superuser_option')
+            checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
+            radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
+            salarioRemake = request.POST.get('salario')
+            minvalueRemake = request.POST.get('min-value')
+            maxvalueRemake = request.POST.get('max-value')
+            avaliacaoRemake = request.POST.get('avaliacao')
+
+            aux=0
+            filtroSelecionado = request.POST.getlist('filtro')
+            inputTexto = request.POST.getlist('texto')
+            inputCurso = request.POST.getlist('curso')
+            inputArea = request.POST.getlist('area')
+            for filtro in filtroSelecionado:
+                filtroRemake.append(filtro)
+                textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
+                cursoRemake.append(int(inputCurso[aux]))
+                areaRemake.append(int(inputArea[aux]))
+                aux+=1
+
+        ordem_resultados = ordemRemake
         if is_admin(request.user):
             # ORDENA POR VAGAS MAIS RECENTES
             if ordem_resultados == "1":
@@ -300,7 +320,7 @@ def pesquisar_vaga(request):
                 vagas = Vaga.objects.filter()
 
             #TRATA SELECAO ESPECIAL DO SUPER USUARIO POR SITUACAO DA VAGA
-            superuser_option = request.POST.get('superuser_option')
+            superuser_option = superuserOptionRemake
             vagasAux = []
             for vaga in vagas:
                 if superuser_option == "1" and vaga.situacao == Vaga.ATIVA:
@@ -339,23 +359,23 @@ def pesquisar_vaga(request):
         #TRATA FILTROS CHECKBOX
         for vaga in vagas:
             addFlag = False
-            if request.POST.get('estagio') == "on" and vaga.tipo_vaga == 1:
+            if checkBoxRemake[0] == "on" and vaga.tipo_vaga == 1:
                 addFlag = True
-            elif request.POST.get('monitoria') == "on" and vaga.tipo_vaga == 2:
+            elif checkBoxRemake[1] == "on" and vaga.tipo_vaga == 2:
                 addFlag = True
-            elif request.POST.get('ic') == "on" and vaga.tipo_vaga == 3:
+            elif checkBoxRemake[2] == "on" and vaga.tipo_vaga == 3:
                 addFlag = True
-            elif request.POST.get('outros') == "on" and vaga.tipo_vaga == 4:
+            elif checkBoxRemake[3] == "on" and vaga.tipo_vaga == 4:
                 addFlag = True
-            if request.POST.get('radioNivel') == "1" and not verificaCursoByNivel(vaga, 1):
+            if radioRemake == 1 and not verificaCursoByNivel(vaga, 1):
                 addFlag = False
-            if request.POST.get('radioNivel') == "2" and not verificaCursoByNivel(vaga, 2):
+            if radioRemake == 2 and not verificaCursoByNivel(vaga, 2):
                 addFlag = False
-            if request.POST.get('radioNivel') == "3"and not verificaCursoByNivel(vaga, 3):
+            if radioRemake == 3and not verificaCursoByNivel(vaga, 3):
                 addFlag = False
-            if request.POST.get('radioNivel') == "4" and not verificaCursoByNivel(vaga, 4):
+            if radioRemake == 4 and not verificaCursoByNivel(vaga, 4):
                 addFlag = False
-            if request.POST.get('radioNivel') == "5" and not verificaCursoByNivel(vaga, 5):
+            if radioRemake == 5 and not verificaCursoByNivel(vaga, 5):
                 addFlag = False
             if addFlag == True:
                 vagasAux.append(vaga)
@@ -365,26 +385,22 @@ def pesquisar_vaga(request):
         vagasAux = []
         #TRATA FILTRO VALORES E SLIDERS
         for vaga in vagas:
-            if request.POST.get('salario') is not None and request.POST.get('salario') != "":
-                if vaga.valor_bolsa >= float(request.POST.get('salario')) and vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) \
-                        and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+            if salarioRemake is not None and salarioRemake != "":
+                if vaga.valor_bolsa >= float(salarioRemake) and vaga.carga_horaria_semanal >= int(minvalueRemake) \
+                        and vaga.carga_horaria_semanal <= int(maxvalueRemake) and vaga.nota_media >= int(avaliacaoRemake):
                     vagasAux.append(vaga)
                     continue
-            elif vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+            elif vaga.carga_horaria_semanal >= int(minvalueRemake) and vaga.carga_horaria_semanal <= int(maxvalueRemake) and vaga.nota_media >= int(avaliacaoRemake):
                 vagasAux.append(vaga)
         vagas = vagasAux
 
         #Listas auxiliares para tratar os dados em lista do request.post
-        filtroSelecionado = request.POST.getlist('filtro')
-        inputTexto = request.POST.getlist('texto')
-        inputCurso = request.POST.getlist('curso')
-        inputArea = request.POST.getlist('area')
+        filtroSelecionado = filtroRemake
+        inputTexto = textoRemake
+        inputCurso = cursoRemake
+        inputArea = areaRemake
         aux = 0
         for filtro in filtroSelecionado:
-            filtroRemake.append(filtro)
-            textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
-            cursoRemake.append(int(inputCurso[aux]))
-            areaRemake.append(int(inputArea[aux]))
             #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
             vagasAux = []
             #FILTRO - TODOS OS CAMPOS
@@ -487,6 +503,7 @@ def pesquisar_vaga(request):
                 vagas = vagasAux
             #Incrementa auxiliar iterador da lista
             aux+=1
+
     if request.method == 'POST':
         # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
         if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get(
