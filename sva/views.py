@@ -736,14 +736,8 @@ def editar_empresa(request, pk):
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
-            if form.cleaned_data['Site'] is None:
-                empresa.website = ""
-            else:
-                empresa.website = form.cleaned_data['Site']
-            if form.cleaned_data['telefone'] is None:
-                empresa.telefone = ""
-            else:
-                empresa.telefone = form.cleaned_data['telefone']
+            empresa.website = form.cleaned_data['Site'] if form.cleaned_data['Site'] is not None else ""
+            empresa.telefone = form.cleaned_data['telefone'] if form.cleaned_data['telefone'] is not None else ""
             empresa.nome = form.cleaned_data['nome']
             empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
                                form.cleaned_data['Rua'] + ',' + \
@@ -772,21 +766,17 @@ def excluir_empresa(request, pk):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
     vagas = Vaga.objects.filter(gerente_vaga=empresa)
-    do_not_execute = False
     for vaga in vagas:
         if vaga.vencida is False and vaga.situacao == 3:
-            do_not_execute = True
-    if do_not_execute is False:
-        Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
-        empresa.user.is_active = False
-        empresa.situacao = Empresa.EXCLUIDO
-        empresa.save()
-        empresa.user.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return HttpResponseRedirect('/home/')
-    else:
-        messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
-        return HttpResponseRedirect('/home/')
+            messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
+            return HttpResponseRedirect(reverse("Exibir_Empresa", args={pk}))
+    Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
+    empresa.user.is_active = False
+    empresa.situacao = Empresa.EXCLUIDO
+    empresa.save()
+    empresa.user.save()
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return HttpResponseRedirect('/home/')
 
 
 
