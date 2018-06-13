@@ -18,7 +18,7 @@
 
 {% block content %}
 <div class="container-fluid">
-    <form action="" method="POST">
+    <form action="" id="form" method="POST">
     {% csrf_token %}
     <div class="container-fluid" style="margin-bottom:50px">
         <div class="row">
@@ -30,23 +30,81 @@
             <div class="col-md-9 col-md-offset-3">
                 <div class="form-inline form-group"  style="margin-bottom:20px">
                     <div class="input-group">
-                        <div class="input-group-prepend input-group-lg" style="margin-bottom:5px" id="1">
-                            <select data-filter="model" class="filter-model filter form-control" name="filtro" id="id_filtro_1">
-                                <option value="1">Todos os campos</option>
-                                <option value="2">Nome de vagas</option>
-                                <option value="3">Empresas e/ou professores</option>
-                                <option value="4">Áreas de atuação</option>
-                                <option value="5">Cursos</option>
-                                <option value="6">Descrição</option>
-                                <option value="7">Local</option>
-                            </select>
-                            <input type="text" name="texto" placeholder="Palavras-chave" class="form-control" maxlength="50" id="id_texto_1" value="{{initial}}">
-                            {{form.curso_1}}
-                            {{form.area_1}}
-                            <div class="input-group-btn" >
-                                <button type="button" class="btn bg-olive btn-flat btn-default btn-add"><i class="fa fa-plus"></i></button>
+                        {% if formRemake is False %}
+                            <div class="input-group-prepend input-group-lg" style="margin-bottom:5px" id="1">
+                                <select data-filter="model" class="filter-model filter form-control" name="filtro" id="id_filtro_1">
+                                    <option value="1">Todos os campos</option>
+                                    <option value="2">Nome de vagas</option>
+                                    <option value="3">Empresas e/ou professores</option>
+                                    <option value="4">Áreas de atuação</option>
+                                    <option value="5">Cursos</option>
+                                    <option value="6">Descrição</option>
+                                    <option value="7">Local</option>
+                                </select>
+                                <input type="text" name="texto" placeholder="Palavras-chave" class="form-control" maxlength="50" id="id_texto_1" value="{{initial}}">
+                                {{form.curso_1}}
+                                {{form.area_1}}
+                                <div class="input-group-btn" >
+                                    <button type="button" class="btn bg-olive btn-flat btn-default btn-add" id="id_add_1"><i class="fa fa-plus"></i></button>
+                                </div>
                             </div>
-                        </div>
+                        {% else %}
+                            {% for filtro in filtroRemake %}
+                                <div class="input-group-prepend input-group-lg" style="margin-bottom:5px; display: none;" id="{{forloop.counter}}">
+                                    <select data-filter="model" class="filter-model filter form-control" name="filtro" id="id_filtro_{{forloop.counter}}">
+                                        {% if filtro == "1" %}
+                                            <option value="1" selected="selected">Todos os campos</option>
+                                        {% else %}
+                                            <option value="1">Todos os campos</option>
+                                        {% endif %}
+                                        {% if filtro == "2" %}
+                                            <option value="2" selected="selected">Nome de vagas</option>
+                                        {% else %}
+                                            <option value="2">Nome de vagas</option>
+                                        {% endif %}
+                                        {% if filtro == "3" %}
+                                            <option value="3" selected="selected">Empresas e/ou professores</option>
+                                        {% else %}
+                                            <option value="3">Empresas e/ou professores</option>
+                                        {% endif %}
+                                        {% if filtro == "4" %}
+                                            <option value="4" selected="selected">Áreas de atuação</option>
+                                        {% else %}
+                                            <option value="4">Áreas de atuação</option>
+                                        {% endif %}
+                                        {% if filtro == "5" %}
+                                            <option value="5" selected="selected">Cursos</option>
+                                        {% else %}
+                                            <option value="5">Cursos</option>
+                                        {% endif %}
+                                        {% if filtro == "6" %}
+                                            <option value="6" selected="selected">Descrição</option>
+                                        {% else %}
+                                            <option value="6">Descrição</option>
+                                        {% endif %}
+                                        {% if filtro == "7" %}
+                                            <option value="7" selected="selected">Local</option>
+                                        {% else %}
+                                            <option value="7">Local</option>
+                                        {% endif %}
+                                    </select>
+                                    <input type="text" name="texto" placeholder="Palavras-chave" class="form-control" maxlength="50" id="id_texto_{{forloop.counter}}" value="{{textoRemake|index:forloop.counter0}}">
+                                    <select name="curso" class="form-control form-control-lg" style="" id="id_curso_{{forloop.counter}}">
+                                        {% for curso in cursosChoices %}
+                                            <option value="{{curso.id}}">{{curso.nome}} ({{curso.get_nivel_ensino_display}})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select name="area" class="form-control form-control-lg" style="" id="id_area_{{forloop.counter}}">
+                                        {% for area in areasChoices %}
+                                            <option value="{{area.id}}">{{area.nome}}</option>
+                                        {% endfor %}
+                                        </select>
+                                    <div class="input-group-btn" >
+                                        <button type="button" class="btn bg-olive btn-flat btn-default btn-add" id="id_add_{{forloop.counter}}"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                         <button type="submit" class="btn btn-lg btn-block btn-primary"><i class="glyphicon glyphicon-search" ></i> Pesquisar</button>
                         <script>
                             $(document).submit(function () {
@@ -63,28 +121,65 @@
 
             $('.input-group-prepend').on('change', function() {
                 var currentId = $(this).attr("id");
-              if ( $("#id_filtro_"+currentId).val() == 5)
-              {
-                $("#id_curso_"+currentId).show();
-                $("#id_texto_"+currentId).hide();
-                $("#id_area_"+currentId).hide();
-              }
-              else if( $("#id_filtro_"+currentId).val() == 4)
-              {
-                $("#id_curso_"+currentId).hide();
-                $("#id_texto_"+currentId).hide();
-                $("#id_area_"+currentId).show();
-              }
-              else{
-                $("#id_curso_"+currentId).hide();
-                $("#id_texto_"+currentId).show();
-                $("#id_area_"+currentId).hide();
-              }
+                if ( $("#id_filtro_"+currentId).val() == 5)
+                {
+                    $("#id_curso_"+currentId).show();
+                    $("#id_texto_"+currentId).hide();
+                    $("#id_area_"+currentId).hide();
+                }
+                else if( $("#id_filtro_"+currentId).val() == 4)
+                {
+                    $("#id_curso_"+currentId).hide();
+                    $("#id_texto_"+currentId).hide();
+                    $("#id_area_"+currentId).show();
+                }
+                else{
+                    $("#id_curso_"+currentId).hide();
+                    $("#id_texto_"+currentId).show();
+                    $("#id_area_"+currentId).hide();
+                }
             });
 
             $(document).ready(function(){
                 $("#id_curso_1").attr("name","curso");
                 $("#id_area_1").attr("name","area");
+                if({{formRemake|yesno:"true,false"}} == true){
+                    var filtros = {{filtroRemake|safe}}
+                    var cursos = {{cursoRemake|safe}}
+                    var areas = {{areaRemake|safe}}
+                    for(i = 0; i < filtros.length; i++){
+                        if(filtros[i] == "4"){
+                            $("#id_curso_"+(i+1)).hide();
+                            $("#id_area_"+(i+1)).show();
+                            $("#id_area_"+(i+1)).val(areas[i]);
+                            $("#id_texto_"+(i+1)).hide();
+                        }
+                        else if(filtros[i] == "5"){
+                            $("#id_curso_"+(i+1)).show();
+                            $("#id_curso_"+(i+1)).val(cursos[i]);
+                            $("#id_area_"+(i+1)).hide();
+                            $("#id_texto_"+(i+1)).hide();
+                        }
+                        else{
+                            $("#id_curso_"+(i+1)).hide();
+                            $("#id_area_"+(i+1)).hide();
+                            $("#id_texto_"+(i+1)).show();
+                        }
+                        if(i+1 != filtros.length){
+                            $("#id_add_"+(i+1))
+                                .toggleClass( 'btn-default' )
+                                .toggleClass( 'btn-add' )
+                                .toggleClass( 'btn-danger' )
+                                .toggleClass( 'btn-remove' )
+                                .toggleClass( 'btn-flat' )
+                                .toggleClass( 'bg-maroon' )
+                                .html( '–' );
+                        }
+                        $("#"+(i+1)).show();
+                        count = i+2
+                    }
+                    $("#waitLoop").show();
+                }
             });
 
             $( document ).on( 'click', '.btn-add', function ( event ) {
@@ -106,6 +201,7 @@
                 field_new.find("#id_area_"+(count-1)).attr("id","id_area_"+count);
                 field_new.find("#id_filtro_"+(count-1)).attr("id","id_filtro_"+count);
                 field_new.find("#id_texto_"+(count-1)).attr("id","id_texto_"+count);
+                field_new.find("#id_add_"+(count-1)).attr("id","id_add_"+count);
                 field_new.attr("id",count);
 
 
@@ -132,6 +228,7 @@
 
                 field_new.find("#id_curso_"+count).hide();
                 field_new.find("#id_area_"+count).hide();
+                field_new.find("#id_filtro_"+count).val(1);
                 field_new.find("#id_texto_"+count).show();
 
                 field_new.find( 'input' ).val( '' );
@@ -150,15 +247,99 @@
     <div class="container-fluid">
         {% if busca is not None and busca != "" %}
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+            <div class="col-md-11 col-md-offset-1">
                 <div class="list-group ">
-                   <small class="text-muted pull-right" >Resultados da busca por: {{busca}}</small>
+                    <small class="text-muted pull-right" >
+                    {% if vagas|length == 1 %}
+                        {{vagas|length}} vaga encontrada
+                    {% elif vagas|length == 0 %}
+                        Nenhuma vaga encontrada
+                    {% else %}
+                        {{vagas|length}} vagas encontradas
+                    {% endif %}
+                    na busca por: {{busca}}</small>
                 </div>
             </div>
         </div>
         {% endif %}
         <div class="row">
             <div class="col-md-3">
+                {% if user.is_authenticated %}
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">Filtros de pesquisa</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                {% if filtrosPesquisa %}
+                                    <div class="list-group">
+                                    <input type="hidden" name="filtro_remover" id="id_remove_filtro" value=""/>
+                                    <input type="hidden" name="filtro_carregar" id="id_load_filtro" value=""/>
+                                    {% for filtro in filtrosPesquisa %}
+                                        <a href="javascript:void(0)" id="id_href_{{filtro.id}}"class="list-group-item list-group-item-action flex-column align-items-start clearfix">
+                                            <span>{{filtro.nome}}</span>
+                                            <input type="hidden" id="id_nome_filtro_{{filtro.id}}" value="{{filtro.nome}}"/>
+                                            <span class="pull-right">
+                                                <button type="submit" class="btn btn-xs btn-danger" id="id_filter_remove_{{filtro.id}}"><i class="fa fa-trash-o"></i></button>
+                                                <script>
+                                                    $("#id_filter_remove_{{filtro.id}}").click(function(e) {
+                                                        e.stopPropagation();
+                                                        var matches = $(this).attr('id').match(/\d+$/);
+                                                        var resposta = confirm("Você realmente deseja remover o filtro " + document.getElementById('id_nome_filtro_'+matches[0]).value + "?");
+                                                         if (resposta == true) {
+                                                            $("#id_type").val("remove_filter");
+                                                            $("#id_remove_filtro").val(matches[0]);
+                                                         }
+                                                         else{
+                                                            e.preventDefault();
+                                                            return false;
+                                                         }
+                                                    });
+                                                </script>
+                                            </span>
+                                        </a>
+                                        <script>
+                                            $("#id_href_{{filtro.id}}").on("click",function(a) {
+                                                var myid = $(this).attr('id').match(/\d+$/);
+                                                $("#id_type").val("load_filter");
+                                                $("#id_load_filtro").val(myid[0]);
+                                                debugger;
+                                                document.getElementById('form').submit();
+                                            });
+                                        </script>
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center">Você ainda não salvou filtros de pesquisa.</div>
+                                    <div class="text-center">Crie alguns logo abaixo!</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="input-group">
+                            <input type="text" name="novo_filtro" pattern="[A-Za-zÀ-ž0-9]+" placeholder="Nome do novo filtro" class="form-control" maxlength="30" id="id_novo_filtro" value="">
+                            <input type="hidden" name="type" id="id_type" value="search">
+                            <div class="input-group-btn" >
+                                <button type="submit" class="btn btn-primary" id="id_filter_add"><i class="fa fa-floppy-o"></i></button>
+                                <script>
+                                    $("#id_filter_add").click(function(z) {
+                                        $("#id_type").val("add_filter");
+                                        if($("#id_novo_filtro").val() == ""){
+                                            alert("Impossível criar filtro de pesquisa sem nome!");
+                                            z.preventDefault();
+                                        }
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="box">
                     <div class="box-header">
                         <h3 class="box-title">Filtros específicos</h3>
@@ -295,72 +476,59 @@
                             </div>
                             <div class="col-md-12">
                                 <label>Destinadas a nível</label>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:4 == "on" %}
-                                        <input id="id_tecnico" name="tecnico" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_tecnico" name="tecnico" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_tecnico">
-                                            Técnico
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:5 == "on" %}
-                                        <input id="id_graduacao" name="graduacao" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_graduacao" name="graduacao" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_graduacao">
-                                            Graduação
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:6 == "on" %}
-                                        <input id="id_mestrado" name="mestrado" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_mestrado" name="mestrado" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_mestrado">
-                                            Mestrado
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:7 == "on" %}
-                                        <input id="id_doutorado" name="doutorado" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_doutorado" name="doutorado" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_doutorado">
-                                            Doutorado
-                                        </label>
-                                    </div>
-                                    <div class="checkbox checkbox-primary">
-                                        {% if checkBoxRemake|index:8 == "on" %}
-                                        <input id="id_especializacao" name="especializacao" type="checkbox" checked="">
-                                        {% else %}
-                                        <input id="id_especializacao" name="especializacao" type="checkbox">
-                                        {% endif %}
-                                        <label for="id_especializacao">
-                                            Especialização
-                                        </label>
-                                    </div>
+                                <div class="radio">
+                                    {% if radioRemake == 1 %}
+                                        <input  type="radio" id="id_tecnico" name="radioNivel" checked="checked" value="1">
+                                    {% else %}
+                                        <input  type="radio" id="id_tecnico" name="radioNivel" value="1">
+                                    {% endif %}
+                                    <label for="id_tecnico">
+                                        Técnico
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 2 %}
+                                        <input  type="radio" id="id_graduacao" name="radioNivel" checked="checked" value="2">
+                                    {% else %}
+                                        <input  type="radio" id="id_graduacao" name="radioNivel" value="2">
+                                    {% endif %}
+                                    <label for="id_graduacao">
+                                        Graduação
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 3 %}
+                                        <input  type="radio" id="id_mestrado" name="radioNivel" checked="checked" value="3">
+                                    {% else %}
+                                        <input  type="radio" id="id_mestrado" name="radioNivel" value="3">
+                                    {% endif %}
+                                    <label for="id_mestrado">
+                                        Mestrado
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 4 %}
+                                        <input  type="radio" id="id_doutorado" name="radioNivel" checked="checked" value="4">
+                                    {% else %}
+                                        <input  type="radio" id="id_doutorado" name="radioNivel" value="4">
+                                    {% endif %}
+                                    <label for="id_doutorado">
+                                        Doutorado
+                                    </label>
+                                </div>
+                                <div class="radio">
+                                    {% if radioRemake == 5 %}
+                                        <input  type="radio" id="id_especializacao" name="radioNivel" checked="checked" value="5">
+                                    {% else %}
+                                        <input  type="radio" id="id_especializacao" name="radioNivel" value="5">
+                                    {% endif %}
+                                    <label for="id_especializacao">
+                                        Especialização
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <hr>
-                        <!--TEMPORARIAMENTE REMOVIDO POR NAO ATENDER ESPECIFICACAO DO CSU-->
-                        <!--SALARIO SLIDER-->
-                        <!--<div style=" margin-bottom:10px;"></div>
-                        <label>Salário mínimo</label>
-                        <div style=" margin-bottom:5px;"></div>
-                        <input id="ex6" type="text" data-slider-min="0" data-slider-max="3000" data-slider-step="10" data-slider-value="300" style="width: 100%;"/>
-                        <p><span id="ex6CurrentSliderValLabel">&nbsp;R$<span id="ex6SliderVal">300</span></span></p>
-                        <script>
-                            $("#ex6").slider();
-                            $("#ex6").on("slide", function(slideEvt) {
-                                $("#ex6SliderVal").text(slideEvt.value);
-                            });
-                        </script>-->
                         <label for="id_salario">Valor mínimo de bolsa</label>
                         <div class="input-group">
                             <span class="input-group-addon">R$</span>
@@ -438,17 +606,6 @@
                                 {% endif %}
                             </select>
                         </div>
-                        <!-- DEU RUIM<input id="ex13" name="avaliacao" type="text" value="{{avaliacaoRemake}}" data-slider-ticks="[0, 1, 2, 3, 4, 5]" data-slider-ticks-snap-bounds="1" data-slider-ticks-labels='["0 <i class="fa fa-fw fa-star"></i>", "1 <i class="fa fa-fw fa-star"></i>",
-                             "2 <i class="fa fa-fw fa-star"></i>", "3 <i class="fa fa-fw fa-star"></i>", "4 <i class="fa fa-fw fa-star"></i>", "5 <i class="fa fa-fw fa-star"></i>"]' style="width: 100%;"/>
-                            <script>
-                                $("#ex13").slider({
-                                    value: parseInt($('#ex13').val()),
-                                    ticks: [0, 1, 2, 3, 4, 5],
-                                    ticks_labels: ['0 <i class="fa fa-fw fa-star"></i>', '1 <i class="fa fa-fw fa-star"></i>', '2 <i class="fa fa-fw fa-star"></i>', '3 <i class="fa fa-fw fa-star"></i>', '4 <i class="fa fa-fw fa-star"></i>', '5 <i class="fa fa-fw fa-star"></i>'],
-                                    ticks_snap_bounds: 100
-                                });
-                        </script>-->
-                        <!-- FIM NOTA SLIDER -->
                     </div>
                 </div>
             </div>

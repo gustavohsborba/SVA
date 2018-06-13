@@ -57,14 +57,14 @@ class FormularioContato(forms.Form):
 
 class FormularioCadastroAluno(forms.ModelForm):
     tipo_formulario = "CADASTRO_ALUNO"
-    first_name = forms.CharField(max_length=50,label='Nome Completo')
+    name = forms.CharField(max_length=50,label='Nome Completo')
     password = forms.CharField(widget=forms.PasswordInput(), label='Senha')
     confirm_password = forms.CharField(widget=forms.PasswordInput(), label='Confirmar senha')
     email = forms.EmailField(max_length=40)
 
     class Meta:
         model = Aluno
-        fields = ['cpf','first_name', 'email', 'curso', 'password', 'confirm_password']
+        fields = ['cpf','name', 'email', 'curso', 'password', 'confirm_password']
 
     def clean(self):
         cleaned_data = super(FormularioCadastroAluno, self).clean()
@@ -243,3 +243,10 @@ class UploadCurriculo(forms.ModelForm):
 
 class IndicarVaga(forms.Form):
     email = forms.EmailField(required=True,max_length=50,widget=forms.EmailInput(attrs={'class':'form-control form-control-lg','placeholder':'Digite um email..','id':'email' }))
+
+
+class ComentarioForm(forms.ModelForm):
+    resposta = forms.CharField()
+    class Meta:
+        model = Comentario
+        fields = ['text','resposta']

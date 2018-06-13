@@ -64,10 +64,10 @@
                 {% block select_login_or_register_form %}
                     <div class="box-group box-body box-info form-group center btn-group-lg col-xs-12 col-sm-12">
                     {% if form.tipo_formulario or cadastro %}
-                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat">login</a>
+                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat">Entrar</a>
                         <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">Cadastrar</a>
                     {% else %}
-                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">login</a>
+                        <a href="{% url 'login' %}" class="col-xs-6 btn btn-default btn-flat bg-navy-active">Entrar</a>
                         <a href="{% url 'cadastro' %}" class="col-xs-6 btn btn-default btn-flat ">Cadastrar</a>
                     {% endif %}
                     </div>
@@ -89,7 +89,7 @@
 
 
                         <div class="form-group has-feedback">
-                            {{ form.username|add_class:'form-control' }}
+                            {{ form.username|add_class:'form-control'|attr:'placeholder:CPF/CNPJ'|attr:'onfocus:this.placeholder=""'|attr:'onblur:this.placeholder="CPF/CNPJ"'}}
                             <span class="glyphicon glyphicon-user form-control-feedback"></span>
                             {% if form.username.errors %}
                                 <ol>
@@ -102,7 +102,7 @@
 
 
                         <div class="form-group has-feedback">
-                            {{ form.password|add_class:'form-control' }}
+                            {{ form.password|add_class:'form-control'|attr:'placeholder:Senha'|attr:'onfocus:this.placeholder=""'|attr:'onblur:this.placeholder="Senha"'}}
                             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                             {% if form.password.errors %}
                                 <ol>
@@ -118,11 +118,11 @@
                         <div class="row">
                             <div class="col-xs-8">
                                 {% block login_form_links %}
-                                    <a href="{% url 'recuperarsenha' %}">Esqueci minha Senha</a>
+                                    <a href="{% url 'recuperarsenha' %}">Esqueci minha senha</a>
                                 {% endblock %}
                             </div>
                             <div class="col-xs-4">
-                                <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+                                <button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
                             </div>
                         </div>
                     </form>
@@ -136,7 +136,7 @@
             <div class="login-logo" style="padding-top:35%;">
                 <div style="padding-left:10%;">
                 <a href="#" style="font-size:300%;color:black;"><b>SVA</b></a>
-                    <p style="font-size:50%;color:#06132F;"><i>Sistema de vagas academicas</i></p>
+                    <p style="font-size:50%;color:#06132F;"><i>Sistema de vagas acadêmicas</i></p>
                 </div>
             </div>
         </div>
@@ -144,5 +144,6 @@
         <div class="login-box vertical">
         </div>
     </div>
+
 
 {% endblock %}

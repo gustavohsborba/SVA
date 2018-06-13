@@ -10,8 +10,9 @@
 }
 
 {% block content %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/indicar.css' %}">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/indicar.css' %}">
+
     <div class="container-fluid">
         <div class="box box-primary">
             <div class="box-body box-profile">
@@ -116,7 +117,7 @@
                         </button>
                     </div>
                     {% endif %}
-                    <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px;">
+                    <div class="modal fade" id="modal-default" style="display: none; padding-right: 15px; z-index: 5000">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -175,22 +176,64 @@
                     {% endif %}
                 </p>
 
-                <hr>
-
                 {% if request.user|has_group:"Aluno" %}
+                    <hr>
                     <strong><i class="fa fa-star-o margin-r-5"></i>Avaliação da vaga:</strong>
                         <div>
                             {# https://github.com/wildfish/django-star-ratings #}
                             {# https://django-star-ratings.readthedocs.io/en/latest/?badge=latest%2F#settings #}
                             {% ratings vaga %}
                         </div>
-                    </div>
                 {% endif %}
             </div>
         </div>
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title text-center">Comentários</h3>
+                {%if comentarios.count != 0%}
+                    {%if comentarios.count == 1%}
+                        <span class="pull-right badge bg-aqua"><font size="2">{{comentarios.count}} Comentário </font></span>
+                    {%else%}
+                        <span class="pull-right badge bg-aqua"><font size="2">{{comentarios.count}} Comentários </font></span>
+                    {%endif%}
+                {%endif%}
+            </div>
+            <div class="box-body">
+                <br>
+                <form action="{%url 'comentario' pkvaga=vaga.id%}"  method="post" >
+                    {% csrf_token %}
+                     <div class="input-group mb-3 " >
+                         <input hidden name="resposta" id="resposta" type="text" value="0">
+                         <input maxlength="150" required="True" class="form-control"  name="text" id="text" placeholder="Comentario..." type="text">
+                         <div class="input-group-btn">
+                         <button  class="btn btn-primary" type="submit">Comentar</button>
+                         </div>
+                     </div>
+                </form>
+            </div>
+            {%if comentarios.count != 0%}
+                <br>
+                <div class="box-footer box-comments">
+                    {% for comment in comentarios %}
+                      <div class="box-comment">
+                        <div class="comment">
+                          <span class="username">
+                              <span class="text-muted pull-right">{{ comment.created_date }}</span>
+                              <p><strong>{{ comment.user.first_name}} {{ comment.user.last_name}}</strong></p>
+                          </span><!-- /.username -->
+                            {% if request.user|has_group:"Administrador" %}
+                                <a type="button" href="{% url 'excluir_comentario' pkcomentario=comment.id%}" onclick="return confirm('Deseja excluir o comentário?');" class="btn btn-danger btn-xs pull-right"><i class="fa  fa-trash-o"></i></a>
+                            {%endif%}
+                            <p>{{ comment.text }}</p>
+                        </div>
+                          <a onclick="reply('{{ comment.user.first_name}} {{ comment.user.last_name}}',{{comment.user.pk}})">Responder</a>
+                      </div>
+                    {% endfor %}
+                    </div>
+            {%endif%}
+        </div>
     </div>
-
- <script language="Javascript">
+    <script language="Javascript">
 
         var email = document.getElementById('email');
 
@@ -219,10 +262,20 @@
         }
         function validarCampos(e){
             if(e.email.value == "{{aluno.user.email}}"){
-                    alert("Email invalido, você não pode enviar um email para si mesmo");
+                    alert("Email invalido, você não pode enviar um email para você mesmo");
                     return false;
             }
             return true;
          }
-</script>
+         function reply(e,id){
+            if ({{request.user.id}} != id) {
+               document.getElementById('text').value = "["+e+"] ";
+               document.getElementById('resposta').value = id;
+               window.scrollTo(0, 650)
+            }else{
+                alert("Você não pode responder ao seu proprio comentário");
+            }
+         }
+
+    </script>
 {% endblock %}

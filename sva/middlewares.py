@@ -82,7 +82,7 @@ class NotificacaoSignals:
     @receiver(post_save, sender=Vaga)
     def cria_notificacao_aprovacao_vaga(sender, instance, created, **kwargs):
         # Verifica se a aprovação é recente (realizada no último minuto):
-        um_minuto_atras = datetime.now() - timedelta(seconds=-60)
+        um_minuto_atras = datetime.now() - timedelta(seconds=60)
         if not created and instance.data_aprovacao and instance.data_aprovacao > um_minuto_atras:
             # Gera uma notificação pro Gerente
             gerente = instance.gerente_vaga
@@ -90,17 +90,17 @@ class NotificacaoSignals:
             notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
             notificacao.vaga = instance
             notificacao.usuario = gerente.user
-            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_APROVACAO_VAGA % Vaga.titulo
+            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_APROVACAO_VAGA % instance.titulo
             notificacao.link = reverse("vaga_visualizar", args={instance.pk})
             notificacao.save()
             # Gera uma notificação pros alunos interessados (se a vaga for compatível com a área de atuação ou curso)
-            alunos = Aluno.objects.filter(Q(areas_atuacao__in=instance.areas_atuacao) | Q(curso__in=instance.cursos)).distinct()
+            alunos = Aluno.objects.filter(Q(areas_atuacao__in=instance.areas_atuacao.all()) | Q(curso__in=instance.cursos.all())).distinct()
             for aluno in alunos:
                 notificacao = Notificacao()
                 notificacao.tipo = Notificacao.TIPO_CADASTRO_VAGA
                 notificacao.vaga = instance
                 notificacao.usuario = aluno.user
-                notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.nome
+                notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_CADASTRO_VAGA % instance.gerente_vaga.user.first_name
                 notificacao.link = reverse("vaga_visualizar", args={instance.pk})
                 notificacao.save()
 
@@ -112,7 +112,7 @@ class NotificacaoSignals:
             notificacao.tipo = Notificacao.TIPO_REPROVACAO_VAGA
             notificacao.vaga = instance
             notificacao.usuario = gerente.user
-            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_REPROVACAO_VAGA % Vaga.titulo
+            notificacao.mensagem = NotificacaoSignals.TEXTO_NOTIFICACAO_REPROVACAO_VAGA % instance.titulo
             notificacao.link = reverse("vaga_editar", args={instance.pk})
             notificacao.save()
 

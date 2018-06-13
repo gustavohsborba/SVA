@@ -26,6 +26,10 @@ def validate_email(value):
 def isGerenteVaga(user):
     return user.groups.filter(name='Gerente Vagas').exists()
 
+def verificaValidade(instance, **kwargs):
+    if instance.vencida is True and instance.situacao == 3:
+        instance.situacao = 4
+        instance.save()
 
 """ CPF/CNPJ
 __author__ = "Théo Carranza theocarranza@gmail.com"

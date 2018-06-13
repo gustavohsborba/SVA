@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from operator import attrgetter
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, ContextManager
 
 from django.urls import reverse
 from django.contrib import messages
@@ -108,6 +108,40 @@ def pesquisar_vaga(request):
 
     #Form initial value
     initial = ""
+    try:
+        alunoRadio = Aluno.objects.get(user=request.user)
+        if alunoRadio.curso.nivel_ensino == 1:
+            radioInitial = 1
+        elif alunoRadio.curso.nivel_ensino == 2:
+            radioInitial = 2
+        elif alunoRadio.curso.nivel_ensino == 3:
+            radioInitial = 3
+        elif alunoRadio.curso.nivel_ensino == 4:
+            radioInitial = 4
+        elif alunoRadio.curso.nivel_ensino == 5:
+            radioInitial = 5
+        else:
+            radioInitial = 1
+        if request.method != 'POST':
+            vagasAux = []
+            for vaga in vagas:
+                radioInitialFlag = True
+                if radioInitial == 1 and not verificaCursoByNivel(vaga, 1):
+                    radioInitialFlag = False
+                if radioInitial == 2 and not verificaCursoByNivel(vaga, 2):
+                    radioInitialFlag = False
+                if radioInitial == 3 and not verificaCursoByNivel(vaga, 3):
+                    radioInitialFlag = False
+                if radioInitial == 4 and not verificaCursoByNivel(vaga, 4):
+                    radioInitialFlag = False
+                if radioInitial == 5 and not verificaCursoByNivel(vaga, 5):
+                    radioInitialFlag = False
+                if radioInitialFlag == True:
+                    vagasAux.append(vaga)
+            vagas = vagasAux
+    except:
+        radioInitial = 0
+
     formRemake = False
     ordemRemake = 0
     superuserOptionRemake = 0
@@ -115,27 +149,155 @@ def pesquisar_vaga(request):
     minvalueRemake = 5
     maxvalueRemake = 45
     checkBoxRemake = []
+    radioRemake = radioInitial
     avaliacaoRemake = 0
+    filtroRemake = []
+    textoRemake = []
+    areaRemake = []
+    cursoRemake = []
+    filtrosPesquisa = []
+    if request.user.is_authenticated():
+        filtrosPesquisa = FiltroPesquisa.objects.filter(user=request.user)
+
+    # DELETA FILTRO
+    if request.method == 'POST' and request.POST['type'] == "remove_filter":
+        filtroPesquisaRemove = FiltroPesquisa.objects.get(id=int(request.POST['filtro_remover']))
+        filtroNomeRemove = filtroPesquisaRemove.nome
+        Filtro.objects.filter(pesquisa=filtroPesquisaRemove).delete()
+        filtroPesquisaRemove.filtros.clear()
+        filtroPesquisaRemove.delete()
+        messages.success(request, 'Filtro de pesquisa %s deletado com sucesso' % filtroNomeRemove, mensagens.MSG_SUCCESS)
+
+
+    #SALVAR FILTRO
+    if request.method == 'POST' and request.POST['type']=="add_filter":
+        nome_filtro = request.POST['novo_filtro']
+        if request.user.is_authenticated() and request.POST['novo_filtro'] is not None and request.POST['novo_filtro'] != "":
+            countFiltros = FiltroPesquisa.objects.filter(user=request.user).count()
+            if countFiltros == 5:
+                messages.error(request, mensagens.ERRO_QUANT_MAX_FILTROS, mensagens.MSG_ERRO)
+            elif FiltroPesquisa.objects.filter(user=request.user, nome=request.POST['novo_filtro']).count() > 0:
+                messages.error(request, 'Um filtro com o nome %s já existe' % request.POST['novo_filtro'], mensagens.MSG_ERRO)
+            else:
+                novoFiltroPesquisa = FiltroPesquisa()
+                novoFiltroPesquisa.user = request.user
+                novoFiltroPesquisa.nome = nome_filtro
+                novoFiltroPesquisa.ordenacao = int(request.POST.get('ordem'))
+                if not is_admin(request.user):
+                    novoFiltroPesquisa.situacao = FiltroPesquisa.ATIVAS
+                else:
+                    novoFiltroPesquisa.situacao = int(request.POST.get('superuser_option'))
+                if request.POST.get('estagio') == "on":
+                    novoFiltroPesquisa.tipo_estagio = True
+                else:
+                    novoFiltroPesquisa.tipo_estagio = False
+                if request.POST.get('monitoria') == "on":
+                    novoFiltroPesquisa.tipo_monitoria = True
+                else:
+                    novoFiltroPesquisa.tipo_monitoria = False
+                if request.POST.get('ic') == "on":
+                    novoFiltroPesquisa.tipo_ic = True
+                else:
+                    novoFiltroPesquisa.tipo_ic = False
+                if request.POST.get('outros') == "on":
+                    novoFiltroPesquisa.tipo_outros = True
+                else:
+                    novoFiltroPesquisa.tipo_outros = False
+                if request.POST.get('radioNivel') is not None:
+                    novoFiltroPesquisa.nivel = int(request.POST.get('radioNivel'))
+                else:
+                    novoFiltroPesquisa.nivel = FiltroPesquisa.NENHUM_SELECIONADO
+                novoFiltroPesquisa.carga_horaria_minima = int(request.POST.get('min-value'))
+                novoFiltroPesquisa.carga_horaria_maxima = int(request.POST.get('max-value'))
+                if request.POST.get('salario') is not None and request.POST.get('salario') != "":
+                    novoFiltroPesquisa.salario = float(request.POST.get('salario'))
+                else:
+                    novoFiltroPesquisa.salario = 0
+                novoFiltroPesquisa.avaliacao = int(request.POST.get('avaliacao'))
+                filtros = request.POST.getlist('filtro')
+                textoFiltro = request.POST.getlist('texto')
+                cursoFiltro = request.POST.getlist('curso')
+                areaFiltro = request.POST.getlist('area')
+                aux = 0
+                filtrosAuxList = []
+                errorOnLoop = False
+                for filtro in filtros:
+                    novoFiltro = Filtro()
+                    novoFiltro.tipo = int(filtro)
+                    if textoFiltro[aux] == "" or textoFiltro[aux] is None:
+                        novoFiltro.texto = ""
+                    else:
+                        novoFiltro.texto = textoFiltro[aux]
+                    try:
+                        area = AreaAtuacao.objects.get(id=int(areaFiltro[aux]))
+                        novoFiltro.areas_atuacao = area
+                        curso = Curso.objects.get(id=int(cursoFiltro[aux]))
+                        novoFiltro.cursos = curso
+                        novoFiltro.save()
+                        filtrosAuxList.append(novoFiltro)
+                    except:
+                        errorOnLoop = True
+                        continue
+                    aux+=1
+                if errorOnLoop is True:
+                    for filtro in filtrosAuxList:
+                        filtro.delete()
+                    messages.error(request, mensagens.ERRO_PROCESSAMENTO, mensagens.MSG_ERRO)
+                else:
+                    novoFiltroPesquisa.save()
+                for filtro in filtrosAuxList:
+                    novoFiltroPesquisa.filtros.add(filtro)
+                messages.success(request, 'Filtro de pesquisa %s criado com sucesso' % nome_filtro, mensagens.MSG_SUCCESS)
 
     if request.method == 'POST' and form.is_valid():
-        formRemake = True
-        ordemRemake = request.POST.get('ordem')
-        superuserOptionRemake = request.POST.get('superuser_option')
-        checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('tecnico') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('graduacao') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('mestrado') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('doutorado') == "on" else checkBoxRemake.append("off")
-        checkBoxRemake.append("on") if request.POST.get('especializacao') == "on" else checkBoxRemake.append("off")
-        salarioRemake = request.POST.get('salario')
-        minvalueRemake = request.POST.get('min-value')
-        maxvalueRemake = request.POST.get('max-value')
-        avaliacaoRemake = request.POST.get('avaliacao')
+        if request.POST['type'] == "load_filter":
+            filtroPesquisaLoad = FiltroPesquisa.objects.get(user=request.user, id=int(request.POST['filtro_carregar']))
+            formRemake = True
+            ordemRemake = str(filtroPesquisaLoad.ordenacao)
+            superuserOptionRemake = str(filtroPesquisaLoad.situacao)
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_estagio is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_monitoria is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_ic is True else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if filtroPesquisaLoad.tipo_outros is True else checkBoxRemake.append("off")
+            radioRemake = filtroPesquisaLoad.nivel
+            salarioRemake = str(filtroPesquisaLoad.salario)
+            minvalueRemake = filtroPesquisaLoad.carga_horaria_minima
+            maxvalueRemake = filtroPesquisaLoad.carga_horaria_maxima
+            avaliacaoRemake = str(filtroPesquisaLoad.avaliacao)
+            filtroLoad = Filtro.objects.filter(pesquisa=filtroPesquisaLoad)
+            for filtro in filtroLoad:
+                filtroRemake.append(str(filtro.tipo))
+                textoRemake.append(filtro.texto) if filtro.texto is not None and filtro.texto != "" else textoRemake.append("")
+                cursoRemake.append(filtro.cursos.id)
+                areaRemake.append(filtro.areas_atuacao.id)
 
-        ordem_resultados = request.POST.get('ordem')
+        else:
+            formRemake = True
+            ordemRemake = request.POST.get('ordem')
+            superuserOptionRemake = request.POST.get('superuser_option')
+            checkBoxRemake.append("on") if request.POST.get('estagio') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('monitoria') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('ic') == "on" else checkBoxRemake.append("off")
+            checkBoxRemake.append("on") if request.POST.get('outros') == "on" else checkBoxRemake.append("off")
+            radioRemake = int(request.POST.get('radioNivel')) if request.POST.get('radioNivel') is not None else 0
+            salarioRemake = request.POST.get('salario')
+            minvalueRemake = request.POST.get('min-value')
+            maxvalueRemake = request.POST.get('max-value')
+            avaliacaoRemake = request.POST.get('avaliacao')
+
+            aux=0
+            filtroSelecionado = request.POST.getlist('filtro')
+            inputTexto = request.POST.getlist('texto')
+            inputCurso = request.POST.getlist('curso')
+            inputArea = request.POST.getlist('area')
+            for filtro in filtroSelecionado:
+                filtroRemake.append(filtro)
+                textoRemake.append(inputTexto[aux]) if inputTexto[aux] is not None and inputTexto[aux] != "" else textoRemake.append("")
+                cursoRemake.append(int(inputCurso[aux]))
+                areaRemake.append(int(inputArea[aux]))
+                aux+=1
+
+        ordem_resultados = ordemRemake
         if is_admin(request.user):
             # ORDENA POR VAGAS MAIS RECENTES
             if ordem_resultados == "1":
@@ -148,9 +310,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter().order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter()
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter().order_by('data_validade')
@@ -159,7 +320,7 @@ def pesquisar_vaga(request):
                 vagas = Vaga.objects.filter()
 
             #TRATA SELECAO ESPECIAL DO SUPER USUARIO POR SITUACAO DA VAGA
-            superuser_option = request.POST.get('superuser_option')
+            superuser_option = superuserOptionRemake
             vagasAux = []
             for vaga in vagas:
                 if superuser_option == "1" and vaga.situacao == Vaga.ATIVA:
@@ -185,9 +346,8 @@ def pesquisar_vaga(request):
             elif ordem_resultados == "3":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('-nota_media')
             # ORDENA POR MAIS COMENTADAS
-            # TODO: CSU FORUM POR VAGA
             elif ordem_resultados == "4":
-                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA)
+                vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).annotate(num_comentarios=Count('comentario')).order_by('-num_comentarios')
             # ORDENA POR MENOR PRAZO
             elif ordem_resultados == "5":
                 vagas = Vaga.objects.filter(situacao=Vaga.ATIVA).order_by('data_validade')
@@ -199,23 +359,23 @@ def pesquisar_vaga(request):
         #TRATA FILTROS CHECKBOX
         for vaga in vagas:
             addFlag = False
-            if request.POST.get('estagio') == "on" and vaga.tipo_vaga == 1:
+            if checkBoxRemake[0] == "on" and vaga.tipo_vaga == 1:
                 addFlag = True
-            elif request.POST.get('monitoria') == "on" and vaga.tipo_vaga == 2:
+            elif checkBoxRemake[1] == "on" and vaga.tipo_vaga == 2:
                 addFlag = True
-            elif request.POST.get('ic') == "on" and vaga.tipo_vaga == 3:
+            elif checkBoxRemake[2] == "on" and vaga.tipo_vaga == 3:
                 addFlag = True
-            elif request.POST.get('outros') == "on" and vaga.tipo_vaga == 4:
+            elif checkBoxRemake[3] == "on" and vaga.tipo_vaga == 4:
                 addFlag = True
-            if request.POST.get('tecnico') == "on" and not verificaCursoByNivel(vaga, 1):
+            if radioRemake == 1 and not verificaCursoByNivel(vaga, 1):
                 addFlag = False
-            if request.POST.get('graduacao') == "on" and not verificaCursoByNivel(vaga, 2):
+            if radioRemake == 2 and not verificaCursoByNivel(vaga, 2):
                 addFlag = False
-            if request.POST.get('mestrado') == "on" and not verificaCursoByNivel(vaga, 3):
+            if radioRemake == 3and not verificaCursoByNivel(vaga, 3):
                 addFlag = False
-            if request.POST.get('doutorado') == "on" and not verificaCursoByNivel(vaga, 4):
+            if radioRemake == 4 and not verificaCursoByNivel(vaga, 4):
                 addFlag = False
-            if request.POST.get('especializacao') == "on" and not verificaCursoByNivel(vaga, 5):
+            if radioRemake == 5 and not verificaCursoByNivel(vaga, 5):
                 addFlag = False
             if addFlag == True:
                 vagasAux.append(vaga)
@@ -225,20 +385,20 @@ def pesquisar_vaga(request):
         vagasAux = []
         #TRATA FILTRO VALORES E SLIDERS
         for vaga in vagas:
-            if request.POST.get('salario') is not None and request.POST.get('salario') != "":
-                if vaga.valor_bolsa >= float(request.POST.get('salario')) and vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) \
-                        and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+            if salarioRemake is not None and salarioRemake != "":
+                if vaga.valor_bolsa >= float(salarioRemake) and vaga.carga_horaria_semanal >= int(minvalueRemake) \
+                        and vaga.carga_horaria_semanal <= int(maxvalueRemake) and vaga.nota_media >= int(avaliacaoRemake):
                     vagasAux.append(vaga)
                     continue
-            elif vaga.carga_horaria_semanal >= int(request.POST.get('min-value')) and vaga.carga_horaria_semanal <= int(request.POST.get('max-value')) and vaga.nota_media >= int(request.POST.get('avaliacao')):
+            elif vaga.carga_horaria_semanal >= int(minvalueRemake) and vaga.carga_horaria_semanal <= int(maxvalueRemake) and vaga.nota_media >= int(avaliacaoRemake):
                 vagasAux.append(vaga)
         vagas = vagasAux
 
         #Listas auxiliares para tratar os dados em lista do request.post
-        filtroSelecionado = request.POST.getlist('filtro')
-        inputTexto = request.POST.getlist('texto')
-        inputCurso = request.POST.getlist('curso')
-        inputArea = request.POST.getlist('area')
+        filtroSelecionado = filtroRemake
+        inputTexto = textoRemake
+        inputCurso = cursoRemake
+        inputArea = areaRemake
         aux = 0
         for filtro in filtroSelecionado:
             #Lista auxiliar de vagas filtradas para lista de resposta da solicitação
@@ -343,6 +503,7 @@ def pesquisar_vaga(request):
                 vagas = vagasAux
             #Incrementa auxiliar iterador da lista
             aux+=1
+
     if request.method == 'POST':
         # Se a busca vier do "Pesquisa rápida", será tratado nesse trecho
         if 'buscar_keyword' in request.POST and request.POST.get('buscar_keyword') is not None and request.POST.get(
@@ -356,7 +517,8 @@ def pesquisar_vaga(request):
     busca = ', '.join(busca)
     context = {'now': datetime.now(), 'form': form, 'vagas': vagas, 'busca': busca, 'initial': initial,
                'formRemake': formRemake, 'ordemRemake': ordemRemake, 'checkBoxRemake': checkBoxRemake, 'salarioRemake': salarioRemake, 'minvalueRemake': minvalueRemake, 'maxvalueRemake': maxvalueRemake,
-               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake}
+               'avaliacaoRemake': avaliacaoRemake, 'superuserOptionRemake': superuserOptionRemake, 'radioRemake': radioRemake, 'filtroRemake': filtroRemake, 'textoRemake': textoRemake, 'areaRemake': areaRemake,
+               'cursoRemake': cursoRemake, 'cursosChoices': Curso.objects.all(), 'areasChoices': AreaAtuacao.objects.all(), 'filtrosPesquisa': filtrosPesquisa}
     return render(request, 'sva/vaga/pesquisarVagas.html', context)
 
 
@@ -457,6 +619,7 @@ def visualizar_vaga(request, pkvaga):
     context = {}
     form = IndicarVaga(request.POST)
     vaga = get_object_or_404(Vaga, id=pkvaga)
+    context['comentarios'] = Comentario.objects.filter(vaga=vaga)
     context['vaga'] = vaga
     context['form'] = form
     gerente = GerenteVaga.objects.get(vagas=vaga)
@@ -603,8 +766,8 @@ def aprovar_vaga(request, pkvaga):
                   mensagem, 'sva@cefetmg.br', [vaga.gerente_vaga.user.email])
     else:
         vaga.situacao = Vaga.REPROVADA
+        vaga.descricao = form.cleaned_data['justificativa'].upper() + '\n\n' + vaga.descricao
         vaga.save()
-        vaga.descricao = form.cleaned_data['justificativa'] + '\n\n' + vaga.descricao
         mensagem = 'Seu cadastro da vaga %s foi recusado no SVA por %s. Segue mensagem:\n\n%s\n\nSVA' \
                    % (vaga.titulo, request.user.first_name, form.cleaned_data['justificativa'])
         send_mail('Avaliação de cadastro de vaga - Sistema de Vagas Acadêmicas',
@@ -613,6 +776,65 @@ def aprovar_vaga(request, pkvaga):
 
     return redirect(visualizar_vaga, pkvaga)
 
+@login_required(login_url='/accounts/login/')
+def adicionar_comentario(request,pkvaga):
+    vaga = get_object_or_404(Vaga, pk=pkvaga)
+    comentario = Comentario()
+    if request.method == 'POST':
+        form = ComentarioForm(request.POST)
+        if form.is_valid():
+            try:
+                user = User.objects.get(id=form.cleaned_data['resposta'])
+                realname = user.first_name+" "+user.last_name
+                parte1 = form.cleaned_data['text'].split("[")
+                string = parte1[1].split("]")
+                comentario.user = request.user
+                comentario.vaga = vaga
+                comentario.text = form.cleaned_data['text']
+                comentario.save()
+                if string[0] == realname:
+                    notifica = Notificacao()
+                    notifica.tipo = 9
+                    notifica.mensagem = request.user.first_name + ' respondeu ao seu comentario. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = user
+                    notifica.vaga = vaga
+                    notifica.save()
+                    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+                else:
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + ' fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
+                    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+            except:
+                comentario.user = request.user
+                comentario.vaga = vaga
+                comentario.text = form.cleaned_data['text']
+                comentario.save()
+
+                if request.user.first_name != vaga.gerente_vaga.user.first_name:
+                    notifica = Notificacao()
+                    notifica.tipo = 8
+                    notifica.mensagem = request.user.first_name + 'fez um comentário em uma de suas vagas. Clique para visualizar'
+                    notifica.link = reverse("vaga_visualizar", args={pkvaga})
+                    notifica.usuario = vaga.gerente_vaga.user
+                    notifica.vaga = vaga
+                    notifica.save()
+                messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return redirect(visualizar_vaga, pkvaga)
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(is_admin)
+def excluir_comentario(request,pkcomentario):
+    comment = get_object_or_404(Comentario, pk=pkcomentario)
+    vaga= comment.vaga
+    comment.delete()
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return redirect(visualizar_vaga, vaga.id)
 ###############################################################################
 #                               CADASTRO                                      #
 ###############################################################################
@@ -659,8 +881,14 @@ def cadastrar_aluno(request):
         usuario = User.objects.create_user(username)
         aluno.user = usuario
         aluno.user.username = form.cleaned_data['cpf']
-        aluno.user.first_name = form.cleaned_data['first_name']
-        aluno.user.last_name = ''
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        aluno.user.first_name=fullname[0]
+        fullname.remove(fullname[0])
+        last_name=""
+        for aux in fullname:
+            last_name=last_name+" "+aux
+        aluno.user.last_name = last_name
         aluno.user.email = form.cleaned_data['email']
         aluno.user.set_password(form.cleaned_data['password'])
         aluno.user.save()
@@ -685,7 +913,14 @@ def cadastrar_professor(request):
         professor.user_ptr_id = usuario.id
         professor.user = usuario
         professor.user.username = form.cleaned_data['cpf']
-        professor.user.first_name = form.cleaned_data['nome']
+        name = form.cleaned_data['name']
+        fullname = name.split(' ')
+        professor.user.first_name = fullname[0]
+        fullname.remove(fullname[0])
+        last_name = ""
+        for aux in fullname:
+            last_name = last_name + " " + aux
+        professor.user.last_name = last_name
         professor.user.email = form.cleaned_data['email']
         professor.user.set_password(form.cleaned_data['password'])
         professor.user.save()
@@ -736,14 +971,8 @@ def editar_empresa(request, pk):
     if request.method == 'POST':
         form = FormularioEditarEmpresa(request.POST, instance=empresa, initial=initial)
         if form.is_valid():
-            if form.cleaned_data['Site'] is None:
-                empresa.website = ""
-            else:
-                empresa.website = form.cleaned_data['Site']
-            if form.cleaned_data['telefone'] is None:
-                empresa.telefone = ""
-            else:
-                empresa.telefone = form.cleaned_data['telefone']
+            empresa.website = form.cleaned_data['Site'] if form.cleaned_data['Site'] is not None else ""
+            empresa.telefone = form.cleaned_data['telefone'] if form.cleaned_data['telefone'] is not None else ""
             empresa.nome = form.cleaned_data['nome']
             empresa.endereco = form.cleaned_data['Bairro'] + ',' + \
                                form.cleaned_data['Rua'] + ',' + \
@@ -772,21 +1001,17 @@ def excluir_empresa(request, pk):
         messages.error(request, mensagens.ERRO_PERMISSAO_NEGADA, mensagens.MSG_ERRO)
         return HttpResponseRedirect('/home/')
     vagas = Vaga.objects.filter(gerente_vaga=empresa)
-    do_not_execute = False
     for vaga in vagas:
         if vaga.vencida is False and vaga.situacao == 3:
-            do_not_execute = True
-    if do_not_execute is False:
-        Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
-        empresa.user.is_active = False
-        empresa.situacao = Empresa.EXCLUIDO
-        empresa.save()
-        empresa.user.save()
-        messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
-        return HttpResponseRedirect('/home/')
-    else:
-        messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
-        return HttpResponseRedirect('/home/')
+            messages.error(request, mensagens.ERRO_HA_VAGAS_ATIVAS, mensagens.MSG_ERRO)
+            return HttpResponseRedirect(reverse("Exibir_Empresa", args={pk}))
+    Vaga.objects.filter(gerente_vaga=empresa, situacao__range=(1,3)).update(situacao=4)
+    empresa.user.is_active = False
+    empresa.situacao = Empresa.EXCLUIDO
+    empresa.save()
+    empresa.user.save()
+    messages.success(request, mensagens.SUCESSO_ACAO_CONFIRMADA, mensagens.MSG_SUCCESS)
+    return HttpResponseRedirect('/home/')
 
 
 

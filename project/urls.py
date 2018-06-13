@@ -42,6 +42,7 @@ urlpatterns = [
 
     url(r'^vagas/$', principal_vaga, name='vaga_principal'),
     url(r'^vagas/(?P<pkvaga>\d+)$', visualizar_vaga, name='vaga_visualizar'),
+    url(r'^vagas/comentario/(?P<pkvaga>\d+)/$', adicionar_comentario, name='comentario'),
     url(r'^vagas/gerenciar/$', gerenciar_vaga, name='vaga_gerenciar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)$', editar_vaga, name='vaga_editar'),
     url(r'^vagas/editar/(?P<pkvaga>\d+)/encerrar$', encerrar_inscricao_vaga),
@@ -77,6 +78,7 @@ urlpatterns = [
     url(r'^notificacoes/visualizar', acessar_notificacao, name='notificacao_visualizar'),
     url(r'^ratings/', include('star_ratings.urls', namespace='ratings', app_name='ratings')),
 
+    url(r'^comentario/excluir/(?P<pkcomentario>\d+)$', excluir_comentario, name='excluir_comentario'),
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 
 
