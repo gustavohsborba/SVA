@@ -10,6 +10,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Campus(models.Model):
     class Meta:
         verbose_name = _('campus')
