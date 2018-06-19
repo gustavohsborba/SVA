@@ -3,7 +3,27 @@
 
 {% block title %} Cadastro de Vaga{% endblock %}
 
+
 {% block content %}
+        <script xmlns="http://www.w3.org/1999/html">
+            $(document).ready(function(content){
+                 $("button").click(function() {
+                     var NovaArea=prompt("Digite uma nova área:");
+                     if(NovaArea.trim()==="")
+                         alert("Entrada inválida!");
+                     else {
+                         alert("Sua nova área será validada, posteriomente você poderá vinculá-la a sua vaga");
+                         $.post("",
+                             {
+                                 area: NovaArea,
+                             },
+                             function (data, status) {
+                                 location.reload();
+                             });
+                     }
+                 });
+                });
+       </script>
     <div class="container-fluid">
         <form method="post" class="form-horizontal">
             {% csrf_token %}
@@ -56,6 +76,11 @@
                             <label>Áreas de atuação <font size="2" color="red">*</font></label>
                             <div>{{form.areas_atuacao}}</div>
                         </div>
+                        <div class="form-group">
+                            <button type="button" id="button-add-area" class="btn btn-success" >
+                                <i class="fa fa-plus  margin-r-1"></i>Adicionar área</i>
+                            </button>
+                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-1">
                         <div class = "text-center">

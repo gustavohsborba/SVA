@@ -8,6 +8,7 @@ border-radius:3px;
 
 
 {% block content %}
+
     <style>
         .no-border {
 
@@ -29,10 +30,18 @@ border-radius:3px;
 
         $(document).ready(function(content){
             id=-1;
+            var value;
+            var iDiv = document.createElement('div');
+            iDiv.className = 'alert alert-success alert-dismissible';
+            {#document.getElementById('edit-alert').style.display = 'none';#}
+            {#document.getElementById('remove-alert').style.display = 'none';#}
+            {#document.getElementById('deferido-alert').style.display = 'none';#}
+            {#document.getElementById('indeferido-alert').style.display = 'none';#}
+
             $("button").click(function() {
+
                 itens = this.id.split('-');
-                if (this.id == "button-add") {
-                }
+
 
                 if(itens[0]== "buttondeferido"){
                     $.post("",
@@ -43,26 +52,43 @@ border-radius:3px;
                             },
                             function (data, status) {
                                  location.reload();
+
                             });
-                            $.get("");
+                            iDiv.innerHTML='<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+                                       'Área de atuação foi deferida com sucesso!';
+                            document.getElementById('alerts').appendChild(iDiv);
 
                 }
-                if(itens[0]== "buttonindeferido"){}
                 if (itens[0] == "buttonedit") {
                     if (document.getElementById('input-text-' + itens[1]).name == "edit") {
                         document.getElementById('input-text-' + itens[1]).name ="salve"
+                        value=document.getElementById('input-text-' + itens[1]).value
                     } else {
-                        $.post("",
-                            {
-                                type: "edit",
-                                id: itens[1],
-                                data: document.getElementById('input-text-' + itens[1]).value,
+                         if(document.getElementById('input-text-' + itens[1]).value.trim()==="") {
+                             alert("Entrada Invalida");
+                             document.getElementById('input-text-' + itens[1]).value = value;
+                         }
+                         else{
+                             $.ajax({
+                                    url: "{% url 'gerenciar_areaatuacao' %}",
+                                    data: {
+                                        type: "edit",
+                                        id: itens[1],
+                                        data: document.getElementById('input-text-' + itens[1]).value,
+                                    },
 
-                            },
-                            function (data, status) {
-                                location.reload();
-                                alert("aqui")
-                            });
+                                    type: 'POST',
+                                    success: function (data) {
+                                        {#document.getElementById('lista-mensagens').innerHTML = "<li>  Área de atuação editada com sucesso! </li>";#}
+                                    }
+                                });
+                                 iDiv.innerHTML='<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+                                       'Área de atuação foi editada com sucesso!';
+                                 document.getElementById('alerts').appendChild(iDiv);
+
+                         }
+
+
                         this.name == "edit"
                         $.get("");
                     }
@@ -81,12 +107,10 @@ border-radius:3px;
                             document.getElementById('imgedit-' + itens[1]).classList.remove('fa-check');
                             this.classList.add("btn-warning");
                             this.classList.remove("btn-success");
-
                         }
 
                     }
                 }
-
                 if(itens[0]=="buttonremove"){
                     if(id!=-1){
                         id = -1;
@@ -95,6 +119,7 @@ border-radius:3px;
                         document.getElementById('imgedit-' + itens[1]).classList.remove('fa-plus');
                         document.getElementById('buttonedit-' + itens[1]).classList.add("btn-warning");
                         document.getElementById('buttonedit-' + itens[1]).classList.remove("btn-success");
+                        document.getElementById('input-text-' + itens[1]).value=value;
                     }else{
 
                         var r = confirm("Você tem certeza que deseja remover a Área de Atuação "
@@ -107,15 +132,15 @@ border-radius:3px;
                                     data: document.getElementById('input-text-' + itens[1]).value
                                 },
                                 function (data, status) {
-                                    location.reload();
-                                });
+                                    document.getElementById('lista-mensagens').innerHTML("" +
+                                          "<li>  Área de atuação apagada com sucesso! </li>")
+                                    });
                                 $.get("");
 
                             $("#"+this.id).closest('.box').remove();
-                            document.getElementById('alert-remove').style.display = 'block';
-                            document.getElementById('alert-edit').style.display = 'none';
-                            document.getElementById('alert-aprovada').style.display = 'none';
-                            document.getElementById('alert-create').style.display = 'none';
+                            iDiv.innerHTML='<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' +
+                                       'Área de atuação foi removida com sucesso!';
+                            document.getElementById('alerts').appendChild(iDiv);
                         }
                     }
                 }
@@ -124,8 +149,9 @@ border-radius:3px;
         });
     </script>
 
+            <div id="alerts">
 
-
+            </div>
     <div class="row">
 
 
