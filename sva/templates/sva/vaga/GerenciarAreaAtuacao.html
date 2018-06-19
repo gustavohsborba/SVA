@@ -31,13 +31,10 @@ border-radius:3px;
         $(document).ready(function(content){
             id=-1;
             var value;
+            var cont;
             var iDiv = document.createElement('div');
             iDiv.className = 'alert alert-success alert-dismissible';
-            {#document.getElementById('edit-alert').style.display = 'none';#}
-            {#document.getElementById('remove-alert').style.display = 'none';#}
-            {#document.getElementById('deferido-alert').style.display = 'none';#}
-            {#document.getElementById('indeferido-alert').style.display = 'none';#}
-
+            var exp = new RegExp('\\w+');
             $("button").click(function() {
 
                 itens = this.id.split('-');
@@ -61,12 +58,21 @@ border-radius:3px;
                 }
                 if (itens[0] == "buttonedit") {
                     if (document.getElementById('input-text-' + itens[1]).name == "edit") {
-                        document.getElementById('input-text-' + itens[1]).name ="salve"
-                        value=document.getElementById('input-text-' + itens[1]).value
+                        document.getElementById('input-text-' + itens[1]).name ="salve";
+                        value=document.getElementById('input-text-' + itens[1]).value;
+                        cont=0;
                     } else {
-                         if(document.getElementById('input-text-' + itens[1]).value.trim()==="") {
+                         {% for area in areas %}
+                                if( '{{ area }}'== document.getElementById('input-text-' + itens[1]).value)
+                                    cont=cont+1;
+
+                         {% endfor %}
+                         if (document.getElementById('input-text-' + itens[1]).value==value)
+                                    cont= cont - 1;
+                         if(document.getElementById('input-text-' + itens[1]).value.trim()==="" || cont==1) {
                              alert("Entrada Invalida");
                              document.getElementById('input-text-' + itens[1]).value = value;
+                             document.getElementById('input-text-' + itens[1]).name ="edit";
                          }
                          else{
                              $.ajax({
@@ -90,7 +96,6 @@ border-radius:3px;
 
 
                         this.name == "edit"
-                        $.get("");
                     }
                     if (itens[0] == "buttonedit" && (id == -1 || id == itens[1])) {
                         if (id == -1) {
@@ -195,7 +200,7 @@ border-radius:3px;
                             <div class="col-md-9">
                                 <div class="form-group ">
                                     <!--<span id="span-{{area.id}}">{{area.nome}}</span>-->
-                                    <input type="text" disabled  class="form-control no-border" name="edit"
+                                    <input type="text" disabled  class="form-control no-border"  pattern="[A-Za-zÀ-ž0-9 ]+" required name="edit"
                                            id="input-text-{{area.id}}" value="{{area.nome}}"
                                     >
                                 </div>
