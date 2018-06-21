@@ -31,6 +31,7 @@ class FormularioVaga(forms.ModelForm):
         self.fields['beneficios'].widget.attrs['class'] = 'form-control'
         self.fields['beneficios'].widget.attrs['rows'] = '5'
         self.fields['beneficios'].widget.attrs['placeholder'] = 'Benefícios concedidos (opcional)'
+        self.fields['areas_atuacao'].queryset = AreaAtuacao.objects.filter(situacao=AreaAtuacao.DEFERIDO)
 
     def clean(self):
         cleaned_data = super(FormularioVaga, self).clean()
@@ -186,6 +187,10 @@ class LoginForm(AuthenticationForm):
         fields = ['usuário', 'senha']
 
 class FormularioPesquisarVagas(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(FormularioPesquisarVagas, self).__init__(*args, **kwargs)
+        self.fields['area_1'].queryset = AreaAtuacao.objects.filter(situacao=AreaAtuacao.DEFERIDO)
+
     def is_valid(self):
         return True
     #NAO MUDAR O NOME DOS CAMPOS!!!

@@ -14,8 +14,12 @@ from django.db.models import Q, Value, Count
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from django.template import RequestContext
+from django.core import serializers
 import string
 from random import choice
+import json
 
 from django.views.decorators.http import require_POST
 
@@ -544,7 +548,7 @@ def gerenciar_vaga(request):
         context['vagas'] = Vaga.objects.filter(gerente_vaga_id=gerente.id).order_by('-data_aprovacao','-data_alteracao','-data_submissao')
     return render(request, 'sva/vaga/gerenciarVaga.html', context)
 
-
+@csrf_exempt
 @login_required
 @transaction.atomic
 @user_passes_test(isGerenteVaga, login_url="/home/")
@@ -553,6 +557,14 @@ def criar_vaga(request):
     if gerente is None or gerente.situacao != "DEFERIDO":
         messages.error(request, mensagens.ERRO_GERENTE_INATIVO, mensagens.MSG_ERRO)
         return redirect(principal_vaga)
+    if request.is_ajax():
+        novaarea = AreaAtuacao()
+        if AreaAtuacao.objects.filter(nome=request.POST['area']).first():
+            return redirect(gerenciar_areaatuacao)
+        novaarea.nome = request.POST['area']
+        print ("Nova area"+request.POST['area'])
+        novaarea.situacao = AreaAtuacao.AGUARDANDO_APROVACAO
+        novaarea.save()
 
     if request.method == 'POST':
         form = FormularioVaga(request.POST)
@@ -1484,31 +1496,58 @@ def acessar_notificacao(request):
 @csrf_exempt
 def gerenciar_areaatuacao(request):
     context={}
-    areas=AreaAtuacao.objects.filter();
-    context['areas']=areas
+    areas=AreaAtuacao.objects.filter(situacao="DEFERIDO");
+    areasaaprovar=AreaAtuacao.objects.filter(situacao="AGUARDANDO_APROVACAO");
+    context['areas'] = areas
+    context['areasaaprovar'] = areasaaprovar
 
     if request.is_ajax():
-        print (request.POST['type'])
         if(request.POST['type']=="edit"):
             area=AreaAtuacao.objects.get(id=int(request.POST['id']))
+            contareas = AreaAtuacao.objects.filter(nome=request.POST['data'], situacao="DEFERIDO").count()
+            contareas = contareas + AreaAtuacao.objects.filter(nome=request.POST['data'], situacao="INDEFERIDO").count()
+            if area.nome == request.POST['data']:
+                contareas = contareas-1;
+            if contareas:
+                messages.success(request, 'Área de atuação já adicionada!', mensagens.MSG_ERRO)
+                return redirect(gerenciar_areaatuacao)
             area.nome=request.POST['data']
-            messages.success(request, 'Área de atuação editada com sucesso!', mensagens.MSG_SUCCESS)
+            # messages.success(request, 'Área de atuação editada com sucesso!', mensagens.MSG_SUCCESS)
             area.save()
+            # return redirect(gerenciar_areaatuacao)
         if (request.POST['type']=="delete"):
             AreaAtuacao.objects.get(id=int(request.POST['id'])).delete()
-            messages.success(request, 'Área de atuação removida com sucesso!', mensagens.MSG_SUCCESS)
-            return redirect(gerenciar_areaatuacao)
-        return render(request, 'sva/vaga/areaatuacao.html', context)
-
+    #        messages.success(request, 'Área de atuação removida com sucesso!', mensagens.MSG_SUCCESS)
+            # return redirect(gerenciar_areaatuacao)
+        if (request.POST['type'] == "deferida"):
+            area = AreaAtuacao.objects.get(id=int(request.POST['id']))
+            area.situacao = "DEFERIDO"
+          #  messages.success(request, 'Área de atuação aprovada com sucesso!', mensagens.MSG_SUCCESS)
+            area.save()
+            areas = AreaAtuacao.objects.filter(situacao="DEFERIDO");
+            areasaaprovar = AreaAtuacao.objects.filter(situacao="AGUARDANDO_APROVACAO");
+            context['areas'] = areas
+            context['areasaaprovar'] = areasaaprovar
+        return redirect(gerenciar_areaatuacao)
 
     if request.method == 'POST':
         novaarea = AreaAtuacao()
-        if AreaAtuacao.objects.filter(nome=request.POST['new-texts']).first() :
+        if AreaAtuacao.objects.filter(nome=request.POST['new_text']).exists():
             messages.error(request, _('Essa área de atuação já existe'), mensagens.MSG_ERRO)
             return redirect(gerenciar_areaatuacao)
-        novaarea.nome = request.POST['new-texts']
+        if request.POST.get('new_text','').isspace() or request.POST.get('new_text','') is '':
+            messages.error(request, _('Entrada inválida'), mensagens.MSG_ERRO)
+            return redirect(gerenciar_areaatuacao)
+        novaarea.nome = request.POST.get('new_text','').strip()
+        novaarea.situacao="DEFERIDO"
         novaarea.save()
         messages.success(request, 'Área de atuação criada com sucesso!',mensagens.MSG_SUCCESS)
         return redirect(gerenciar_areaatuacao)
 
-    return render(request, 'sva/vaga/areaatuacao.html',context)
+    return render(request, 'sva/vaga/GerenciarAreaAtuacao.html',context)
+
+def render_to_json(request, data):
+    return HttpResponse(
+        json.dumps(data, ensure_ascii=False),
+        mimetype=request.is_ajax() and "application/json" or "text/html"
+    )
