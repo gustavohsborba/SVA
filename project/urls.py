@@ -51,7 +51,6 @@ urlpatterns = [
     url(r'^vagas/pendentes/$', gerenciar_vaga_pendente, name='vaga_gerenciar_pendentes'),
     url(r'^vagas/(?P<pkvaga>\d+)/aprovar$', aprovar_vaga, name='vaga_aprovar'),
     url(r'^vagas/pesquisar/$', pesquisar_vaga, name='vaga_pesquisar'),
-    url(r'^areaatuacao_gerenciar/$', gerenciar_areaatuacao, name='gerenciar_areaatuacao'),
 
     url(r'^aluno/editar/(?P<pk>\d+)$', editar_aluno, name='Editar_Aluno'),
     url(r'^aluno/editar/desativar/(?P<pk>\d+)$', excluir_aluno, name='Excluir_Aluno'),
@@ -79,6 +78,8 @@ urlpatterns = [
     url(r'^ratings/', include('star_ratings.urls', namespace='ratings', app_name='ratings')),
 
     url(r'^comentario/excluir/(?P<pkcomentario>\d+)$', excluir_comentario, name='excluir_comentario'),
+
+    url(r'^areaatuacao_gerenciar/$', gerenciar_areaatuacao, name='gerenciar_areaatuacao'),
 ] + static(settings.STATIC_URL, document_root= settings.STATIC_ROOT)
 
 
