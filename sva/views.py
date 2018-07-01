@@ -1256,7 +1256,6 @@ def recuperar_senha(request):
     if request.method == "GET":
         return render(request, 'registration/recuperarSenha.html', {})
 
-    cpf = request.POST['CPF']
     email = request.POST['email']
     try:
         user = User.objects.get(email=email)
