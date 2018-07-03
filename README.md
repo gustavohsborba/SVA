@@ -1,8 +1,5 @@
 # SVA - Sistema de Vagas Acadêmicas
 
-## Componentes do Grupo:
-* Gustavo Henrique de Souza Borba
-
 ## Dependências:
 * git
 * git-flow
@@ -14,8 +11,6 @@
 * mysql-client
 * mysql-server
 * libmysqlclient-dev
-* Django > 1.10
-* django-datatable
 
 ## Softwares Recomendados:
 * gitkraken
@@ -24,6 +19,12 @@
 ## Organização do projeto:
 * Documentação
 * SVA
+** project 
+** sva
+
+## Guia de instalação:
+1. Em uma máquina Ubuntu > 16.04, instale todas as dependências:
+<pre>sudo apt-get install git git-flow python3 python3-dev python3-venv python3-pip python-virtualenv mysql-client mysql-server libmysqlclient-dev</pre>
 
 ## Trello:
 https://trello.com/b/BlDgcQD6/sva-sistema-de-vagas-acad%C3%AAmicas
